@@ -5,7 +5,7 @@
   "description": "QET Unternehmenskultur-Dashboard – Begleit-App zur QET-Masterclass. Erfasst den Status quo der Unternehmenskultur in 60 Kriterien (Qualität/Ethik/Transparenz) über Mitarbeiter-, Kunden- und Partner-Befragungen und wertet sie zentral in einem Dashboard mit QET-Index aus.",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma migrate deploy && next build",
     "start": "next start",
     "lint": "next lint",
     "prisma:generate": "prisma generate",
