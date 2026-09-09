@@ -1,0 +1,119 @@
+// QET Unternehmenskultur-Dashboard – Datenmodell
+// Standard-Provider: SQLite (sofort lauffähig ohne Setup).
+// Für Produktion: provider auf "postgresql" umstellen und DATABASE_URL setzen
+// (z.B. Supabase/Vercel Postgres/Railway) – Schema und Migrationen bleiben gleich.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
+
+// Eine "Firma" = ein Kunde der QET-Masterclass, der das Kultur-Dashboard nutzt.
+// surveyToken -> öffentlicher Einladungslink für Mitarbeiter/Kunden/Partner (kein Login nötig)
+// dashboardToken -> read-only Link, mit dem die Firma selbst ihr Ergebnis einsehen kann
+model Company {
+  id             String       @id @default(cuid())
+  name           String
+  contactName    String?
+  contactEmail   String?
+  surveyToken    String       @unique
+  dashboardToken String       @unique
+  isActive       Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  submissions    Submission[]
+
+  // --- SAP-Integration (optional, pro Firma, da jede Firma ihr eigenes
+  // SAP-System/Mandant hat) -------------------------------------------------
+  sapEnabled          Boolean   @default(false)
+  // "successfactors" | "s4hana" – bestimmt, welcher Adapter verwendet wird
+  sapSystemType        String?
+  sapTenantUrl         String? // Basis-URL des SAP-Systems/API-Gateways
+  sapAuthMode          String? // "oauth2_client_credentials" | "basic_auth"
+  sapClientId          String?
+  // AES-256-GCM-verschlüsselt gespeichert, nie im Klartext (siehe src/lib/crypto.ts)
+  sapClientSecretEnc   String?
+  sapCompanyId         String? // SuccessFactors "Company ID" (falls benötigt)
+
+  // Export der Auswertung an eine SAP-seitige Middleware (z.B. SAP Integration
+  // Suite/BTP) – generischer authentifizierter Webhook, siehe README.
+  sapExportWebhookUrl    String?
+  sapExportWebhookSecretEnc String?
+  sapExportEnabled       Boolean @default(false)
+
+  // SSO-Login über SAP Identity Authentication Service (IAS) für den
+  // personalisierten Einladungslink. Dient NUR der Teilnahme-Verifizierung
+  // (wer hat schon geantwortet), nicht der Zuordnung von Antworten.
+  sapSsoEnabled     Boolean @default(false)
+  sapSsoIssuerUrl   String? // z.B. https://<tenant>.accounts.ondemand.com
+  sapSsoClientId    String?
+  sapSsoClientSecretEnc String?
+
+  sapLastSyncAt   DateTime?
+  sapLastExportAt DateTime?
+
+  invitees Invitee[]
+}
+
+// Personalisierte Einladung (aus SAP importiert oder manuell angelegt).
+// Bewusst OHNE Verknüpfung zu Submission -> Antworten bleiben anonym, es wird
+// nur der Teilnahmestatus (hat geantwortet: ja/nein) festgehalten.
+model Invitee {
+  id            String    @id @default(cuid())
+  companyId     String
+  company       Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  externalId    String? // ID im SAP-System (z.B. SuccessFactors userId)
+  name          String?
+  email         String?
+  department    String?
+  role          String    @default("employee") // "employee" | "customer" | "partner"
+  inviteToken   String    @unique // persönlicher Umfrage-Link
+  status        String    @default("pending") // "pending" | "completed"
+  source        String    @default("manual") // "manual" | "sap_sync"
+  completedAt   DateTime?
+  lastRemindedAt DateTime?
+  createdAt     DateTime  @default(now())
+
+  @@index([companyId])
+  @@unique([companyId, externalId])
+}
+
+// Eine ausgefüllte Umfrage einer einzelnen Person (Mitarbeiter/Kunde/Partner).
+model Submission {
+  id                 String   @id @default(cuid())
+  companyId          String
+  company            Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  role               String // "employee" | "customer" | "partner"
+  language           String // "de" | "en" | "tr"
+  // Testart/Fokus: "full" | "pillar:Q"|"pillar:E"|"pillar:T" | "field:<key>"
+  // (1 Gesamttest + 3 Säulen-Tests + 7 Managementfeld-Tests, siehe
+  // src/lib/content/scopes.ts). Ältere Einreichungen ohne dieses Feld sind
+  // implizit "full" (Default).
+  testScope          String   @default("full")
+  respondentName     String?
+  respondentEmail    String?
+  qualityScore       Float // nur bei testScope "full" über alle 20 Q-Kriterien; bei Teiltests ggf. 0/partiell, siehe scopeIndex
+  ethicsScore        Float
+  transparencyScore  Float
+  qetIndex           Float // wie oben: nur bei "full" das vollständige QET-Bild
+  // Für JEDEN Scope korrekter Gesamtwert der tatsächlich beantworteten
+  // Kriterien (bei "full" identisch mit qetIndex) – das ist der Wert, der
+  // pro Einreichung angezeigt werden sollte, unabhängig von der Testart.
+  scopeIndex         Float    @default(0)
+  // Rohantworten je Kriterium: { "Q01": [70,80,60], "Q02": [...], ..., "T20": [...] }
+  answers            String
+  createdAt          DateTime @default(now())
+
+  @@index([companyId])
+}
