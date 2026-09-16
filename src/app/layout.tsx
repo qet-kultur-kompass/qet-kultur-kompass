@@ -1,11 +1,28 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Providers } from "./providers";
+import { PwaRegister } from "@/components/PwaRegister";
 
 export const metadata: Metadata = {
   title: "QET Kultur-Kompass — Die 12-Monats-Kulturreise",
   description:
     "Begleit-Dashboard zur QET-Masterclass: misst den Status quo der Unternehmenskultur in 60 Kriterien (Qualität, Ethik, Transparenz) und begleitet Firmen als 12-monatige Kulturreise.",
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: [{ url: "/favicon.png", type: "image/png" }],
+    apple: [{ url: "/apple-touch-icon.png" }],
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "QET Kompass",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#211d17",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -21,6 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="font-body">
         <Providers>{children}</Providers>
+        <PwaRegister />
       </body>
     </html>
   );

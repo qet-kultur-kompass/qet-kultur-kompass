@@ -1,7 +1,8 @@
 // QET Unternehmenskultur-Dashboard – Datenmodell
-// Standard-Provider: SQLite (sofort lauffähig ohne Setup).
-// Für Produktion: provider auf "postgresql" umstellen und DATABASE_URL setzen
-// (z.B. Supabase/Vercel Postgres/Railway) – Schema und Migrationen bleiben gleich.
+// Produktiv-Provider: PostgreSQL (z.B. Supabase/Vercel Postgres/Railway).
+// Für rein lokale Entwicklung ohne eigenen Postgres kann testweise wieder auf
+// "sqlite" umgestellt werden – dann aber prisma/migrations/ neu erzeugen
+// (npx prisma migrate dev), da die vorhandene Migration für Postgres geschrieben ist.
 
 generator client {
   provider = "prisma-client-js"
@@ -21,8 +22,11 @@ model AdminUser {
 }
 
 // Eine "Firma" = ein Kunde der QET-Masterclass, der das Kultur-Dashboard nutzt.
+// Kann entweder ein Einzelkunde sein (accountType "individual", nimmt selbst
+// an der Befragung teil) oder eine Firma mit mehreren eingeladenen Personen
+// (accountType "company").
 // surveyToken -> öffentlicher Einladungslink für Mitarbeiter/Kunden/Partner (kein Login nötig)
-// dashboardToken -> read-only Link, mit dem die Firma selbst ihr Ergebnis einsehen kann
+// dashboardToken -> read-only Link, mit dem die Firma selbst ihr Ergebnis einsehen kann (ohne Login teilbar)
 model Company {
   id             String       @id @default(cuid())
   name           String
@@ -33,6 +37,16 @@ model Company {
   isActive       Boolean      @default(true)
   createdAt      DateTime     @default(now())
   submissions    Submission[]
+
+  // --- Self-Service-Konto ---------------------------------------------
+  // Registrierung ohne Admin-Eingriff: Einzelkunde ODER Firmen-Verantwortliche:r
+  // (Führungskraft/Auditor) meldet sich selbst an. accountType steuert nur die
+  // Darstellung/Copy ("individual" | "company"); technisch funktionieren
+  // beide identisch (eine Company mit optional mehreren Invitees).
+  accountType       String  @default("company")
+  ownerName         String?
+  ownerEmail        String? @unique
+  ownerPasswordHash String?
 
   // --- SAP-Integration (optional, pro Firma, da jede Firma ihr eigenes
   // SAP-System/Mandant hat) -------------------------------------------------
@@ -66,9 +80,8 @@ model Company {
   invitees Invitee[]
 }
 
-// Personalisierte Einladung (aus SAP importiert oder manuell angelegt).
-// Bewusst OHNE Verknüpfung zu Submission -> Antworten bleiben anonym, es wird
-// nur der Teilnahmestatus (hat geantwortet: ja/nein) festgehalten.
+// Personalisierte Einladung (aus SAP importiert, manuell angelegt, oder durch
+// Self-Service-Registrierung des Konto-Inhabers selbst erzeugt).
 model Invitee {
   id            String    @id @default(cuid())
   companyId     String
@@ -78,12 +91,27 @@ model Invitee {
   email         String?
   department    String?
   role          String    @default("employee") // "employee" | "customer" | "partner"
-  inviteToken   String    @unique // persönlicher Umfrage-Link
+  inviteToken   String    @unique // persönlicher Umfrage-Link (kein Passwort nötig)
   status        String    @default("pending") // "pending" | "completed"
-  source        String    @default("manual") // "manual" | "sap_sync"
+  source        String    @default("manual") // "manual" | "sap_sync" | "self_service"
   completedAt   DateTime?
   lastRemindedAt DateTime?
   createdAt     DateTime  @default(now())
+
+  // --- Optionales Login fürs persönliche Dashboard ----------------------
+  // Ergänzung zum Link: wer möchte, kann sich zusätzlich ein Passwort setzen
+  // und sich künftig geräteübergreifend per E-Mail+Passwort anmelden, statt
+  // sich nur auf den gespeicherten Link zu verlassen.
+  passwordHash String?
+  // true = dieser Invitee-Datensatz gehört dem Konto-Inhaber selbst (Führungskraft/
+  // Auditor bei einer Firma, oder die Person selbst bei einem Einzelkunden-Konto).
+  isOwner      Boolean  @default(false)
+
+  // Optionale 1:1-Verknüpfung zur eigenen Einreichung – ausschließlich damit
+  // die Person SELBST ihr eigenes Ergebnis im persönlichen Dashboard
+  // wiederfindet. Für alle anderen (Firmen-/Admin-Dashboard, Aggregation)
+  // bleibt es bei rein aggregierten Werten, siehe Submission.inviteeId.
+  submission Submission?
 
   @@index([companyId])
   @@unique([companyId, externalId])
@@ -94,6 +122,13 @@ model Submission {
   id                 String   @id @default(cuid())
   companyId          String
   company            Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  // Optional gesetzt, wenn über einen personalisierten Link (/invite/<token>)
+  // eingereicht wurde – ausschließlich zur privaten "Mein Ergebnis"-Ansicht
+  // der einreichenden Person. Wird NIRGENDS zusammen mit Namen/Antworten
+  // Dritten angezeigt; die Firmen-Aggregation liest weiterhin nur die
+  // Summenwerte über alle Submissions, nie diese Verknüpfung.
+  inviteeId          String?  @unique
+  invitee            Invitee? @relation(fields: [inviteeId], references: [id], onDelete: SetNull)
   role               String // "employee" | "customer" | "partner"
   language           String // "de" | "en" | "tr"
   // Testart/Fokus: "full" | "pillar:Q"|"pillar:E"|"pillar:T" | "field:<key>"

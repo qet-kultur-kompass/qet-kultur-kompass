@@ -7,7 +7,64 @@ Schieberegler (0–100 %). Jede Person sieht sofort ihre persönliche Auswertung
 QET-Index; alle Einreichungen einer Firma laufen automatisch in einem zentralen Dashboard
 zusammen.
 
-## Wie es funktioniert
+## Zwei Wege, eine Firma anzulegen
+
+Seit dieser Version gibt es **zwei unabhängige Wege**, mit der App zu starten:
+
+1. **Self-Service (neu, ohne Ihr Zutun)** – jede:r Interessierte registriert sich selbst unter
+   `/start`: entweder als **Einzelkunde** ("Für mich allein") oder als **Firma/Team**
+   ("Für mein Team"). Das legt sofort einen Zugang an (E-Mail + Passwort) und führt direkt ins
+   persönliche Dashboard unter `/mein-dashboard` – kein Warten, kein Eingriff Ihrerseits nötig.
+   Login danach jederzeit unter `/login`.
+2. **Admin-verwaltet (wie bisher)** – Sie loggen sich unter `/admin/login` ein und legen die
+   Firma manuell an, z.B. für Firmenkunden, die Sie selbst betreuen oder bei denen Sie die
+   SAP-Integration einrichten.
+
+Technisch ist eine selbst registrierte Firma dieselbe `Company` wie eine admin-angelegte –
+lediglich `accountType` ("individual"/"company") und die Zugangsdaten
+(`ownerEmail`/`ownerPasswordHash`) kommen hinzu. Beide Wege können nebeneinander genutzt werden.
+
+### Team-Funktion: Einladen, Mitmachen, eigenes + Team-Ergebnis sehen
+
+Bei einem Firmen-Konto kann die Führungskraft/der Auditor unter `/mein-dashboard` Personen per
+**E-Mail-Link** einladen (optional direkt per Mail verschickt, siehe unten "E-Mail-Versand") oder
+ihnen sagen, sich selbst über den offenen Umfrage-Link zu beteiligen. Jede eingeladene Person
+kann zusätzlich zum Link ein **eigenes Passwort** setzen (auf der Ergebnis-Seite nach dem
+Absenden, oder erneut über ihren Link), um sich künftig unter `/login` per E-Mail+Passwort
+anzumelden und ihr **eigenes Ergebnis** jederzeit wiederzufinden.
+
+**Wichtig fürs Datenschutz-Design:** Die eigene Einreichung wird ausschließlich **intern** (per
+`inviteeId` in der Datenbank) mit der einladenden Person verknüpft – einzig damit sie selbst ihr
+Ergebnis wiedersehen kann. Für alle anderen (Firmen-Dashboard, Admin-Ansicht, das anonymisierte
+Team-Ergebnis im persönlichen Dashboard) bleibt es bei reinen Summenwerten über alle
+Einreichungen; das Team-Ergebnis erscheint zudem weiterhin erst ab `MIN_RESPONSES_FOR_AGGREGATE`
+(Standard: 3) Einreichungen, damit auch in kleinen Teams niemand aus dem Durchschnitt einzelne
+Antworten herauslesen kann.
+
+### E-Mail-Versand für Einladungen (optional)
+
+Standardmäßig legt "Person einladen" nur den Link an, den Sie manuell kopieren/verschicken (wie
+bisher). Setzen Sie zusätzlich `RESEND_API_KEY` und `RESEND_FROM_EMAIL` (siehe `.env.example`,
+kostenloser Tier bei [resend.com](https://resend.com) reicht zum Start), verschickt die App die
+Einladung bei aktivierter Checkbox direkt per E-Mail. Ohne diese beiden Variablen funktioniert
+weiterhin alles wie gehabt, nur eben ohne automatischen Versand.
+
+### Mehrsprachigkeit
+
+Registrierung, Login und das persönliche Dashboard sind – wie die Befragung selbst – auf
+Deutsch, Englisch und Türkisch verfügbar (Sprachumschalter oben auf jeder Seite).
+
+### Installierbar auf Desktop & Smartphone (PWA)
+
+Die App liefert ein Web-App-Manifest samt Icons und einen (bewusst minimalen) Service Worker
+mit aus. Damit bieten Chrome/Edge auf dem Desktop ein Installations-Icon in der Adressleiste an,
+und auf Android erscheint der Browser-Hinweis "Zum Startbildschirm hinzufügen". Auf dem iPhone
+funktioniert das (Apple-Beschränkung, nicht beeinflussbar) nur manuell über
+Safari → Teilen-Menü → "Zum Home-Bildschirm". Installiert öffnet sich die App wie eine normale
+App, ohne Browser-Leiste – es werden aber bewusst **keine** Seiteninhalte offline zwischengespeichert
+(nur die paar Icon-Dateien), damit nie veraltete Login-/Ergebnisdaten angezeigt werden.
+
+## Wie es funktioniert (Umfrage & Auswertung)
 
 - **Admin (Sie)** loggt sich unter `/admin/login` ein und legt pro Kunde eine **Firma** an.
   Dabei entstehen zwei Links:
@@ -52,54 +109,66 @@ Bedarf anpassen (z. B. wenn sich das QET-Framework weiterentwickelt).
 ## Technischer Stack
 
 - **Next.js 14** (App Router) + TypeScript + Tailwind CSS
-- **Prisma** als ORM – Standard-Datenbank ist **SQLite** (eine Datei, läuft sofort ohne
-  Einrichtung). Für den Produktivbetrieb einfach auf **PostgreSQL** umstellen (z. B. Supabase,
-  Vercel Postgres, Railway) – siehe unten.
-- **NextAuth** (Credentials-Login) für den Admin-Zugang
+- **Prisma** als ORM – Datenbank ist **PostgreSQL** (z. B. Supabase, Vercel Postgres, Railway).
+  Eine vollständige Initial-Migration liegt bereits unter `prisma/migrations/` – beim Deployment
+  legt `prisma migrate deploy` (Teil von `npm run build`) alle Tabellen automatisch an.
+- **NextAuth** (Credentials-Login) für den Admin-Zugang; eine separate, schlanke
+  Cookie-Session (`src/lib/session.ts`, signiert mit `NEXTAUTH_SECRET`) für die
+  Self-Service-Konten (Firmen-Verantwortliche/Einzelkunden/eingeladene Personen)
 - **Recharts** für die Diagramme (Radar je Säule, Balken je Kriterium)
+- **PWA**: Web-App-Manifest + Icons + minimaler Service Worker (installierbar auf Desktop/Smartphone)
 
 ## Lokal starten
+
+Lokale Entwicklung braucht jetzt (Provider ist fest auf PostgreSQL gestellt) eine erreichbare
+Postgres-Datenbank – am einfachsten ein zweites, kostenloses Supabase-Projekt nur für die
+Entwicklung, oder ein lokaler Postgres via Docker (`docker run -e POSTGRES_PASSWORD=dev -p 5432:5432 postgres`).
 
 ```bash
 npm install
 cp .env.example .env
-# .env öffnen und NEXTAUTH_SECRET, SEED_ADMIN_EMAIL, SEED_ADMIN_PASSWORD setzen
+# .env öffnen: DATABASE_URL (Postgres!), NEXTAUTH_SECRET, SEED_ADMIN_EMAIL, SEED_ADMIN_PASSWORD setzen
 # (NEXTAUTH_SECRET erzeugen: openssl rand -base64 32)
 
-npx prisma migrate dev --name init   # legt die SQLite-Datenbank + Tabellen an
-npm run seed                          # legt Ihren Admin-Zugang an
+npx prisma migrate deploy   # wendet die vorhandene Migration an (legt alle Tabellen an)
+npm run seed                # legt Ihren Admin-Zugang an
 
 npm run dev
 ```
 
-Danach ist die App unter `http://localhost:3000` erreichbar, Login unter
-`http://localhost:3000/admin/login` mit den in `.env` gesetzten Zugangsdaten.
-
-> Hinweis: In der Umgebung, in der dieses Projekt erstellt wurde, war kein Zugriff auf das
-> npm-Registry möglich (Netzwerk-Policy des Sandboxes), daher konnte `npm install` /
-> `npm run build` dort nicht ausgeführt werden. Der Code wurde sorgfältig manuell geprüft
-> (alle Importe, Typen, Klammern), aber bitte führen Sie `npm run build` einmal lokal aus,
-> bevor Sie live gehen, um letzte Sicherheit zu haben.
+Danach ist die App unter `http://localhost:3000` erreichbar, Self-Service-Registrierung unter
+`/start`, Admin-Login unter `/admin/login` mit den in `.env` gesetzten Zugangsdaten.
 
 ## Produktiv deployen (Vorschlag: Vercel + Supabase)
 
+`prisma/schema.prisma` ist bereits fest auf PostgreSQL gestellt, und eine vollständige
+Initial-Migration liegt unter `prisma/migrations/` bereit (legt alle Tabellen inkl. der neuen
+Self-Service-Felder frisch an) – die beiden Schritte, die frühere Versionen dieser README noch
+als manuell beschrieben, entfallen also.
+
 1. **Supabase-Projekt anlegen** (kostenloser Tier reicht zum Start) → Connection-String unter
-   „Project Settings → Database“ kopieren.
-2. In `prisma/schema.prisma` den `datasource`-Block ändern:
-   ```prisma
-   datasource db {
-     provider = "postgresql"
-     url      = env("DATABASE_URL")
-   }
-   ```
-3. `DATABASE_URL` in den Vercel-Umgebungsvariablen auf den Supabase-Connection-String setzen,
-   dazu `NEXTAUTH_SECRET`, `NEXTAUTH_URL` (Ihre Live-Domain), `SEED_ADMIN_EMAIL`,
-   `SEED_ADMIN_PASSWORD`.
-4. Projekt bei [vercel.com](https://vercel.com) importieren (GitHub-Repo verbinden oder
-   `vercel deploy`), einmal `npx prisma migrate deploy` gegen die Produktions-DB laufen lassen
-   (z. B. lokal mit der Supabase-`DATABASE_URL` in `.env`, oder als Vercel Build-Step), danach
-   `npm run seed` einmalig lokal gegen die Produktions-DB, um Ihren Admin-Zugang anzulegen.
-5. Fertig – die Umfrage- und Dashboard-Links funktionieren dann unter Ihrer Live-Domain.
+   „Project Settings → Database" kopieren (Pooler-/„Transaction"-Modus, Passwort einsetzen,
+   eckige Klammern entfernen, Sonderzeichen im Passwort ggf. URL-kodieren).
+2. `DATABASE_URL` in den Vercel-Umgebungsvariablen auf diesen Connection-String setzen, dazu
+   `NEXTAUTH_SECRET`, `NEXTAUTH_URL` (Ihre Live-Domain), `SEED_ADMIN_EMAIL`,
+   `SEED_ADMIN_PASSWORD` und `SETUP_SECRET` (ein beliebiger geheimer Wert, z. B. mit
+   `openssl rand -base64 32` erzeugt). Optional zusätzlich `RESEND_API_KEY`/`RESEND_FROM_EMAIL`
+   für automatischen E-Mail-Versand von Einladungen (siehe oben).
+3. Projekt bei [vercel.com](https://vercel.com) importieren bzw. den vorhandenen Projekt-Ordner
+   in Ihr bestehendes GitHub-Repo hochladen (Drag & Drop des kompletten entpackten Ordners über
+   die GitHub-Weboberfläche funktioniert weiterhin, ganz ohne lokales Git/Terminal – **bitte
+   dabei alle bestehenden Dateien überschreiben lassen**, dieses Paket ersetzt den gesamten
+   Projektstand). Der Build-Befehl (`npm run build`) führt automatisch `prisma migrate deploy`
+   vor `next build` aus – die Datenbank-Tabellen werden also beim Deployment selbst angelegt,
+   kein separater Schritt nötig.
+4. **Komplett ohne Terminal möglich:** Nach dem ersten erfolgreichen Deployment einmal im
+   Browser aufrufen: `https://<ihre-domain>/api/setup?secret=<SETUP_SECRET>` – legt den
+   Admin-Zugang an (Antwort `"status": "created"`). Danach ist der Aufruf ungefährlich
+   wiederholbar (legt kein zweites Mal an). Alternativ weiterhin klassisch per Terminal:
+   `npm run seed` einmalig lokal gegen die Produktions-`DATABASE_URL` laufen lassen.
+5. Fertig – Self-Service-Registrierung (`/start`), Login (`/login`), persönliches Dashboard
+   (`/mein-dashboard`) sowie die Umfrage-/Dashboard-Links und der Admin-Login (`/admin/login`)
+   funktionieren dann unter Ihrer Live-Domain.
 
 Alternativen: Jeder Anbieter, der Node.js + PostgreSQL unterstützt (Railway, Render, eigener
 Server mit Docker), funktioniert genauso – nur `DATABASE_URL` und `NEXTAUTH_URL` anpassen.
@@ -201,3 +270,7 @@ Standards (SuccessFactors OData API, OIDC-Discovery/Standard-Flow für SAP IAS),
 - Zeitverlauf/Trend je Firma (mehrere Befragungsrunden vergleichen)
 - Export der Firmen-Auswertung als PDF
 - Eigenes Branding/Logo pro Firma auf der Umfrageseite
+- Passwort-Zurücksetzen-Flow für Self-Service-Konten (aktuell kein "Passwort vergessen")
+- Bezahlschranke/Zugangscode für die Self-Service-Registrierung, falls die Registrierung nicht
+  dauerhaft komplett offen bleiben soll
+- E-Mail-Adresse bei der Registrierung verifizieren (aktuell ungeprüft)
