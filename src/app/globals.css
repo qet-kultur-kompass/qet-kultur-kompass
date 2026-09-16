@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-fraunces: "Fraunces", Georgia, serif;
+  --font-plex-sans: "IBM Plex Sans", system-ui, sans-serif;
+  --font-plex-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+html {
+  color-scheme: light;
+}
+
+body {
+  background-color: #faf7f0;
+  color: #211d17;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Custom slider styling: track shows fill up to value, thumb is a labeled dial. */
+input[type="range"].qet-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    var(--slider-color, #3d54b0) 0%,
+    var(--slider-color, #3d54b0) var(--slider-fill, 50%),
+    #e7e1d4 var(--slider-fill, 50%),
+    #e7e1d4 100%
+  );
+  outline: none;
+}
+
+input[type="range"].qet-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--slider-color, #3d54b0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+}
+
+input[type="range"].qet-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--slider-color, #3d54b0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+  }
+}
