@@ -9,8 +9,14 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // Migrationen (prisma migrate deploy) brauchen eine DIREKTE Verbindung.
+  // Der Supabase-Connection-Pooler (Port 6543, "Transaction"-Modus) unterstützt
+  // die dafür nötigen Advisory Locks nicht – ohne diese zweite URL bleibt
+  // "prisma migrate deploy" beim Verbindungsaufbau einfach hängen (kein
+  // Fehler, einfach keine weitere Log-Zeile mehr). Siehe .env.example.
+  directUrl = env("DIRECT_URL")
 }
 
 model AdminUser {

@@ -146,10 +146,16 @@ Initial-Migration liegt unter `prisma/migrations/` bereit (legt alle Tabellen in
 Self-Service-Felder frisch an) – die beiden Schritte, die frühere Versionen dieser README noch
 als manuell beschrieben, entfallen also.
 
-1. **Supabase-Projekt anlegen** (kostenloser Tier reicht zum Start) → Connection-String unter
-   „Project Settings → Database" kopieren (Pooler-/„Transaction"-Modus, Passwort einsetzen,
-   eckige Klammern entfernen, Sonderzeichen im Passwort ggf. URL-kodieren).
-2. `DATABASE_URL` in den Vercel-Umgebungsvariablen auf diesen Connection-String setzen, dazu
+1. **Supabase-Projekt anlegen** (kostenloser Tier reicht zum Start) → unter „Project Settings →
+   Database" **zwei** Connection-Strings kopieren:
+   - **Pooler/„Transaction"-Modus, Port 6543** → wird `DATABASE_URL`.
+   - **„Direct connection", Port 5432** → wird `DIRECT_URL`.
+
+   Bei beiden: Passwort einsetzen, eckige Klammern entfernen, Sonderzeichen im Passwort ggf.
+   URL-kodieren. **Wichtig:** Ohne `DIRECT_URL` bleibt der Build beim Schritt „Datenbank
+   verbinden" wortlos hängen (kein Fehler, einfach keine weitere Log-Zeile) – der Pooler
+   unterstützt die für Migrationen nötigen Advisory Locks nicht.
+2. `DATABASE_URL` **und** `DIRECT_URL` in den Vercel-Umgebungsvariablen setzen, dazu
    `NEXTAUTH_SECRET`, `NEXTAUTH_URL` (Ihre Live-Domain), `SEED_ADMIN_EMAIL`,
    `SEED_ADMIN_PASSWORD` und `SETUP_SECRET` (ein beliebiger geheimer Wert, z. B. mit
    `openssl rand -base64 32` erzeugt). Optional zusätzlich `RESEND_API_KEY`/`RESEND_FROM_EMAIL`
