@@ -402,7 +402,7 @@ function CriterionTable({
   const notesEnabled = Boolean(notes && onToggleDone && onSaveText);
   return (
     <div className="overflow-x-auto rounded-2xl border border-ink/10 bg-white/60">
-      <table className="w-full min-w-[420px] border-collapse text-sm">
+      <table className="w-full min-w-[460px] border-collapse text-sm">
         <tbody>
           {data.map((d) => {
             const accent = PILLAR_COLOR[d.pillar];
@@ -430,10 +430,11 @@ function CriterionTable({
                   </div>
                 </td>
                 {notesEnabled && (
-                  <td className="w-44 py-2.5 pr-4 align-middle">
+                  <td className="w-56 py-2.5 pr-4 align-middle">
                     <CriterionNoteCell
                       criterionId={d.id}
                       name={d.name}
+                      value={d.value}
                       note={notes?.[d.id]}
                       locale={locale}
                       onToggleDone={(next) => onToggleDone?.(d.id, next)}
