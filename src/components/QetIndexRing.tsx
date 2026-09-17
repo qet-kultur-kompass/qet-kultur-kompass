@@ -120,27 +120,30 @@ function labelArcPath(cx: number, cy: number, r: number, startDeg: number, endDe
  *   Trick wie die Managementfeld-Prozente (weiße Füllung, dunkle Kontur)
  *   und bleibt so unabhängig vom Füllstand immer lesbar – das dreiteilige
  *   Säulen-Farbschema des Rings selbst (siehe QetSymbol.tsx) trägt die
- *   Markenidentität, "Index" + Zahl bleiben rein informativ und bilden mit
- *   dem Ring eine durchgängige, konsistente Darstellung.
+ *   Markenidentität, "QET-Index" + Zahl bleiben rein informativ und bilden
+ *   mit dem Ring eine durchgängige, konsistente Darstellung.
  */
 export function QetIndexRing({
   qetIndex,
   pillarScores,
   criterionScores,
+  label,
   size = 320,
   locale = "de",
 }: {
   qetIndex: number;
   pillarScores: Record<PillarKey, number>;
   criterionScores: Record<string, number>;
-  /** @deprecated Wird nicht mehr angezeigt – "Index" + Zahl sitzen jetzt
-   * fest im Ringzentrum (lokalisiert über `indexWord`). Prop bleibt in der
-   * Signatur, damit bestehende Aufrufstellen keine TS-Fehler werfen. */
+  /** Beschriftung im Ringzentrum, über der Zahl. Fällt auf die lokalisierte
+   * "QET-Index"-Übersetzung zurück, wenn nichts übergeben wird. Bewusst
+   * kurz halten (siehe QetIndexGauge.tsx für die Begründung) – der Ring
+   * bietet nur wenig Platz. */
   label?: string;
   size?: number;
   locale?: Locale;
 }) {
   const clampedIndex = Math.max(0, Math.min(100, qetIndex));
+  const caption = label ?? t(locale, "qetIndex");
   const cx = size / 2;
   const cy = size / 2;
 
@@ -153,7 +156,7 @@ export function QetIndexRing({
   const innerEdgePillar = outerR2 - pillarRingWidth / 2;
   const innerGap = size * 0.035;
   const centerR = innerEdgePillar - innerGap;
-  const indexLabelFontSize = centerR * 0.22;
+  const indexLabelFontSize = centerR * 0.17;
   const indexNumberFontSize = centerR * 0.6;
 
   const fields = MANAGEMENT_FIELDS.map((f) => ({
@@ -256,7 +259,7 @@ export function QetIndexRing({
         })}
 
         {/* Zentrum: QET-Gesamtindex flächig in Knallgrün als Fortschritts-
-         * Hintergrund, darüber "INDEX" + Zahl als durchgängig lesbare
+         * Hintergrund, darüber "QET-INDEX" + Zahl als durchgängig lesbare
          * Wortmarke (weiße Füllung mit dunkler Kontur-Halo, wie die
          * Managementfeld-Prozente im äußeren Ring) – bleibt so bei jedem
          * Füllstand klar erkennbar, statt wie zuvor erst bei 100 % sichtbar
@@ -280,9 +283,9 @@ export function QetIndexRing({
           strokeWidth={indexLabelFontSize * 0.09}
           paintOrder="stroke fill"
           strokeLinejoin="round"
-          letterSpacing={1.5}
+          letterSpacing={1}
         >
-          {t(locale, "indexWord").toUpperCase()}
+          {caption.toUpperCase()}
         </text>
         <text
           x={cx}
