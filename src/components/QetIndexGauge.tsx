@@ -68,15 +68,12 @@ export function QetIndexGauge({
           >
             {t(locale, "qetIndex").toUpperCase()}
           </span>
-          <div className="flex items-baseline gap-1">
-            <span
-              className="font-display font-semibold text-ink"
-              style={{ fontSize: numberFontSize, lineHeight: 1 }}
-            >
-              {Math.round(clamped)}
-            </span>
-            <span className="text-xs text-ink/50">/100</span>
-          </div>
+          <span
+            className="font-display font-semibold text-ink"
+            style={{ fontSize: numberFontSize, lineHeight: 1 }}
+          >
+            {Math.round(clamped)}%
+          </span>
         </div>
       </div>
       {label && <div className="mt-2 font-display text-sm font-medium text-ink/70">{label}</div>}
