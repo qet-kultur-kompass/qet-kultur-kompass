@@ -68,7 +68,7 @@ export function CriterionNoteCell({
         >
           {done && (
             <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden>
-              <path d="M1.5 5.2L4 7.7L8.5 2.3" stroke="#faf7f0" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M1.5 5.2L4 7.7L8.5 2.3" stroke="#ffffff" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           )}
         </button>
@@ -125,4 +125,3 @@ export function CriterionNoteCell({
     </div>
   );
 }
-
