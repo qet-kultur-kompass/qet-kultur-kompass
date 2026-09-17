@@ -3,6 +3,7 @@
 import { bandFor } from "@/lib/scoring";
 import { t } from "@/lib/content/i18n";
 import { QetSymbol } from "./QetSymbol";
+import { ShareButtons } from "./ShareButtons";
 import type { Locale } from "@/lib/content/types";
 
 const BAND_COLOR: Record<string, string> = {
@@ -55,7 +56,7 @@ export function QetIndexGauge({
   const color = BAND_COLOR[band];
 
   const labelFontSize = size * 0.065;
-  const numberFontSize = size * 0.24;
+  const numberFontSize = size * 0.17;
 
   return (
     <div className="flex flex-col items-center">
@@ -76,7 +77,12 @@ export function QetIndexGauge({
           </span>
         </div>
       </div>
-      {label && <div className="mt-2 font-display text-sm font-medium text-ink/70">{label}</div>}
+      {label && (
+        <div className="mt-2 flex items-center gap-1">
+          <div className="font-display text-sm font-medium text-ink/70">{label}</div>
+          <ShareButtons label={label} value={clamped} />
+        </div>
+      )}
       <div
         className="mt-2 rounded-full px-3 py-1 text-xs font-medium"
         style={{ backgroundColor: `${color}22`, color }}
