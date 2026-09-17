@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { PillarRadar } from "./charts/PillarRadar";
 import { CriterionBars } from "./charts/CriterionBars";
-import { QetIndexGauge } from "./QetIndexGauge";
+import { QetIndexRing } from "./QetIndexRing";
 import { CRITERIA, PILLARS } from "@/lib/content/criteria";
 import type { PillarKey } from "@/lib/content/types";
 import type { AggregateResult } from "@/lib/scoring";
@@ -13,9 +12,13 @@ export function CompanyDashboardCharts({ aggregate }: { aggregate: AggregateResu
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="grid grid-cols-1 gap-6 rounded-2xl border border-ink/10 bg-white/60 p-6 shadow-card sm:grid-cols-[auto_1fr]">
-        <QetIndexGauge value={aggregate.qetIndex} label="QET-Index" />
-        <PillarRadar scores={aggregate.pillarScores} />
+      <div className="flex justify-center rounded-2xl border border-ink/10 bg-white/60 p-6 shadow-card">
+        <QetIndexRing
+          qetIndex={aggregate.qetIndex}
+          pillarScores={aggregate.pillarScores}
+          criterionScores={aggregate.criterionScores}
+          label="QET-Index"
+        />
       </div>
 
       <div className="rounded-2xl border border-ink/10 bg-white/60 p-6 shadow-card">
