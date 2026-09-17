@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { LOCALES, t } from "@/lib/content/i18n";
 import type { Locale } from "@/lib/content/types";
-import { QetSymbol } from "./QetSymbol";
+import { QetLogo } from "./QetLogo";
 
 export function LoginForm() {
   const [locale, setLocale] = useState<Locale>("de");
@@ -33,11 +33,11 @@ export function LoginForm() {
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-16">
       <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm font-medium text-ink/60">
-          <span className="h-6 w-6">
-            <QetSymbol />
+        <div className="flex items-center gap-2">
+          <QetLogo className="h-7 w-auto" />
+          <span className="hidden text-xs font-medium text-ink/40 sm:inline">
+            Our compass. Your course.
           </span>
-          {t(locale, "brand")}
         </div>
         <select
           value={locale}
