@@ -10,9 +10,9 @@ import type { Locale, PillarKey } from "@/lib/content/types";
  * siehe tailwind.config.ts (quality/ethics/transparency.500). */
 const PILLAR_COLOR: Record<PillarKey, string> = { Q: "#3d54b0", E: "#2d7a56", T: "#c9862a" };
 
-/** Heller, warmer Track-Ton – identisch zum bisherigen QetIndexGauge, damit
- * beide Gauges optisch zusammenpassen. */
-const TRACK_COLOR = "#e7e1d4";
+/** Heller, neutraler Grauton für die "leere" Ring-Restfläche – identisch
+ * zum QetIndexGauge, damit beide Gauges optisch zusammenpassen. */
+const TRACK_COLOR = "#e5e5e7";
 
 /** "Knallgrün" für den voll erreichten QET-Gesamtwert. Bewusst kräftiger als
  * das gedeckte Ethik-Grün, damit die Gesamtwertung optisch eindeutig von der
@@ -24,7 +24,7 @@ const QET_GREEN = "#16a34a";
  * QetSymbol.tsx). Zeigt den noch nicht erreichten Anteil je Feld; der
  * erreichte Anteil wird zentrisch darüber in Grün eingeblendet (siehe
  * FIELD_FILL_COLOR) und verdrängt den grauen Anteil zusehends. */
-const FIELD_RING_COLOR = "#4a453d";
+const FIELD_RING_COLOR = "#48484a";
 
 /** Dunkler Ton, nur noch für die Kontur-Halo der Prozent-Beschriftung
  * (Text bleibt so lesbar, egal ob er über dem hellen oder dunklen Anteil
@@ -32,7 +32,7 @@ const FIELD_RING_COLOR = "#4a453d";
  * (noch nicht erreichte) Fläche ist schlicht hellgrau (TRACK_COLOR); die
  * Trennung zwischen Segmenten ergibt sich allein aus dem Zwischenraum
  * (fieldGap/pillarGap). */
-const SEGMENT_BORDER_COLOR = "#211d17";
+const SEGMENT_BORDER_COLOR = "#1d1d1f";
 
 const rad = (deg: number) => (deg * Math.PI) / 180;
 
