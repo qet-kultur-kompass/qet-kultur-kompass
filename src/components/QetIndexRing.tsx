@@ -4,6 +4,7 @@ import { PILLARS } from "@/lib/content/criteria";
 import { MANAGEMENT_FIELDS } from "@/lib/content/managementFields";
 import { overallIndex } from "@/lib/scoring";
 import { t } from "@/lib/content/i18n";
+import { ShareButtons } from "./ShareButtons";
 import type { Locale, PillarKey } from "@/lib/content/types";
 
 /** Gleiche Säulenfarben wie überall sonst in der App (Tabellen, Balken) –
@@ -305,12 +306,51 @@ export function QetIndexRing({
         </text>
       </svg>
 
-      <div className="mt-4 grid grid-cols-1 gap-x-5 gap-y-1 text-xs text-ink/70 sm:grid-cols-2">
+      {/* Gesamtindex teilen – dieselbe Zahl wie im Ring-Zentrum. */}
+      <div className="mt-4 flex items-center gap-1.5">
+        <span className="text-xs font-medium text-ink/60">
+          {caption} · {Math.round(clampedIndex)}%
+        </span>
+        <ShareButtons label={caption} value={clampedIndex} />
+      </div>
+
+      {/* Säulen-Legende: gleiche 3 Werte wie im mittleren Ring, zusätzlich
+       * einzeln teilbar. */}
+      <div className="mt-3 flex flex-col gap-1 text-xs text-ink/70">
+        {pillarSegments.map((seg) => {
+          const pillarMeta = PILLARS.find((p) => p.key === seg.key)!;
+          const score = Math.max(0, Math.min(100, pillarScores[seg.key] ?? 0));
+          return (
+            <div key={seg.key} className="flex items-center justify-between gap-2">
+              <span className="inline-flex min-w-0 items-center gap-1.5">
+                <span
+                  className="inline-block h-2 w-2 shrink-0 rounded-full"
+                  style={{ backgroundColor: PILLAR_COLOR[seg.key] }}
+                  aria-hidden
+                />
+                <span className="truncate">
+                  {pillarMeta.name[locale]} · {Math.round(score)}%
+                </span>
+              </span>
+              <ShareButtons label={pillarMeta.name[locale]} value={score} className="shrink-0" />
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Managementfelder-Legende: gleiche 7 Werte wie im äußeren Ring,
+       * zusätzlich einzeln teilbar. */}
+      <div className="mt-3 grid grid-cols-1 gap-x-5 gap-y-1 text-xs text-ink/70 sm:grid-cols-2">
         {fields.map((field) => (
-          <span key={field.key} className="inline-flex items-center gap-1.5">
-            <span className="inline-block h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: FIELD_RING_COLOR }} aria-hidden />
-            {field.name[locale]} · {Math.round(field.score)}%
-          </span>
+          <div key={field.key} className="flex items-center justify-between gap-2">
+            <span className="inline-flex min-w-0 items-center gap-1.5">
+              <span className="inline-block h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: FIELD_RING_COLOR }} aria-hidden />
+              <span className="truncate">
+                {field.name[locale]} · {Math.round(field.score)}%
+              </span>
+            </span>
+            <ShareButtons label={field.name[locale]} value={field.score} className="shrink-0" />
+          </div>
         ))}
       </div>
     </div>
