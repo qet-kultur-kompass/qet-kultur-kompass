@@ -21,9 +21,9 @@ export function QetLogo({
   width?: number;
   height?: number;
 }) {
-  const ringColor = tone === "white" ? "#ffffff" : "#211d17";
+  const ringColor = tone === "white" ? "#ffffff" : "#1d1d1f";
   const tailColor = tone === "white" ? "#ffffff" : "#3d54b0";
-  const textColor = tone === "white" ? "#ffffff" : "#211d17";
+  const textColor = tone === "white" ? "#ffffff" : "#1d1d1f";
   const sized = width !== undefined || height !== undefined;
 
   return (
