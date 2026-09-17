@@ -26,9 +26,12 @@ const QET_GREEN = "#16a34a";
  * FIELD_FILL_COLOR) und verdrängt den grauen Anteil zusehends. */
 const FIELD_RING_COLOR = "#4a453d";
 
-/** Dunkler Rand um jedes Ringsegment, damit die volle verfügbare Breite
- * (= 100 %) sichtbar bleibt und der Füllstand (Grün vs. Grau) klar
- * ablesbar ist. */
+/** Dunkler Ton, nur noch für die Kontur-Halo der Prozent-Beschriftung
+ * (Text bleibt so lesbar, egal ob er über dem hellen oder dunklen Anteil
+ * sitzt). Die Segmente selbst haben KEINEN Rand mehr – die "leere"
+ * (noch nicht erreichte) Fläche ist schlicht hellgrau (TRACK_COLOR); die
+ * Trennung zwischen Segmenten ergibt sich allein aus dem Zwischenraum
+ * (fieldGap/pillarGap). */
 const SEGMENT_BORDER_COLOR = "#211d17";
 
 const rad = (deg: number) => (deg * Math.PI) / 180;
@@ -100,11 +103,12 @@ function labelArcPath(cx: number, cy: number, r: number, startDeg: number, endDe
  * "QET-Zirkel"):
  *
  * - Äußerer Ring: die 7 Managementfelder als gleich große Segmente. Jedes
- *   Segment zeigt den erreichten Anteil zentrisch in Grün (wachsende
- *   Strichstärke auf der Ringmittellinie) über dem dunkelgrauen Rest –
- *   bei 100 % ist der graue Anteil vollständig verdrängt. Ein dunkler
- *   Rahmen je Segment macht die volle Breite (=100 %) sichtbar. Zusätzlich
- *   zeigt jedes Segment seinen aktuellen Prozentwert als gebogene Beschriftung.
+ *   Segment zeigt den erreichten Anteil zentrisch in Dunkelgrau (wachsende
+ *   Strichstärke auf der Ringmittellinie) über der hellgrauen "leeren"
+ *   Restfläche – bei 100 % ist der helle Anteil vollständig verdrängt.
+ *   Kein Rand nötig: die Segmente werden allein durch den Zwischenraum
+ *   sichtbar getrennt. Zusätzlich zeigt jedes Segment seinen aktuellen
+ *   Prozentwert als gebogene Beschriftung.
  * - Mittlerer Ring: die 3 Säulen (Qualität/Ethik/Transparenz) – hier zeigt
  *   eine Farbfüllung den erreichten Anteil an, der Rest des Segments bleibt
  *   im hellen Track-Ton.
@@ -160,18 +164,18 @@ export function QetIndexRing({
   const pillarGap = 8;
   const pillarSweep = 120 - pillarGap;
   const pillarFontSize = size * 0.028;
-  const segmentBorderWidth = Math.max(1.5, size * 0.006);
 
   return (
     <div className="flex flex-col items-center">
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         {/* Äußerer Ring: 7 klar getrennte Managementfeld-Segmente (gerade
          * Kanten, kein Rundungs-Stroke – siehe wedgePath). Hintergrund je
-         * Segment hellgrau (Track); der erreichte Anteil wird zentrisch in
-         * Dunkelgrau eingeblendet: ein schmalerer, radial mittig sitzender
-         * Teil-Sektor wächst mit steigendem Wert in der Breite und verdrängt
-         * so das Hellgrau, bis es bei 100 % ganz verschwindet. Ein dunkler
-         * Rahmen je Segment macht die volle (=100 %) Breite sichtbar. */}
+         * Segment hellgrau (Track), ohne Rand; der erreichte Anteil wird
+         * zentrisch in Dunkelgrau eingeblendet: ein schmalerer, radial
+         * mittig sitzender Teil-Sektor wächst mit steigendem Wert in der
+         * Breite und verdrängt so das Hellgrau, bis es bei 100 % ganz
+         * verschwindet. Die Trennung zwischen Segmenten ergibt sich allein
+         * aus dem Zwischenraum (fieldGap). */}
         {fields.map((field, i) => {
           const start = i * (fieldSweep + fieldGap);
           const end = start + fieldSweep;
@@ -185,13 +189,7 @@ export function QetIndexRing({
           return (
             <g key={field.key}>
               <title>{`${field.name[locale]}: ${Math.round(field.score)}%`}</title>
-              <path
-                d={wedgePath(cx, cy, rInner, rOuter, start, end)}
-                fill={TRACK_COLOR}
-                stroke={SEGMENT_BORDER_COLOR}
-                strokeWidth={segmentBorderWidth}
-                strokeLinejoin="round"
-              />
+              <path d={wedgePath(cx, cy, rInner, rOuter, start, end)} fill={TRACK_COLOR} />
               {filledThickness > 0.5 && (
                 <path d={wedgePath(cx, cy, rFillInner, rFillOuter, start, end)} fill={FIELD_RING_COLOR} />
               )}
@@ -214,9 +212,10 @@ export function QetIndexRing({
           );
         })}
 
-        {/* Mittlerer Ring: 3 klar getrennte Säulen-Segmente (gerade Kanten).
-         * Farbfüllung als Teil-Sektor ab Segmentanfang zeigt den erreichten
-         * Anteil, der Rest des Segments bleibt im hellen Track-Ton. */}
+        {/* Mittlerer Ring: 3 klar getrennte Säulen-Segmente (gerade Kanten,
+         * ohne Rand). Farbfüllung als Teil-Sektor ab Segmentanfang zeigt
+         * den erreichten Anteil, der Rest des Segments bleibt im hellen
+         * Track-Ton. */}
         {pillarSegments.map((seg) => {
           const score = Math.max(0, Math.min(100, pillarScores[seg.key] ?? 0));
           const filledSweep = (score / 100) * pillarSweep;
@@ -227,13 +226,7 @@ export function QetIndexRing({
           return (
             <g key={seg.key}>
               <title>{`${pillarMeta.name[locale]}: ${Math.round(score)}%`}</title>
-              <path
-                d={wedgePath(cx, cy, rInner, rOuter, seg.start, seg.start + pillarSweep)}
-                fill={TRACK_COLOR}
-                stroke={SEGMENT_BORDER_COLOR}
-                strokeWidth={segmentBorderWidth}
-                strokeLinejoin="round"
-              />
+              <path d={wedgePath(cx, cy, rInner, rOuter, seg.start, seg.start + pillarSweep)} fill={TRACK_COLOR} />
               {filledSweep > 0.5 && (
                 <path
                   d={wedgePath(cx, cy, rInner, rOuter, seg.start, seg.start + filledSweep)}
@@ -283,4 +276,3 @@ export function QetIndexRing({
     </div>
   );
 }
-
