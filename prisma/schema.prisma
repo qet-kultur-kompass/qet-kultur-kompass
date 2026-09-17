@@ -121,6 +121,12 @@ model Invitee {
   // Scope kann mehrfach getestet werden (Re-Audit), siehe Roadmap.
   submissions Submission[]
 
+  // Persönliche Notizen/Todos je Kriterium (Checkbox "erledigt" + Freitext,
+  // siehe CriterionNote unten) – rein privat, hängt an der Person selbst
+  // (nicht an einer einzelnen Submission), bleibt also über mehrere
+  // Testläufe hinweg bestehen und ist nie Teil der Firmen-Aggregation.
+  criterionNotes CriterionNote[]
+
   @@index([companyId])
   @@unique([companyId, externalId])
 }
@@ -164,5 +170,26 @@ model Submission {
   createdAt          DateTime @default(now())
 
   @@index([companyId])
+  @@index([inviteeId])
+}
+
+// Persönliche Notiz/Todo zu einem einzelnen Kriterium (z.B. "Q07"), damit
+// sich eine Person beim Betrachten ihres Ergebnisses direkt Merkposten
+// notieren kann ("eckiges Kästchen" = erledigt-Checkbox, Stift-Icon = Text
+// bearbeiten – siehe CriterionNoteCell.tsx). Bewusst an den Invitee
+// gehängt statt an eine einzelne Submission, damit die Notiz über mehrere
+// Testläufe/Re-Audits hinweg bestehen bleibt. Rein privat – wird nirgends
+// zusammen mit der Firmen-Aggregation angezeigt oder ausgewertet.
+model CriterionNote {
+  id          String   @id @default(cuid())
+  inviteeId   String
+  invitee     Invitee  @relation(fields: [inviteeId], references: [id], onDelete: Cascade)
+  criterionId String // z.B. "Q07" – siehe Criterion.id in src/lib/content/criteria.ts
+  text        String   @default("")
+  done        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([inviteeId, criterionId])
   @@index([inviteeId])
 }
