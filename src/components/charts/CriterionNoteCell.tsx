@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { t } from "@/lib/content/i18n";
 import type { Locale } from "@/lib/content/types";
+import { ShareButtons } from "../ShareButtons";
 
 export interface CriterionNoteValue {
   text: string;
@@ -20,6 +21,7 @@ export interface CriterionNoteValue {
 export function CriterionNoteCell({
   criterionId,
   name,
+  value,
   note,
   locale,
   onToggleDone,
@@ -27,6 +29,8 @@ export function CriterionNoteCell({
 }: {
   criterionId: string;
   name: string;
+  /** Aktueller Prozentwert des Kriteriums, fürs Teilen (siehe ShareButtons). */
+  value: number;
   note: CriterionNoteValue | undefined;
   locale: Locale;
   onToggleDone: (next: boolean) => void;
@@ -92,6 +96,8 @@ export function CriterionNoteCell({
             {text || t(locale, "criterionNoteEmpty")}
           </span>
         </button>
+
+        <ShareButtons label={name} value={value} className="shrink-0" />
       </div>
 
       {editing && (
@@ -125,3 +131,4 @@ export function CriterionNoteCell({
     </div>
   );
 }
+
