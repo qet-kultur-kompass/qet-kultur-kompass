@@ -592,7 +592,7 @@ const PILLAR_ACCENT: Record<PillarKey, string> = { Q: "#3d54b0", E: "#2d7a56", T
  * eine einzelne Säulenfarbe wäre dort irreführend. */
 function accentForGroup(group: "full" | "pillar" | "field", pillar?: PillarKey): string {
   if (group === "pillar" && pillar) return PILLAR_ACCENT[pillar];
-  return "#211d17";
+  return "#1d1d1f";
 }
 
 function ScopeCard({
