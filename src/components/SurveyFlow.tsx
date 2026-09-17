@@ -7,7 +7,7 @@ import { allSelectableScopes, criteriaForScope, labelForScope, stepsForScope } f
 import type { Answers, Locale, PillarKey, Role, TestScope } from "@/lib/content/types";
 import { scopeToId } from "@/lib/content/types";
 import { computeScores, overallIndex, pickAnswers } from "@/lib/scoring";
-import { QetSymbol } from "./QetSymbol";
+import { QetLogo } from "./QetLogo";
 import { StatementSlider } from "./StatementSlider";
 import { QetIndexGauge } from "./QetIndexGauge";
 import { QetIndexRing } from "./QetIndexRing";
@@ -477,12 +477,13 @@ function CenteredNote({ children }: { children: React.ReactNode }) {
 }
 
 function BrandMark({ locale }: { locale: Locale }) {
+  void locale;
   return (
-    <div className="flex items-center gap-2 text-sm font-medium text-ink/60">
-      <span className="h-5 w-5">
-        <QetSymbol />
+    <div className="flex items-center gap-2">
+      <QetLogo className="h-6 w-auto" />
+      <span className="hidden text-xs font-medium text-ink/40 sm:inline">
+        Our compass. Your course.
       </span>
-      {t(locale, "brand")}
     </div>
   );
 }
