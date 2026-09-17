@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -12,25 +12,46 @@ import {
   Cell,
   ResponsiveContainer,
   Tooltip,
+  Radar,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
 } from "recharts";
 import type { Criterion, PillarKey, Locale } from "@/lib/content/types";
 import { PILLAR_COLOR } from "./PillarRadar";
 import { CriterionInfoButton } from "./CriterionInfoButton";
+import { CriterionNoteCell, type CriterionNoteValue } from "./CriterionNoteCell";
 import { t } from "@/lib/content/i18n";
 
-type ChartView = "bar" | "line" | "table";
+type ChartView = "bar" | "line" | "radar" | "table";
 
 type Row = { id: string; name: string; pillar: PillarKey; value: number };
 
+/** Grobe Schätzung, wie viele Zeilen ein Kriteriumsname bei ~27 Zeichen pro
+ * Zeile braucht (siehe CriterionYAxisTick) – bewusst eher zu großzügig als
+ * zu knapp geschätzt, damit nie Text abgeschnitten wird. */
+function estimateLines(name: string) {
+  return Math.max(1, Math.ceil(name.length / 27));
+}
+
 /**
  * Ergebnisdarstellung für eine beliebige Kriterien-Auswahl, mit umschaltbarer
- * Darstellungsform (Balken / Kurve / Tabelle – die Tabelle ist immer die
- * barrierefreie Alternativansicht) und einem "i"-Info-Button je Kriterium mit
- * Kurzbeschreibung. Wird sowohl für eine einzelne Säule (Gesamttest-Tabs,
- * Säulen-Teiltest) als auch für ein Managementfeld verwendet, das mehrere
- * Säulen mischt – die Farbe pro Zeile richtet sich daher immer nach der Säule
- * DES JEWEILIGEN Kriteriums, nicht nach einer einzigen für den ganzen Chart
- * übergebenen Säule.
+ * Darstellungsform (Balken / Kurve / Netzstruktur / Tabelle – die Tabelle ist
+ * immer die barrierefreie Alternativansicht) und einem "i"-Info-Button je
+ * Kriterium mit Kurzbeschreibung. Wird sowohl für eine einzelne Säule
+ * (Gesamttest-Tabs, Säulen-Teiltest) als auch für ein Managementfeld
+ * verwendet, das mehrere Säulen mischt – die Farbe pro Zeile richtet sich
+ * daher immer nach der Säule DES JEWEILIGEN Kriteriums, nicht nach einer
+ * einzigen für den ganzen Chart übergebenen Säule.
+ *
+ * Zusätzlich (Tabellen-Ansicht): persönliche Notizen/Todos je Kriterium
+ * (eckige Erledigt-Checkbox + Stift-Icon für Freitext, siehe
+ * CriterionNoteCell.tsx). Werden nur geladen/angezeigt, wenn eine
+ * Self-Service-Session besteht (`/api/criterion-notes` antwortet dann mit
+ * 200 statt 401) – auf anonymen Ansichten (Umfrage-Link, öffentliches
+ * Firmen-Dashboard) bleibt die Notiz-Spalte einfach weg, da es dort keine
+ * feste Identität gibt, an die eine Notiz gehängt werden könnte.
  */
 export function CriterionBars({
   criteria,
@@ -42,6 +63,8 @@ export function CriterionBars({
   locale?: Locale;
 }) {
   const [view, setView] = useState<ChartView>("bar");
+  const [notes, setNotes] = useState<Record<string, CriterionNoteValue>>({});
+  const [notesEnabled, setNotesEnabled] = useState(false);
 
   const data: Row[] = useMemo(
     () =>
@@ -54,17 +77,59 @@ export function CriterionBars({
     [criteria, scores, locale]
   );
 
-  const height = Math.max(160, data.length * 31 + 20);
+  const rowHeight = useMemo(() => {
+    const maxLines = Math.max(1, ...data.map((d) => estimateLines(d.name)));
+    return 22 + (maxLines - 1) * 14;
+  }, [data]);
+  const height = Math.max(160, data.length * rowHeight + 20);
+
+  // Persönliche Notizen einmalig laden – 401 (keine Session) bedeutet
+  // bewusst "Feature bleibt aus", kein Fehler.
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/criterion-notes")
+      .then((res) => (res.ok ? res.json() : Promise.reject()))
+      .then((body: { notes?: Record<string, CriterionNoteValue> }) => {
+        if (cancelled) return;
+        setNotes(body.notes ?? {});
+        setNotesEnabled(true);
+      })
+      .catch(() => {
+        if (!cancelled) setNotesEnabled(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  function saveNote(criterionId: string, patch: Partial<CriterionNoteValue>) {
+    setNotes((prev) => {
+      const current = prev[criterionId] ?? { text: "", done: false };
+      const next = { ...current, ...patch };
+      if (!next.text.trim() && !next.done) {
+        const rest = { ...prev };
+        delete rest[criterionId];
+        return rest;
+      }
+      return { ...prev, [criterionId]: next };
+    });
+    fetch("/api/criterion-notes", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ criterionId, ...patch }),
+    }).catch(() => {});
+  }
 
   const views: { key: ChartView; label: string }[] = [
     { key: "bar", label: t(locale, "chartViewBar") },
     { key: "line", label: t(locale, "chartViewLine") },
+    { key: "radar", label: t(locale, "chartViewRadar") },
     { key: "table", label: t(locale, "chartViewTable") },
   ];
 
   return (
     <div>
-      <div className="no-print mb-3 inline-flex rounded-full border border-ink/10 bg-white/60 p-1 text-xs font-medium">
+      <div className="no-print mb-3 inline-flex flex-wrap rounded-full border border-ink/10 bg-white/60 p-1 text-xs font-medium">
         {views.map((v) => (
           <button
             key={v.key}
@@ -80,48 +145,65 @@ export function CriterionBars({
         ))}
       </div>
 
-      {view === "bar" && <CriterionBarChart data={data} height={height} locale={locale} />}
-      {view === "line" && <CriterionLineChart data={data} height={height} locale={locale} />}
-      {view === "table" && <CriterionTable data={data} locale={locale} />}
+      {view === "bar" && <CriterionBarChart data={data} height={height} rowHeight={rowHeight} locale={locale} />}
+      {view === "line" && <CriterionLineChart data={data} height={height} rowHeight={rowHeight} locale={locale} />}
+      {view === "radar" && <CriterionRadarChart data={data} locale={locale} />}
+      {view === "table" && (
+        <CriterionTable
+          data={data}
+          locale={locale}
+          notes={notesEnabled ? notes : undefined}
+          onToggleDone={notesEnabled ? (id, done) => saveNote(id, { done }) : undefined}
+          onSaveText={notesEnabled ? (id, text) => saveNote(id, { text }) : undefined}
+        />
+      )}
     </div>
   );
 }
 
 /** Gemeinsames Y-Achsen-Tick für Balken- und Kurvenansicht: Kriteriumsname
  * rechtsbündig plus klickbarer "i"-Button, per foreignObject in die SVG-Achse
- * eingebettet (echtes, fokussierbares <button>-Element statt reiner SVG-Form). */
+ * eingebettet (echtes, fokussierbares <button>-Element statt reiner SVG-Form).
+ * Der Name wird NICHT mehr abgeschnitten (kein textOverflow/ellipsis) –
+ * er darf über mehrere Zeilen umbrechen, die Zeilenhöhe der ganzen Reihe
+ * (rowHeight, siehe estimateLines) ist dafür bereits großzügig genug
+ * bemessen, sodass immer der vollständige Text sichtbar bleibt. */
 function CriterionYAxisTick(props: {
   x?: number;
   y?: number;
   payload?: { value: string };
   rows: Row[];
   locale: Locale;
+  rowHeight: number;
 }) {
-  const { x = 0, y = 0, payload, rows, locale } = props;
+  const { x = 0, y = 0, payload, rows, locale, rowHeight } = props;
   const row = rows.find((r) => r.id === payload?.value);
   if (!row) return null;
   const accent = PILLAR_COLOR[row.pillar];
+  const boxHeight = Math.max(18, rowHeight - 6);
   return (
     <g transform={`translate(${x},${y})`}>
-      <foreignObject x={-206} y={-11} width={206} height={22}>
+      <foreignObject x={-206} y={-boxHeight / 2} width={206} height={boxHeight}>
         <div
           style={{
             display: "flex",
             alignItems: "center",
             justifyContent: "flex-end",
             gap: 5,
-            height: 22,
+            height: boxHeight,
           }}
         >
           <span
-            title={row.name}
             style={{
-              fontSize: 12,
+              flex: "1 1 auto",
+              minWidth: 0,
+              fontSize: 11.5,
+              lineHeight: "13px",
               color: "#211d17",
               fontFamily: "var(--font-plex-sans)",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
+              whiteSpace: "normal",
+              overflowWrap: "break-word",
+              textAlign: "right",
             }}
           >
             {row.name}
@@ -137,7 +219,17 @@ function criterionTooltipLabel(data: Row[]) {
   return (id: string) => data.find((d) => d.id === id)?.name ?? id;
 }
 
-function CriterionBarChart({ data, height, locale }: { data: Row[]; height: number; locale: Locale }) {
+function CriterionBarChart({
+  data,
+  height,
+  rowHeight,
+  locale,
+}: {
+  data: Row[];
+  height: number;
+  rowHeight: number;
+  locale: Locale;
+}) {
   return (
     <ResponsiveContainer width="100%" height={height}>
       <BarChart data={data} layout="vertical" margin={{ left: 8, right: 24, top: 4, bottom: 4 }}>
@@ -152,7 +244,7 @@ function CriterionBarChart({ data, height, locale }: { data: Row[]; height: numb
           type="category"
           dataKey="id"
           width={218}
-          tick={(props) => <CriterionYAxisTick {...props} rows={data} locale={locale} />}
+          tick={(props) => <CriterionYAxisTick {...props} rows={data} locale={locale} rowHeight={rowHeight} />}
           axisLine={{ stroke: "#e7e1d4" }}
         />
         <Tooltip
@@ -181,7 +273,17 @@ function CriterionLineDot(props: { cx?: number; cy?: number; payload?: Row }) {
   return <circle cx={cx} cy={cy} r={4} fill={PILLAR_COLOR[payload.pillar]} stroke="#faf7f0" strokeWidth={1.5} />;
 }
 
-function CriterionLineChart({ data, height, locale }: { data: Row[]; height: number; locale: Locale }) {
+function CriterionLineChart({
+  data,
+  height,
+  rowHeight,
+  locale,
+}: {
+  data: Row[];
+  height: number;
+  rowHeight: number;
+  locale: Locale;
+}) {
   return (
     <ResponsiveContainer width="100%" height={height}>
       <LineChart data={data} layout="vertical" margin={{ left: 8, right: 24, top: 4, bottom: 4 }}>
@@ -196,7 +298,7 @@ function CriterionLineChart({ data, height, locale }: { data: Row[]; height: num
           type="category"
           dataKey="id"
           width={218}
-          tick={(props) => <CriterionYAxisTick {...props} rows={data} locale={locale} />}
+          tick={(props) => <CriterionYAxisTick {...props} rows={data} locale={locale} rowHeight={rowHeight} />}
           axisLine={{ stroke: "#e7e1d4" }}
         />
         <Tooltip
@@ -222,10 +324,82 @@ function CriterionLineChart({ data, height, locale }: { data: Row[]; height: num
   );
 }
 
+/** Beschriftung je Speiche im Netzdiagramm: kurzer Kriterien-Code (z.B.
+ * "Q07") statt vollem Namen – auf einem Kreis ist schlicht kein Platz für
+ * lange Texte. Der volle Name bleibt trotzdem jederzeit erreichbar: über
+ * den Tooltip beim Hover/Tap auf den Punkt, und vollständig (nie
+ * abgeschnitten) in der Balken-, Kurven- und Tabellen-Ansicht. Farbe der
+ * Beschriftung = Säulenfarbe des jeweiligen Kriteriums. */
+function CriterionRadarTick(props: {
+  x?: number;
+  y?: number;
+  payload?: { value: string };
+  textAnchor?: string;
+  rows: Row[];
+}) {
+  const { x = 0, y = 0, payload, textAnchor, rows } = props;
+  const row = rows.find((r) => r.id === payload?.value);
+  const fill = row ? PILLAR_COLOR[row.pillar] : "#211d17";
+  return (
+    <text x={x} y={y} textAnchor={textAnchor as never} fill={fill} fontSize={10} fontWeight={600} fontFamily="var(--font-plex-sans)">
+      {payload?.value}
+    </text>
+  );
+}
+
+function CriterionRadarChart({ data, locale }: { data: Row[]; locale: Locale }) {
+  const height = Math.max(320, Math.min(560, 260 + data.length * 7));
+  return (
+    <ResponsiveContainer width="100%" height={height}>
+      <RadarChart data={data} outerRadius="68%">
+        <PolarGrid stroke="#e7e1d4" />
+        <PolarAngleAxis dataKey="id" tick={(props) => <CriterionRadarTick {...props} rows={data} />} />
+        <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fill: "#211d17aa", fontSize: 9 }} tickCount={5} />
+        <Tooltip
+          formatter={(value: number) => [`${value}%`, ""]}
+          labelFormatter={criterionTooltipLabel(data)}
+          contentStyle={{
+            borderRadius: 10,
+            border: "1px solid #e7e1d4",
+            fontFamily: "var(--font-plex-sans)",
+            fontSize: 13,
+          }}
+        />
+        <Radar
+          name="Score"
+          dataKey="value"
+          stroke="#211d17"
+          fill="#211d17"
+          fillOpacity={0.16}
+          strokeWidth={2}
+          dot={{ r: 2.5, fill: "#211d17" }}
+          isAnimationActive={false}
+        />
+      </RadarChart>
+    </ResponsiveContainer>
+  );
+}
+
 /** Barrierefreie Tabellen-Alternativansicht (immer verfügbar, unabhängig von
  * der gewählten Chart-Form) – Säule als Farb+Buchstaben-Chip (Identität nie
- * nur über Farbe), Wert als Zahl mit tabellarischen Ziffern plus Mini-Balken. */
-function CriterionTable({ data, locale }: { data: Row[]; locale: Locale }) {
+ * nur über Farbe), Wert als Zahl mit tabellarischen Ziffern plus Mini-Balken.
+ * Zeigt, wenn eine Session besteht (siehe `notes`/`onToggleDone`/
+ * `onSaveText` – alle drei zusammen undefined = Feature aus), zusätzlich je
+ * Zeile die persönliche Notiz/Todo-Spalte. */
+function CriterionTable({
+  data,
+  locale,
+  notes,
+  onToggleDone,
+  onSaveText,
+}: {
+  data: Row[];
+  locale: Locale;
+  notes?: Record<string, CriterionNoteValue>;
+  onToggleDone?: (criterionId: string, done: boolean) => void;
+  onSaveText?: (criterionId: string, text: string) => void;
+}) {
+  const notesEnabled = Boolean(notes && onToggleDone && onSaveText);
   return (
     <div className="overflow-x-auto rounded-2xl border border-ink/10 bg-white/60">
       <table className="w-full min-w-[420px] border-collapse text-sm">
@@ -247,7 +421,7 @@ function CriterionTable({ data, locale }: { data: Row[]; locale: Locale }) {
                     <CriterionInfoButton criterionId={d.id} name={d.name} locale={locale} accent={accent} />
                   </div>
                 </td>
-                <td className="w-32 py-2.5 pr-4 text-right align-middle">
+                <td className="w-32 py-2.5 pr-2 align-middle">
                   <div className="flex items-center justify-end gap-2">
                     <div className="h-1.5 w-16 overflow-hidden rounded-full bg-ink/10">
                       <div className="h-full rounded-full bg-ink/50" style={{ width: `${d.value}%` }} />
@@ -255,6 +429,18 @@ function CriterionTable({ data, locale }: { data: Row[]; locale: Locale }) {
                     <span className="font-mono tabular-nums text-ink">{d.value}%</span>
                   </div>
                 </td>
+                {notesEnabled && (
+                  <td className="w-44 py-2.5 pr-4 align-middle">
+                    <CriterionNoteCell
+                      criterionId={d.id}
+                      name={d.name}
+                      note={notes?.[d.id]}
+                      locale={locale}
+                      onToggleDone={(next) => onToggleDone?.(d.id, next)}
+                      onSaveText={(text) => onSaveText?.(d.id, text)}
+                    />
+                  </td>
+                )}
               </tr>
             );
           })}
