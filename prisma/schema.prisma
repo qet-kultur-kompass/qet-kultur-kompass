@@ -113,6 +113,174 @@ model Invitee {
   // Auditor bei einer Firma, oder die Person selbst bei einem Einzelkunden-Konto).
   isOwner      Boolean  @default(false)
 
+  // Alle eigenen Einreichungen dieser Person – ausschließlich damit die
+  // Person SELBST ihre Ergebnisse im persönlichen Dashboard wiederfindet
+  // (Historie, Zeitachse, Re-Audits). Für alle anderen (Firmen-/Admin-
+  // Dashboard, Aggregation) bleibt es bei rein aggregierten Werten, siehe
+  // Submission.inviteeId. Seit V2.0 bewusst 1:n statt 1:1 – derselbe
+  // Scope kann mehrfach getestet werden (Re-Audit), siehe Roadmap.
+  submissions Submission[]
+
+  @@index([companyId])
+  @@unique([companyId, externalId])
+}
+
+// Eine ausgefüllte Umfrage einer einzelnen Person (Mitarbeiter/Kunde/Partner).
+model Submission {
+  id                 String   @id @default(cuid())
+  companyId          String
+  company            Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  // Optional gesetzt, wenn über einen personalisierten Link (/invite/<token>)
+  // eingereicht wurde – ausschließlich zur privaten "Mein Ergebnis"-Ansicht
+  // der einreichenden Person. Wird NIRGENDS zusammen mit Namen/Antworten
+  // Dritten angezeigt; die Firmen-Aggregation liest weiterhin nur die
+  // Summenwerte über alle Submissions, nie diese Verknüpfung. Seit V2.0
+  // bewusst NICHT mehr unique – eine Person kann denselben oder einen
+  // anderen Scope mehrfach einreichen (Re-Audit), siehe Roadmap V2.0.
+  inviteeId          String?
+  invitee            Invitee? @relation(fields: [inviteeId], references: [id], onDelete: SetNull)
+  role               String // "employee" | "customer" | "partner"
+  language           String // "de" | "en" | "tr"
+  // Testart/Fokus: "full" | "pillar:Q"|"pillar:E"|"pillar:T" | "field:<key>"
+  // (1 Gesamttest + 3 Säulen-Tests + 7 Managementfeld-Tests, siehe
+  // src/lib/content/scopes.ts). Ältere Einreichungen ohne dieses Feld sind
+  // implizit "full" (Default).
+  testScope          String   @default("full")
+  // Optionale freie Kennzeichnung eines Testlaufs, z.B. "Erstaudit" oder
+  // "Re-Audit #2" – rein informativ für die künftige Zeitachsen-Ansicht.
+  label              String?
+  respondentName     String?
+  respondentEmail    String?
+  qualityScore       Float // nur bei testScope "full" über alle 20 Q-Kriterien; bei Teiltests ggf. 0/partiell, siehe scopeIndex
+  ethicsScore        Float
+  transparencyScore  Float
+  qetIndex           Float // wie oben: nur bei "full" das vollständige QET-Bild
+  // Für JEDEN Scope korrekter Gesamtwert der tatsächlich beantworteten
+  // Kriterien (bei "full" identisch mit qetIndex) – das ist der Wert, der
+  // pro Einreichung angezeigt werden sollte, unabhängig von der Testart.
+  scopeIndex         Float    @default(0)
+  // Rohantworten je Kriterium: { "Q01": [70,80,60], "Q02": [...], ..., "T20": [...] }
+  answers            String
+  createdAt          DateTime @default(now())
+
+  @@index([companyId])
+  @@index([inviteeId])
+}
+// QET Unternehmenskultur-Dashboard – Datenmodell
+// Produktiv-Provider: PostgreSQL (z.B. Supabase/Vercel Postgres/Railway).
+// Für rein lokale Entwicklung ohne eigenen Postgres kann testweise wieder auf
+// "sqlite" umgestellt werden – dann aber prisma/migrations/ neu erzeugen
+// (npx prisma migrate dev), da die vorhandene Migration für Postgres geschrieben ist.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // Migrationen (prisma migrate deploy) brauchen eine DIREKTE Verbindung.
+  // Der Supabase-Connection-Pooler (Port 6543, "Transaction"-Modus) unterstützt
+  // die dafür nötigen Advisory Locks nicht – ohne diese zweite URL bleibt
+  // "prisma migrate deploy" beim Verbindungsaufbau einfach hängen (kein
+  // Fehler, einfach keine weitere Log-Zeile mehr). Siehe .env.example.
+  directUrl = env("DIRECT_URL")
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
+
+// Eine "Firma" = ein Kunde der QET-Masterclass, der das Kultur-Dashboard nutzt.
+// Kann entweder ein Einzelkunde sein (accountType "individual", nimmt selbst
+// an der Befragung teil) oder eine Firma mit mehreren eingeladenen Personen
+// (accountType "company").
+// surveyToken -> öffentlicher Einladungslink für Mitarbeiter/Kunden/Partner (kein Login nötig)
+// dashboardToken -> read-only Link, mit dem die Firma selbst ihr Ergebnis einsehen kann (ohne Login teilbar)
+model Company {
+  id             String       @id @default(cuid())
+  name           String
+  contactName    String?
+  contactEmail   String?
+  surveyToken    String       @unique
+  dashboardToken String       @unique
+  isActive       Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  submissions    Submission[]
+
+  // --- Self-Service-Konto ---------------------------------------------
+  // Registrierung ohne Admin-Eingriff: Einzelkunde ODER Firmen-Verantwortliche:r
+  // (Führungskraft/Auditor) meldet sich selbst an. accountType steuert nur die
+  // Darstellung/Copy ("individual" | "company"); technisch funktionieren
+  // beide identisch (eine Company mit optional mehreren Invitees).
+  accountType       String  @default("company")
+  ownerName         String?
+  ownerEmail        String? @unique
+  ownerPasswordHash String?
+
+  // --- SAP-Integration (optional, pro Firma, da jede Firma ihr eigenes
+  // SAP-System/Mandant hat) -------------------------------------------------
+  sapEnabled          Boolean   @default(false)
+  // "successfactors" | "s4hana" – bestimmt, welcher Adapter verwendet wird
+  sapSystemType        String?
+  sapTenantUrl         String? // Basis-URL des SAP-Systems/API-Gateways
+  sapAuthMode          String? // "oauth2_client_credentials" | "basic_auth"
+  sapClientId          String?
+  // AES-256-GCM-verschlüsselt gespeichert, nie im Klartext (siehe src/lib/crypto.ts)
+  sapClientSecretEnc   String?
+  sapCompanyId         String? // SuccessFactors "Company ID" (falls benötigt)
+
+  // Export der Auswertung an eine SAP-seitige Middleware (z.B. SAP Integration
+  // Suite/BTP) – generischer authentifizierter Webhook, siehe README.
+  sapExportWebhookUrl    String?
+  sapExportWebhookSecretEnc String?
+  sapExportEnabled       Boolean @default(false)
+
+  // SSO-Login über SAP Identity Authentication Service (IAS) für den
+  // personalisierten Einladungslink. Dient NUR der Teilnahme-Verifizierung
+  // (wer hat schon geantwortet), nicht der Zuordnung von Antworten.
+  sapSsoEnabled     Boolean @default(false)
+  sapSsoIssuerUrl   String? // z.B. https://<tenant>.accounts.ondemand.com
+  sapSsoClientId    String?
+  sapSsoClientSecretEnc String?
+
+  sapLastSyncAt   DateTime?
+  sapLastExportAt DateTime?
+
+  invitees Invitee[]
+}
+
+// Personalisierte Einladung (aus SAP importiert, manuell angelegt, oder durch
+// Self-Service-Registrierung des Konto-Inhabers selbst erzeugt).
+model Invitee {
+  id            String    @id @default(cuid())
+  companyId     String
+  company       Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  externalId    String? // ID im SAP-System (z.B. SuccessFactors userId)
+  name          String?
+  email         String?
+  department    String?
+  role          String    @default("employee") // "employee" | "customer" | "partner"
+  inviteToken   String    @unique // persönlicher Umfrage-Link (kein Passwort nötig)
+  status        String    @default("pending") // "pending" | "completed"
+  source        String    @default("manual") // "manual" | "sap_sync" | "self_service"
+  completedAt   DateTime?
+  lastRemindedAt DateTime?
+  createdAt     DateTime  @default(now())
+
+  // --- Optionales Login fürs persönliche Dashboard ----------------------
+  // Ergänzung zum Link: wer möchte, kann sich zusätzlich ein Passwort setzen
+  // und sich künftig geräteübergreifend per E-Mail+Passwort anmelden, statt
+  // sich nur auf den gespeicherten Link zu verlassen.
+  passwordHash String?
+  // true = dieser Invitee-Datensatz gehört dem Konto-Inhaber selbst (Führungskraft/
+  // Auditor bei einer Firma, oder die Person selbst bei einem Einzelkunden-Konto).
+  isOwner      Boolean  @default(false)
+
   // Optionale 1:1-Verknüpfung zur eigenen Einreichung – ausschließlich damit
   // die Person SELBST ihr eigenes Ergebnis im persönlichen Dashboard
   // wiederfindet. Für alle anderen (Firmen-/Admin-Dashboard, Aggregation)
