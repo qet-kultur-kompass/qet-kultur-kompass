@@ -7,7 +7,7 @@ import { criteriaForScope, labelForScope } from "@/lib/content/scopes";
 import { scopeFromId, scopeToId } from "@/lib/content/types";
 import type { Answers } from "@/lib/content/types";
 import { QetIndexGauge } from "@/components/QetIndexGauge";
-import { PillarRadar } from "@/components/charts/PillarRadar";
+import { QetIndexRing } from "@/components/QetIndexRing";
 import { CriterionBars } from "@/components/charts/CriterionBars";
 import { QetSymbol } from "@/components/QetSymbol";
 
@@ -85,9 +85,13 @@ export default async function SubmissionDetailPage({ params }: { params: { id: s
       </p>
 
       {isFull ? (
-        <div className="mt-6 grid grid-cols-1 gap-6 rounded-2xl border border-ink/10 bg-white/60 p-6 shadow-card sm:grid-cols-[auto_1fr]">
-          <QetIndexGauge value={submission.qetIndex} label="QET-Index" />
-          <PillarRadar scores={pillarScores} />
+        <div className="mt-6 flex justify-center rounded-2xl border border-ink/10 bg-white/60 p-6 shadow-card">
+          <QetIndexRing
+            qetIndex={submission.qetIndex}
+            pillarScores={pillarScores}
+            criterionScores={criterionScores}
+            label="QET-Index"
+          />
         </div>
       ) : (
         <div className="mt-6 flex justify-center rounded-2xl border border-ink/10 bg-white/60 p-6 shadow-card">
