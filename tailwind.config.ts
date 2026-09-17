@@ -5,18 +5,18 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        display: ["var(--font-fraunces)", "Georgia", "serif"],
-        body: ["var(--font-plex-sans)", "system-ui", "sans-serif"],
+        display: ["var(--font-fraunces)", "-apple-system", "BlinkMacSystemFont", "Helvetica Neue", "Arial", "sans-serif"],
+        body: ["var(--font-plex-sans)", "-apple-system", "BlinkMacSystemFont", "Helvetica Neue", "Arial", "sans-serif"],
         mono: ["var(--font-plex-mono)", "ui-monospace", "monospace"],
       },
       colors: {
         paper: {
-          DEFAULT: "#faf7f0",
-          dark: "#141210",
+          DEFAULT: "#f5f5f7",
+          dark: "#1d1d1f",
         },
         ink: {
-          DEFAULT: "#211d17",
-          dark: "#f3ede0",
+          DEFAULT: "#1d1d1f",
+          dark: "#f5f5f7",
         },
         quality: {
           50: "#eef1fb",
@@ -41,7 +41,7 @@ const config: Config = {
         },
       },
       boxShadow: {
-        card: "0 1px 2px rgba(33,29,23,0.06), 0 8px 24px -12px rgba(33,29,23,0.18)",
+        card: "0 1px 2px rgba(29,29,31,0.06), 0 8px 24px -12px rgba(29,29,31,0.18)",
       },
     },
   },
