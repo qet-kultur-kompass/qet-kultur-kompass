@@ -429,12 +429,13 @@ export function InviteFlow({ token }: { token: string }) {
               <CriterionBars
                 criteria={CRITERIA.filter((c) => c.pillar === resultsTab)}
                 scores={results.criterionScores}
+                locale={locale}
               />
             </>
           ) : (
             <>
               <h3 className="mb-4 font-display text-base font-semibold text-ink">{t(locale, "perCriterion")}</h3>
-              <CriterionBars criteria={scopeCriteria} scores={results.criterionScores} />
+              <CriterionBars criteria={scopeCriteria} scores={results.criterionScores} locale={locale} />
             </>
           )}
         </div>
