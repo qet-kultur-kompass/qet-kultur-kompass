@@ -3,7 +3,7 @@
 import { PILLARS } from "@/lib/content/criteria";
 import { MANAGEMENT_FIELDS } from "@/lib/content/managementFields";
 import { overallIndex } from "@/lib/scoring";
-import { QetLogo } from "./QetLogo";
+import { t } from "@/lib/content/i18n";
 import type { Locale, PillarKey } from "@/lib/content/types";
 
 /** Gleiche Säulenfarben wie überall sonst in der App (Tabellen, Balken) –
@@ -113,21 +113,29 @@ function labelArcPath(cx: number, cy: number, r: number, startDeg: number, endDe
  *   eine Farbfüllung den erreichten Anteil an, der Rest des Segments bleibt
  *   im hellen Track-Ton.
  * - Zentrum: der QET-Gesamtindex als flächiger Kreissektor in Knallgrün,
- *   Rest im hellen Track-Ton. Die weiße QET-Wortmarke sitzt im Mittelpunkt –
- *   über dem hellen Rest-Anteil ist sie kontrastarm bis unlesbar und wird
- *   erst bei 100 % vollständig sichtbar (weiß auf durchgängigem Grün).
+ *   Rest im hellen Track-Ton. Darüber – als eigenständige Wortmarke aus
+ *   "INDEX" plus der Zahl, nicht mehr das QET-Logo selbst, dessen weißer
+ *   Schriftzug über dem hellen Rest-Anteil kaum lesbar war (erst bei 100 %
+ *   voll sichtbar). Die neue Beschriftung nutzt den gleichen Kontur-Halo-
+ *   Trick wie die Managementfeld-Prozente (weiße Füllung, dunkle Kontur)
+ *   und bleibt so unabhängig vom Füllstand immer lesbar – das dreiteilige
+ *   Säulen-Farbschema des Rings selbst (siehe QetSymbol.tsx) trägt die
+ *   Markenidentität, "Index" + Zahl bleiben rein informativ und bilden mit
+ *   dem Ring eine durchgängige, konsistente Darstellung.
  */
 export function QetIndexRing({
   qetIndex,
   pillarScores,
   criterionScores,
-  label,
   size = 320,
   locale = "de",
 }: {
   qetIndex: number;
   pillarScores: Record<PillarKey, number>;
   criterionScores: Record<string, number>;
+  /** @deprecated Wird nicht mehr angezeigt – "Index" + Zahl sitzen jetzt
+   * fest im Ringzentrum (lokalisiert über `indexWord`). Prop bleibt in der
+   * Signatur, damit bestehende Aufrufstellen keine TS-Fehler werfen. */
   label?: string;
   size?: number;
   locale?: Locale;
@@ -145,8 +153,8 @@ export function QetIndexRing({
   const innerEdgePillar = outerR2 - pillarRingWidth / 2;
   const innerGap = size * 0.035;
   const centerR = innerEdgePillar - innerGap;
-  const logoWidth = centerR * 1.45;
-  const logoHeight = (logoWidth * 44) / 150;
+  const indexLabelFontSize = centerR * 0.22;
+  const indexNumberFontSize = centerR * 0.6;
 
   const fields = MANAGEMENT_FIELDS.map((f) => ({
     ...f,
@@ -247,25 +255,54 @@ export function QetIndexRing({
           );
         })}
 
-        {/* Zentrum: QET-Gesamtindex flächig in Knallgrün */}
+        {/* Zentrum: QET-Gesamtindex flächig in Knallgrün als Fortschritts-
+         * Hintergrund, darüber "INDEX" + Zahl als durchgängig lesbare
+         * Wortmarke (weiße Füllung mit dunkler Kontur-Halo, wie die
+         * Managementfeld-Prozente im äußeren Ring) – bleibt so bei jedem
+         * Füllstand klar erkennbar, statt wie zuvor erst bei 100 % sichtbar
+         * zu werden. */}
         <circle cx={cx} cy={cy} r={centerR} fill={TRACK_COLOR} />
         {clampedIndex > 0.5 && (
           <path d={pieSlicePath(cx, cy, centerR, 0, (clampedIndex / 100) * 360)} fill={QET_GREEN} />
         )}
         <title>{`QET-Index: ${Math.round(clampedIndex)}%`}</title>
 
-        <g transform={`translate(${cx - logoWidth / 2}, ${cy - logoHeight / 2})`}>
-          <QetLogo tone="white" width={logoWidth} height={logoHeight} />
-        </g>
+        <text
+          x={cx}
+          y={cy - centerR * 0.34}
+          textAnchor="middle"
+          dominantBaseline="central"
+          fontFamily="var(--font-plex-sans)"
+          fontWeight={700}
+          fontSize={indexLabelFontSize}
+          fill="#ffffff"
+          stroke={SEGMENT_BORDER_COLOR}
+          strokeWidth={indexLabelFontSize * 0.09}
+          paintOrder="stroke fill"
+          strokeLinejoin="round"
+          letterSpacing={1.5}
+        >
+          {t(locale, "indexWord").toUpperCase()}
+        </text>
+        <text
+          x={cx}
+          y={cy + centerR * 0.32}
+          textAnchor="middle"
+          dominantBaseline="central"
+          fontFamily="var(--font-fraunces)"
+          fontWeight={600}
+          fontSize={indexNumberFontSize}
+          fill="#ffffff"
+          stroke={SEGMENT_BORDER_COLOR}
+          strokeWidth={indexNumberFontSize * 0.06}
+          paintOrder="stroke fill"
+          strokeLinejoin="round"
+        >
+          {Math.round(clampedIndex)}
+        </text>
       </svg>
 
-      <div className="mt-2 flex items-baseline gap-1">
-        <span className="font-display text-2xl font-semibold text-ink">{Math.round(clampedIndex)}</span>
-        <span className="text-xs text-ink/60">/ 100</span>
-      </div>
-      {label && <div className="mt-0.5 font-display text-sm font-medium text-ink/70">{label}</div>}
-
-      <div className="mt-3 grid grid-cols-1 gap-x-5 gap-y-1 text-xs text-ink/70 sm:grid-cols-2">
+      <div className="mt-4 grid grid-cols-1 gap-x-5 gap-y-1 text-xs text-ink/70 sm:grid-cols-2">
         {fields.map((field) => (
           <span key={field.key} className="inline-flex items-center gap-1.5">
             <span className="inline-block h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: FIELD_RING_COLOR }} aria-hidden />
