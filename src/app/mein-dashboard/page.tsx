@@ -2,7 +2,8 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { requireAnySelfServiceSession } from "@/lib/session";
-import { aggregateSubmissions, MIN_RESPONSES_FOR_AGGREGATE } from "@/lib/scoring";
+import { aggregateSubmissions, computeScores, MIN_RESPONSES_FOR_AGGREGATE } from "@/lib/scoring";
+import type { Answers } from "@/lib/content/types";
 import { MeinDashboardView, type MeinDashboardData, type SubmissionSummary } from "@/components/MeinDashboardView";
 
 export const dynamic = "force-dynamic";
@@ -73,6 +74,7 @@ export default async function MeinDashboardPage() {
             qetIndex: latestOwnSubmission.qetIndex,
             scopeIndex: latestOwnSubmission.scopeIndex,
             testScope: latestOwnSubmission.testScope,
+            criterionScores: computeScores(JSON.parse(latestOwnSubmission.answers) as Answers).criterionScores,
           }
         : null,
       ownSubmissionCount: ownInvitee?.submissions.length ?? 0,
@@ -133,6 +135,7 @@ export default async function MeinDashboardPage() {
           qetIndex: latestOwnSubmission.qetIndex,
           scopeIndex: latestOwnSubmission.scopeIndex,
           testScope: latestOwnSubmission.testScope,
+          criterionScores: computeScores(JSON.parse(latestOwnSubmission.answers) as Answers).criterionScores,
         }
       : null,
     ownSubmissionCount: invitee.submissions.length,
