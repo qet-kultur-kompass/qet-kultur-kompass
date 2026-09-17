@@ -11,7 +11,7 @@ import { computeScores, overallIndex, pickAnswers } from "@/lib/scoring";
 import { QetSymbol } from "./QetSymbol";
 import { StatementSlider } from "./StatementSlider";
 import { QetIndexGauge } from "./QetIndexGauge";
-import { PillarRadar } from "./charts/PillarRadar";
+import { QetIndexRing } from "./QetIndexRing";
 import { CriterionBars } from "./charts/CriterionBars";
 
 type Stage = "loading" | "error" | "sso_gate" | "already_done" | "intro" | "scope" | "survey" | "submitting" | "results";
@@ -400,9 +400,14 @@ export function InviteFlow({ token }: { token: string }) {
         {submitError && <p className="mt-2 text-sm text-red-600">{submitError}</p>}
 
         {isFull ? (
-          <div className="mt-6 grid grid-cols-1 gap-6 rounded-2xl border border-ink/10 bg-white/60 p-6 shadow-card sm:grid-cols-[auto_1fr]">
-            <QetIndexGauge value={results.qetIndex} label={t(locale, "qetIndex")} locale={locale} />
-            <PillarRadar scores={results.pillarScores} locale={locale} />
+          <div className="mt-6 flex justify-center rounded-2xl border border-ink/10 bg-white/60 p-6 shadow-card">
+            <QetIndexRing
+              qetIndex={results.qetIndex}
+              pillarScores={results.pillarScores}
+              criterionScores={results.criterionScores}
+              label={t(locale, "qetIndex")}
+              locale={locale}
+            />
           </div>
         ) : (
           <div className="mt-6 flex justify-center rounded-2xl border border-ink/10 bg-white/60 p-6 shadow-card">
@@ -498,7 +503,7 @@ export function InviteFlow({ token }: { token: string }) {
   return null;
 }
 
-/** Optionales Passwort, damit die Person künftig ihre eigenes Ergebnis + das
+/** Optionales Passwort, damit die Person künftig ihre eigenes Ergebnis + das
  * anonymisierte Team-Ergebnis jederzeit unter /mein-dashboard wiederfindet,
  * statt sich nur auf den (ebenfalls weiterhin gültigen) Link zu verlassen. */
 function SetPasswordBlock({ token, locale }: { token: string; locale: Locale }) {
