@@ -29,15 +29,15 @@ export function PillarRadar({
   return (
     <ResponsiveContainer width="100%" height={280}>
       <RadarChart data={data} outerRadius="72%">
-        <PolarGrid stroke="#e7e1d4" />
+        <PolarGrid stroke="#e5e5e7" />
         <PolarAngleAxis
           dataKey="pillar"
-          tick={{ fill: "#211d17", fontSize: 13, fontFamily: "var(--font-plex-sans)" }}
+          tick={{ fill: "#1d1d1f", fontSize: 13, fontFamily: "var(--font-plex-sans)" }}
         />
         <PolarRadiusAxis
           angle={90}
           domain={[0, 100]}
-          tick={{ fill: "#211d17aa", fontSize: 10 }}
+          tick={{ fill: "#1d1d1faa", fontSize: 10 }}
           tickCount={5}
         />
         <Radar
