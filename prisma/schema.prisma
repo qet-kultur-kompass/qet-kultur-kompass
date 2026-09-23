@@ -127,6 +127,14 @@ model Invitee {
   // Testläufe hinweg bestehen und ist nie Teil der Firmen-Aggregation.
   criterionNotes CriterionNote[]
 
+  // --- Persönliche Strategie/Zielsetzung (siehe Goal unten) --------------
+  // Freie strategische Ausrichtung als Fließtext, direkt am Invitee statt
+  // in einer eigenen Tabelle, da es je Person nur GENAU einen aktuellen
+  // Stand gibt (kein Verlauf nötig, anders als bei den Zielen selbst).
+  // Rein privat, nie Teil der Firmen-Aggregation.
+  strategyIntro String @default("")
+  goals         Goal[]
+
   @@index([companyId])
   @@unique([companyId, externalId])
 }
@@ -192,4 +200,28 @@ model CriterionNote {
 
   @@unique([inviteeId, criterionId])
   @@index([inviteeId])
+}
+
+// Einzelnes persönliches Ziel im Rahmen der eigenen Strategie (siehe
+// Invitee.strategyIntro für die freie strategische Ausrichtung). Rein
+// privat, wie CriterionNote nie Teil der Firmen-Aggregation. `pillar`
+// verknüpft ein Ziel optional mit einer der drei QET-Säulen (rein
+// informativ, für die Anzeige/Filterung) – bewusst gröber als ein Bezug
+// auf ein einzelnes Kriterium, damit das Anlegen eines Ziels schnell und
+// niedrigschwellig bleibt. `dueDate` speist die Terminübersicht/den
+// Kalender sowie das 1-Seiten-PDF-Handout (siehe StrategyView.tsx).
+model Goal {
+  id          String    @id @default(cuid())
+  inviteeId   String
+  invitee     Invitee   @relation(fields: [inviteeId], references: [id], onDelete: Cascade)
+  title       String
+  description String    @default("")
+  pillar      String? // "Q" | "E" | "T" | null (kein Bezug)
+  dueDate     DateTime?
+  status      String    @default("open") // "open" | "in_progress" | "done"
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([inviteeId])
+  @@index([inviteeId, dueDate])
 }
