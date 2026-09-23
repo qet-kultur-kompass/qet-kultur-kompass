@@ -8,6 +8,7 @@ import { allSelectableScopes, criteriaForScope, labelForScope, stepsForScope } f
 import type { Answers, Locale, PillarKey, Role, TestScope } from "@/lib/content/types";
 import { resolveText, scopeFromId, scopeToId } from "@/lib/content/types";
 import { computeScores, overallIndex, pickAnswers } from "@/lib/scoring";
+import { BrandHeaderLink } from "./BrandHeaderLink";
 import { QetSymbol } from "./QetSymbol";
 import { StatementSlider } from "./StatementSlider";
 import { QetIndexGauge } from "./QetIndexGauge";
@@ -160,7 +161,7 @@ export function InviteFlow({ token }: { token: string }) {
   if (stage === "already_done" && info) {
     return (
       <main className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center px-6 text-center">
-        <BrandMark locale={locale} />
+        <BrandHeaderLink size={20} />
         <p className="mt-6 text-ink/70">
           Sie haben für <strong>{info.companyName}</strong> bereits mindestens einmal teilgenommen.
           Vielen Dank dafür! Sie können jederzeit einen weiteren Test durchführen – z. B. zur
@@ -183,7 +184,7 @@ export function InviteFlow({ token }: { token: string }) {
   if (stage === "sso_gate" && info) {
     return (
       <main className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center px-6 text-center">
-        <BrandMark locale={locale} />
+        <BrandHeaderLink size={20} />
         <h1 className="mt-6 font-display text-2xl font-semibold text-ink">{info.companyName}</h1>
         <p className="mt-3 text-ink/70">
           Diese Befragung ist nur für verifizierte Teilnehmende zugänglich. Bitte melden Sie sich
@@ -205,7 +206,7 @@ export function InviteFlow({ token }: { token: string }) {
   if (stage === "intro" && info) {
     return (
       <main className="mx-auto min-h-screen max-w-xl px-6 py-16">
-        <BrandMark locale={locale} />
+        <BrandHeaderLink size={20} />
         <h1 className="mt-6 font-display text-3xl font-semibold text-ink">{t(locale, "introTitle")}</h1>
         <p className="mt-3 text-ink/70">{t(locale, "introSubtitle")}</p>
 
@@ -249,7 +250,7 @@ export function InviteFlow({ token }: { token: string }) {
     const fullScope = selectableScopes.find((s) => s.group === "full");
     return (
       <main className="mx-auto min-h-screen max-w-2xl px-6 py-16">
-        <BrandMark locale={locale} />
+        <BrandHeaderLink size={20} />
         <h1 className="mt-6 font-display text-3xl font-semibold text-ink">{t(locale, "chooseScope")}</h1>
         <p className="mt-3 text-ink/70">{t(locale, "chooseScopeSubtitle")}</p>
 
@@ -304,7 +305,7 @@ export function InviteFlow({ token }: { token: string }) {
   if (stage === "survey" && currentStep) {
     return (
       <main className="mx-auto min-h-screen max-w-2xl px-6 py-10">
-        <BrandMark locale={locale} />
+        <BrandHeaderLink size={20} />
         <div className="mt-6 flex items-center gap-2">
           {steps.map((s, i) => (
             <div
@@ -391,7 +392,7 @@ export function InviteFlow({ token }: { token: string }) {
     return (
       <main className="mx-auto min-h-screen max-w-3xl px-6 py-12">
         <div className="no-print">
-          <BrandMark locale={locale} />
+          <BrandHeaderLink size={20} />
         </div>
         <h1 className="mt-4 font-display text-3xl font-semibold text-ink">{t(locale, "resultsTitle")}</h1>
         <p className="mt-2 text-ink/70">
@@ -632,15 +633,4 @@ function ScopeCard({
 
 function CenteredNote({ children }: { children: React.ReactNode }) {
   return <div className="flex min-h-screen items-center justify-center px-6 text-center text-ink/60">{children}</div>;
-}
-
-function BrandMark({ locale }: { locale: Locale }) {
-  return (
-    <div className="flex items-center gap-2 text-sm font-medium text-ink/60">
-      <span className="h-5 w-5">
-        <QetSymbol />
-      </span>
-      {t(locale, "brand")}
-    </div>
-  );
 }
