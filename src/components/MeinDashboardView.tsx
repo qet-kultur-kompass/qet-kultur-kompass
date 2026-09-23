@@ -5,6 +5,7 @@ import { LOCALES, t } from "@/lib/content/i18n";
 import type { Locale } from "@/lib/content/types";
 import type { AggregateResult } from "@/lib/scoring";
 import { QetLogo } from "./QetLogo";
+import { QetSymbol } from "./QetSymbol";
 import { CopyField } from "./CopyField";
 import { PersonalResultCard, type PersonalSubmissionData } from "./PersonalResultCard";
 import { CompanyDashboardCharts } from "./CompanyDashboardCharts";
@@ -42,8 +43,11 @@ export function MeinDashboardView({ data }: { data: MeinDashboardData }) {
     <main className="mx-auto min-h-screen max-w-4xl px-6 py-12">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <QetLogo className="h-7 w-auto" />
-          <span className="hidden text-xs font-medium text-ink/40 sm:inline">
+          <span className="h-[14.7px] w-[14.7px] shrink-0">
+            <QetSymbol />
+          </span>
+          <QetLogo className="h-[14.7px] w-auto" />
+          <span className="hidden text-[14.7px] font-medium text-ink/40 sm:inline">
             Our compass. Your course.
           </span>
         </div>
