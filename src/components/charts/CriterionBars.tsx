@@ -27,7 +27,17 @@ import { t } from "@/lib/content/i18n";
 
 type ChartView = "bar" | "line" | "radar" | "table";
 
-type Row = { id: string; name: string; pillar: PillarKey; value: number };
+type Row = { id: string; name: string; pillar: PillarKey; value: number; special: boolean };
+
+/** Eigene Akzentfarbe für Sonderkriterien (aktuell: das KI-Sonderkriterium
+ * Q21/E21/T21) – bewusst deutlich von allen drei Säulenfarben (Blau/Grün/
+ * Gold) unterscheidbar, damit ein Sonderkriterium auf einen Blick erkennbar
+ * ist, unabhängig davon, welcher Säule es gerade zugeordnet ist. */
+const SPECIAL_COLOR = "#7c3aed";
+
+function accentFor(row: { pillar: PillarKey; special: boolean }): string {
+  return row.special ? SPECIAL_COLOR : PILLAR_COLOR[row.pillar];
+}
 
 /** Grobe Schätzung, wie viele Zeilen ein Kriteriumsname bei ~27 Zeichen pro
  * Zeile braucht (siehe CriterionYAxisTick) – bewusst eher zu großzügig als
@@ -44,7 +54,9 @@ function estimateLines(name: string) {
  * (Gesamttest-Tabs, Säulen-Teiltest) als auch für ein Managementfeld
  * verwendet, das mehrere Säulen mischt – die Farbe pro Zeile richtet sich
  * daher immer nach der Säule DES JEWEILIGEN Kriteriums, nicht nach einer
- * einzigen für den ganzen Chart übergebenen Säule.
+ * einzigen für den ganzen Chart übergebenen Säule. Ausnahme: Sonderkriterien
+ * (`special: true`, aktuell das KI-Sonderkriterium) bekommen unabhängig von
+ * ihrer Säule immer die eigene Akzentfarbe SPECIAL_COLOR, siehe accentFor().
  *
  * Zusätzlich (Tabellen-Ansicht): persönliche Notizen/Todos je Kriterium
  * (eckige Erledigt-Checkbox + Stift-Icon für Freitext, siehe
@@ -74,6 +86,7 @@ export function CriterionBars({
         name: resolveText(c.name, locale),
         pillar: c.pillar,
         value: Math.round(scores[c.id] ?? 0),
+        special: Boolean(c.special),
       })),
     [criteria, scores, locale]
   );
@@ -180,7 +193,7 @@ function CriterionYAxisTick(props: {
   const { x = 0, y = 0, payload, rows, locale, rowHeight } = props;
   const row = rows.find((r) => r.id === payload?.value);
   if (!row) return null;
-  const accent = PILLAR_COLOR[row.pillar];
+  const accent = accentFor(row);
   const boxHeight = Math.max(18, rowHeight - 6);
   return (
     <g transform={`translate(${x},${y})`}>
@@ -260,7 +273,7 @@ function CriterionBarChart({
         />
         <Bar dataKey="value" radius={[0, 6, 6, 0]} maxBarSize={16}>
           {data.map((d) => (
-            <Cell key={d.id} fill={PILLAR_COLOR[d.pillar]} fillOpacity={0.35 + (d.value / 100) * 0.55} />
+            <Cell key={d.id} fill={accentFor(d)} fillOpacity={0.35 + (d.value / 100) * 0.55} />
           ))}
         </Bar>
       </BarChart>
@@ -271,7 +284,7 @@ function CriterionBarChart({
 function CriterionLineDot(props: { cx?: number; cy?: number; payload?: Row }) {
   const { cx, cy, payload } = props;
   if (cx == null || cy == null || !payload) return null;
-  return <circle cx={cx} cy={cy} r={4} fill={PILLAR_COLOR[payload.pillar]} stroke="#faf7f0" strokeWidth={1.5} />;
+  return <circle cx={cx} cy={cy} r={4} fill={accentFor(payload)} stroke="#faf7f0" strokeWidth={1.5} />;
 }
 
 function CriterionLineChart({
@@ -330,7 +343,8 @@ function CriterionLineChart({
  * lange Texte. Der volle Name bleibt trotzdem jederzeit erreichbar: über
  * den Tooltip beim Hover/Tap auf den Punkt, und vollständig (nie
  * abgeschnitten) in der Balken-, Kurven- und Tabellen-Ansicht. Farbe der
- * Beschriftung = Säulenfarbe des jeweiligen Kriteriums. */
+ * Beschriftung = Säulenfarbe des jeweiligen Kriteriums (bzw. SPECIAL_COLOR
+ * für das KI-Sonderkriterium, siehe accentFor()). */
 function CriterionRadarTick(props: {
   x?: number;
   y?: number;
@@ -340,7 +354,7 @@ function CriterionRadarTick(props: {
 }) {
   const { x = 0, y = 0, payload, textAnchor, rows } = props;
   const row = rows.find((r) => r.id === payload?.value);
-  const fill = row ? PILLAR_COLOR[row.pillar] : "#211d17";
+  const fill = row ? accentFor(row) : "#211d17";
   return (
     <text x={x} y={y} textAnchor={textAnchor as never} fill={fill} fontSize={10} fontWeight={600} fontFamily="var(--font-plex-sans)">
       {payload?.value}
@@ -383,7 +397,9 @@ function CriterionRadarChart({ data, locale }: { data: Row[]; locale: Locale }) 
 
 /** Barrierefreie Tabellen-Alternativansicht (immer verfügbar, unabhängig von
  * der gewählten Chart-Form) – Säule als Farb+Buchstaben-Chip (Identität nie
- * nur über Farbe), Wert als Zahl mit tabellarischen Ziffern plus Mini-Balken.
+ * nur über Farbe; Sonderkriterien bekommen zusätzlich ein eigenes ✦-Symbol
+ * statt des Säulenbuchstabens, ebenfalls nie nur über die Akzentfarbe
+ * erkennbar), Wert als Zahl mit tabellarischen Ziffern plus Mini-Balken.
  * Zeigt, wenn eine Session besteht (siehe `notes`/`onToggleDone`/
  * `onSaveText` – alle drei zusammen undefined = Feature aus), zusätzlich je
  * Zeile die persönliche Notiz/Todo-Spalte. */
@@ -406,7 +422,7 @@ function CriterionTable({
       <table className="w-full min-w-[420px] border-collapse text-sm">
         <tbody>
           {data.map((d) => {
-            const accent = PILLAR_COLOR[d.pillar];
+            const accent = accentFor(d);
             return (
               <tr key={d.id} className="border-b border-ink/10 last:border-b-0">
                 <td className="py-2.5 pl-4 pr-2 align-middle">
@@ -415,8 +431,9 @@ function CriterionTable({
                       className="flex h-4 w-4 shrink-0 items-center justify-center rounded-[4px] text-[9px] font-semibold text-white"
                       style={{ backgroundColor: accent }}
                       aria-hidden
+                      title={d.special ? t(locale, "specialCriterionBadge") : undefined}
                     >
-                      {d.pillar}
+                      {d.special ? "✦" : d.pillar}
                     </span>
                     <span className="text-ink">{d.name}</span>
                     <CriterionInfoButton criterionId={d.id} name={d.name} locale={locale} accent={accent} />
@@ -435,6 +452,7 @@ function CriterionTable({
                     <CriterionNoteCell
                       criterionId={d.id}
                       name={d.name}
+                      value={d.value}
                       note={notes?.[d.id]}
                       locale={locale}
                       onToggleDone={(next) => onToggleDone?.(d.id, next)}
