@@ -8,9 +8,9 @@ import type { Criterion, Pillar } from "./types";
 // von einer Muttersprachlerin/einem Muttersprachler gegengelesen werden.
 
 export const PILLARS: Pillar[] = [
-  { key: "Q", name: { de: "Qualität", en: "Quality", tr: "Kalite" } },
-  { key: "E", name: { de: "Ethik", en: "Ethics", tr: "Etik" } },
-  { key: "T", name: { de: "Transparenz", en: "Transparency", tr: "Şeffaflık" } },
+  { key: "Q", name: { de: "Qualität", en: "Quality", ro: "Calitate", tr: "Kalite" } },
+  { key: "E", name: { de: "Ethik", en: "Ethics", ro: "Etică", tr: "Etik" } },
+  { key: "T", name: { de: "Transparenz", en: "Transparency", ro: "Transparență", tr: "Şeffaflık" } },
 ];
 
 export const CRITERIA: Criterion[] = [
