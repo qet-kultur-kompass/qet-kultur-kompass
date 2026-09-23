@@ -8,24 +8,25 @@ import { t } from "@/lib/content/i18n";
 import { resolveText } from "@/lib/content/types";
 import type { Locale, PillarKey } from "@/lib/content/types";
 
-/** Gleiche Säulenfarben wie überall sonst in der App (Tabellen, Balken) –
- * siehe tailwind.config.ts (quality/ethics/transparency.500). */
-const PILLAR_COLOR: Record<PillarKey, string> = { Q: "#3d54b0", E: "#2d7a56", T: "#c9862a" };
+/** Gleiche, etwas matteren Säulenfarben wie im offiziellen QET-Logo (siehe
+ * QetSymbol.tsx) – per Bildpipette aus dem vom Nutzer bereitgestellten
+ * Referenzbild ermittelt. Bewusst NICHT dieselben kräftigeren Töne wie in
+ * den Balken-/Radar-Diagrammen (CriterionBars.tsx, PillarRadar.tsx,
+ * BusinessReportView.tsx) – dort bleiben die kräftigeren Farben für
+ * Lesbarkeit/Kontrast unverändert; hier im Ergebnis-Ring soll die Optik zur
+ * Marke passen. */
+const PILLAR_COLOR: Record<PillarKey, string> = { Q: "#6f83bc", E: "#799683", T: "#caab76" };
 
 /** Heller, warmer Track-Ton – identisch zum bisherigen QetIndexGauge, damit
  * beide Gauges optisch zusammenpassen. */
 const TRACK_COLOR = "#e7e1d4";
 
-/** "Knallgrün" für den voll erreichten QET-Gesamtwert. Bewusst kräftiger als
- * das gedeckte Ethik-Grün, damit die Gesamtwertung optisch eindeutig von der
- * Säule "Ethik" unterscheidbar bleibt. */
-const QET_GREEN = "#16a34a";
-
-/** Dunkelgrauer, markentypischer Ton für den äußeren Managementfelder-Ring
- * (angelehnt an den "QET-Zirkel" aus den offiziellen Unterlagen – siehe
- * QetSymbol.tsx). Zeigt den noch nicht erreichten Anteil je Feld; der
- * erreichte Anteil wird zentrisch darüber in Grün eingeblendet (siehe
- * FIELD_FILL_COLOR) und verdrängt den grauen Anteil zusehends. */
+/** Dunkelgrauer, markentypischer Ton – sowohl für den äußeren
+ * Managementfelder-Ring als auch für die zentrische Füllung des
+ * QET-Gesamtindex (siehe unten). Bewusst neutral statt farbig (früher
+ * Knallgrün): so bleibt die Gesamtwertung klar von der Säule "Ethik"
+ * unterscheidbar, und derselbe Ton signalisiert im ganzen Ring einheitlich
+ * "erreichter Anteil" – außen wie im Zentrum. */
 const FIELD_RING_COLOR = "#4a453d";
 
 /** Dunkler Ton, nur noch für die Kontur-Halo der Prozent-Beschriftung
@@ -135,13 +136,20 @@ type SegmentSelection = { kind: "field"; key: string } | { kind: "pillar"; key: 
  * - Mittlerer Ring: die 3 Säulen (Qualität/Ethik/Transparenz) – hier zeigt
  *   eine Farbfüllung den erreichten Anteil an, der Rest des Segments bleibt
  *   im hellen Track-Ton.
- * - Zentrum: der QET-Gesamtindex als flächiger Kreissektor in Knallgrün,
- *   Rest im hellen Track-Ton. Darüber – als eigenständige Wortmarke aus
- *   "INDEX" plus der Zahl, nicht mehr das QET-Logo selbst, dessen weißer
- *   Schriftzug über dem hellen Rest-Anteil kaum lesbar war (erst bei 100 %
- *   voll sichtbar). Die neue Beschriftung nutzt den gleichen Kontur-Halo-
- *   Trick wie die Managementfeld-Prozente (weiße Füllung, dunkle Kontur)
- *   und bleibt so unabhängig vom Füllstand immer lesbar – das dreiteilige
+ * - Zentrum: der QET-Gesamtindex als zentrisch von innen nach außen
+ *   wachsender Kreis in einem neutralen Dunkelgrau (FIELD_RING_COLOR,
+ *   derselbe Ton wie der erreichte Anteil im äußeren Feldring – bewusst
+ *   nicht mehr Knallgrün, das mit der Säule "Ethik" verwechselbar wäre),
+ *   umgeben vom hellen Track-Ton. Anders als die Ring-Segmente wächst diese
+ *   Füllung radial (Radius proportional zum Indexwert) statt als
+ *   Kreissektor/Uhrzeiger-Sweep – das visuelle Bild eines "wachsenden
+ *   Kerns" passt besser zu einem einzelnen Gesamtwert ohne Start-/
+ *   Endwinkel. Darüber – als eigenständige Wortmarke aus "INDEX" plus der
+ *   Zahl, nicht mehr das QET-Logo selbst, dessen weißer Schriftzug über dem
+ *   hellen Rest-Anteil kaum lesbar war (erst bei 100 % voll sichtbar). Die
+ *   neue Beschriftung nutzt den gleichen Kontur-Halo-Trick wie die
+ *   Managementfeld-Prozente (weiße Füllung, dunkle Kontur) und bleibt so
+ *   unabhängig vom Füllstand immer lesbar – das dreiteilige
  *   Säulen-Farbschema des Rings selbst (siehe QetSymbol.tsx) trägt die
  *   Markenidentität, "QET-Index" + Zahl bleiben rein informativ und bilden
  *   mit dem Ring eine durchgängige, konsistente Darstellung.
@@ -376,15 +384,17 @@ export function QetIndexRing({
           );
         })}
 
-        {/* Zentrum: QET-Gesamtindex flächig in Knallgrün als Fortschritts-
-         * Hintergrund, darüber "QET-INDEX" + Zahl als durchgängig lesbare
+        {/* Zentrum: QET-Gesamtindex als zentrisch (radial) wachsender Kreis
+         * in neutralem Dunkelgrau – der Radius skaliert direkt mit dem
+         * Indexwert, statt wie zuvor als Kreissektor im Uhrzeigersinn zu
+         * wachsen. Darüber "QET-INDEX" + Zahl als durchgängig lesbare
          * Wortmarke (weiße Füllung mit dunkler Kontur-Halo, wie die
          * Managementfeld-Prozente im äußeren Ring) – bleibt so bei jedem
          * Füllstand klar erkennbar, statt wie zuvor erst bei 100 % sichtbar
          * zu werden. */}
         <circle cx={cx} cy={cy} r={centerR} fill={TRACK_COLOR} />
         {clampedIndex > 0.5 && (
-          <path d={pieSlicePath(cx, cy, centerR, 0, (clampedIndex / 100) * 360)} fill={QET_GREEN} />
+          <circle cx={cx} cy={cy} r={centerR * (clampedIndex / 100)} fill={FIELD_RING_COLOR} />
         )}
         <title>{`QET-Index: ${Math.round(clampedIndex)}%`}</title>
 
