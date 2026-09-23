@@ -9,7 +9,7 @@ import type { Answers } from "@/lib/content/types";
 import { QetIndexGauge } from "@/components/QetIndexGauge";
 import { QetIndexRing } from "@/components/QetIndexRing";
 import { CriterionBars } from "@/components/charts/CriterionBars";
-import { QetSymbol } from "@/components/QetSymbol";
+import { BrandHeaderLink } from "@/components/BrandHeaderLink";
 
 export const dynamic = "force-dynamic";
 
@@ -64,12 +64,7 @@ export default async function SubmissionDetailPage({ params }: { params: { id: s
   return (
     <main className="mx-auto min-h-screen max-w-3xl px-6 py-12">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm font-medium text-ink/60">
-          <span className="h-6 w-6">
-            <QetSymbol />
-          </span>
-          QET Kultur-Kompass
-        </div>
+        <BrandHeaderLink size={24} />
         <Link href="/mein-dashboard" className="flex items-center gap-1.5 text-sm font-medium text-ink/60 transition hover:text-ink">
           <svg width="14" height="14" viewBox="0 0 15 15" fill="none">
             <path d="M9 3L4 7.5l5 4.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
