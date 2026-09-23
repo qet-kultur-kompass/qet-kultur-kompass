@@ -5,9 +5,8 @@ import { CRITERIA, PILLARS } from "@/lib/content/criteria";
 import { LOCALES, ROLE_LABELS, t } from "@/lib/content/i18n";
 import { allSelectableScopes, criteriaForScope, labelForScope, stepsForScope } from "@/lib/content/scopes";
 import type { Answers, Locale, PillarKey, Role, TestScope } from "@/lib/content/types";
-import { scopeToId } from "@/lib/content/types";
+import { resolveText, scopeToId } from "@/lib/content/types";
 import { computeScores, overallIndex, pickAnswers } from "@/lib/scoring";
-import { QetLogo } from "./QetLogo";
 import { QetSymbol } from "./QetSymbol";
 import { StatementSlider } from "./StatementSlider";
 import { QetIndexGauge } from "./QetIndexGauge";
@@ -272,11 +271,11 @@ export function SurveyFlow({ token }: { token: string }) {
         <div className="mt-4 flex flex-col divide-y divide-ink/10">
           {currentStep.criteria.map((c) => (
             <div key={c.id} className="py-4">
-              <h3 className="font-display text-base font-semibold text-ink">{c.name[locale]}</h3>
+              <h3 className="font-display text-base font-semibold text-ink">{resolveText(c.name, locale)}</h3>
               {c.statements.map((s, idx) => (
                 <StatementSlider
                   key={idx}
-                  statement={s[locale]}
+                  statement={resolveText(s, locale)}
                   value={answers[c.id][idx]}
                   onChange={(v) => setStatement(c.id, idx as 0 | 1 | 2, v)}
                   pillar={c.pillar}
@@ -367,7 +366,7 @@ export function SurveyFlow({ token }: { token: string }) {
                       resultsTab === p.key ? "bg-ink text-paper" : "bg-ink/5 text-ink/60 hover:bg-ink/10"
                     }`}
                   >
-                    {p.name[locale]} · {Math.round(results.pillarScores[p.key] ?? 0)}%
+                    {resolveText(p.name, locale)} · {Math.round(results.pillarScores[p.key] ?? 0)}%
                   </button>
                 ))}
               </div>
@@ -393,7 +392,7 @@ export function SurveyFlow({ token }: { token: string }) {
             <ul className="mt-2 flex flex-col gap-1.5 text-sm text-ink/75">
               {strongest.map((c) => (
                 <li key={c.id} className="flex justify-between">
-                  <span>{c.name[locale]}</span>
+                  <span>{resolveText(c.name, locale)}</span>
                   <span className="font-mono">{Math.round(results.criterionScores[c.id] ?? 0)}%</span>
                 </li>
               ))}
@@ -406,7 +405,7 @@ export function SurveyFlow({ token }: { token: string }) {
             <ul className="mt-2 flex flex-col gap-1.5 text-sm text-ink/75">
               {weakest.map((c) => (
                 <li key={c.id} className="flex justify-between">
-                  <span>{c.name[locale]}</span>
+                  <span>{resolveText(c.name, locale)}</span>
                   <span className="font-mono">{Math.round(results.criterionScores[c.id] ?? 0)}%</span>
                 </li>
               ))}
@@ -463,7 +462,7 @@ function ScopeCard({
       onClick={onSelect}
       className="rounded-xl border border-ink/10 bg-white/60 p-4 text-left shadow-card transition hover:border-ink/30 hover:bg-white"
     >
-      <div className="font-display text-base font-semibold text-ink">{scope.name[locale]}</div>
+      <div className="font-display text-base font-semibold text-ink">{resolveText(scope.name, locale)}</div>
       <div className="mt-1 text-xs text-ink/50">{t(locale, "scopeCriteriaCount", { count: scope.criteriaCount })}</div>
     </button>
   );
@@ -478,16 +477,12 @@ function CenteredNote({ children }: { children: React.ReactNode }) {
 }
 
 function BrandMark({ locale }: { locale: Locale }) {
-  void locale;
   return (
-    <div className="flex items-center gap-2">
-      <span className="h-[14.7px] w-[14.7px] shrink-0">
+    <div className="flex items-center gap-2 text-sm font-medium text-ink/60">
+      <span className="h-5 w-5">
         <QetSymbol />
       </span>
-      <QetLogo className="h-[14.7px] w-auto" />
-      <span className="hidden text-[14.7px] font-medium text-ink/40 sm:inline">
-        Our compass. Your course.
-      </span>
+      {t(locale, "brand")}
     </div>
   );
 }
