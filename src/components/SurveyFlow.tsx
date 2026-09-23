@@ -8,6 +8,7 @@ import type { Answers, Locale, PillarKey, Role, TestScope } from "@/lib/content/
 import { scopeToId } from "@/lib/content/types";
 import { computeScores, overallIndex, pickAnswers } from "@/lib/scoring";
 import { QetLogo } from "./QetLogo";
+import { QetSymbol } from "./QetSymbol";
 import { StatementSlider } from "./StatementSlider";
 import { QetIndexGauge } from "./QetIndexGauge";
 import { QetIndexRing } from "./QetIndexRing";
@@ -480,8 +481,11 @@ function BrandMark({ locale }: { locale: Locale }) {
   void locale;
   return (
     <div className="flex items-center gap-2">
-      <QetLogo className="h-6 w-auto" />
-      <span className="hidden text-xs font-medium text-ink/40 sm:inline">
+      <span className="h-[14.7px] w-[14.7px] shrink-0">
+        <QetSymbol />
+      </span>
+      <QetLogo className="h-[14.7px] w-auto" />
+      <span className="hidden text-[14.7px] font-medium text-ink/40 sm:inline">
         Our compass. Your course.
       </span>
     </div>
