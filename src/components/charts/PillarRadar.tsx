@@ -9,6 +9,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { PILLARS } from "@/lib/content/criteria";
+import { resolveText } from "@/lib/content/types";
 import type { PillarKey, Locale } from "@/lib/content/types";
 
 const PILLAR_COLOR: Record<PillarKey, string> = { Q: "#3d54b0", E: "#2d7a56", T: "#c9862a" };
@@ -21,7 +22,7 @@ export function PillarRadar({
   locale?: Locale;
 }) {
   const data = PILLARS.map((p) => ({
-    pillar: p.name[locale],
+    pillar: resolveText(p.name, locale),
     key: p.key,
     value: Math.round(scores[p.key] ?? 0),
   }));
@@ -29,15 +30,15 @@ export function PillarRadar({
   return (
     <ResponsiveContainer width="100%" height={280}>
       <RadarChart data={data} outerRadius="72%">
-        <PolarGrid stroke="#e5e5e7" />
+        <PolarGrid stroke="#e7e1d4" />
         <PolarAngleAxis
           dataKey="pillar"
-          tick={{ fill: "#1d1d1f", fontSize: 13, fontFamily: "var(--font-plex-sans)" }}
+          tick={{ fill: "#211d17", fontSize: 13, fontFamily: "var(--font-plex-sans)" }}
         />
         <PolarRadiusAxis
           angle={90}
           domain={[0, 100]}
-          tick={{ fill: "#1d1d1faa", fontSize: 10 }}
+          tick={{ fill: "#211d17aa", fontSize: 10 }}
           tickCount={5}
         />
         <Radar
