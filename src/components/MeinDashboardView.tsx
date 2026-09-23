@@ -169,6 +169,26 @@ export function MeinDashboardView({ data }: { data: MeinDashboardData }) {
 
           {data.accountType === "company" && (
             <div className="mt-4">
+              <a
+                href={`/api/mein-dashboard/export?locale=${locale}`}
+                className="inline-flex items-center gap-2 rounded-full border border-ink/15 px-4 py-2 text-xs font-medium text-ink/70 transition hover:bg-ink/5"
+              >
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path
+                    d="M7 1v8M3.5 6L7 9.5 10.5 6M2 12h10"
+                    stroke="currentColor"
+                    strokeWidth="1.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                {t(locale, "dashboardExportCsv")}
+              </a>
+            </div>
+          )}
+
+          {data.accountType === "company" && (
+            <div className="mt-4">
               <InviteeList
                 companyId={data.companyId}
                 origin={data.origin}
