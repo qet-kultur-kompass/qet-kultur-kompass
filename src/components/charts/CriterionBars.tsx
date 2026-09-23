@@ -49,8 +49,12 @@ function estimateLines(name: string) {
 /**
  * Ergebnisdarstellung für eine beliebige Kriterien-Auswahl, mit umschaltbarer
  * Darstellungsform (Balken / Kurve / Netzstruktur / Tabelle – die Tabelle ist
- * immer die barrierefreie Alternativansicht) und einem "i"-Info-Button je
- * Kriterium mit Kurzbeschreibung. Wird sowohl für eine einzelne Säule
+ * immer die barrierefreie Alternativansicht UND die voreingestellte
+ * Startansicht, da sie als einzige den vollen Funktionsumfang je Kriterium
+ * bietet) und einem "i"-Info-Button je Kriterium mit Kurzbeschreibung, der in
+ * allen vier Darstellungen einheitlich funktioniert (siehe
+ * CriterionInfoButton.tsx – das Overlay wird dafür per Portal gerendert).
+ * Wird sowohl für eine einzelne Säule
  * (Gesamttest-Tabs, Säulen-Teiltest) als auch für ein Managementfeld
  * verwendet, das mehrere Säulen mischt – die Farbe pro Zeile richtet sich
  * daher immer nach der Säule DES JEWEILIGEN Kriteriums, nicht nach einer
@@ -75,7 +79,10 @@ export function CriterionBars({
   scores: Record<string, number>;
   locale?: Locale;
 }) {
-  const [view, setView] = useState<ChartView>("bar");
+  // "Tabelle" ist bewusst die Startansicht: sie ist die einzige Darstellung
+  // mit vollem Funktionsumfang je Kriterium (Info-Button, bei bestehender
+  // Session zusätzlich Notiz/Todo – siehe CriterionTable weiter unten).
+  const [view, setView] = useState<ChartView>("table");
   const [notes, setNotes] = useState<Record<string, CriterionNoteValue>>({});
   const [notesEnabled, setNotesEnabled] = useState(false);
 
@@ -341,24 +348,51 @@ function CriterionLineChart({
 /** Beschriftung je Speiche im Netzdiagramm: kurzer Kriterien-Code (z.B.
  * "Q07") statt vollem Namen – auf einem Kreis ist schlicht kein Platz für
  * lange Texte. Der volle Name bleibt trotzdem jederzeit erreichbar: über
- * den Tooltip beim Hover/Tap auf den Punkt, und vollständig (nie
- * abgeschnitten) in der Balken-, Kurven- und Tabellen-Ansicht. Farbe der
- * Beschriftung = Säulenfarbe des jeweiligen Kriteriums (bzw. SPECIAL_COLOR
- * für das KI-Sonderkriterium, siehe accentFor()). */
+ * den Tooltip beim Hover/Tap auf den Punkt, vollständig (nie abgeschnitten)
+ * in der Balken-, Kurven- und Tabellen-Ansicht, UND über den "i"-Info-Button
+ * direkt an der Speiche (wie in den anderen drei Darstellungen – per
+ * foreignObject radial etwas weiter außen als die Code-Beschriftung selbst
+ * platziert, damit er unabhängig von der Position der Speiche – oben,
+ * unten, seitlich – nicht mit ihr überlappt). Farbe der Beschriftung =
+ * Säulenfarbe des jeweiligen Kriteriums (bzw. SPECIAL_COLOR für das
+ * KI-Sonderkriterium, siehe accentFor()). */
 function CriterionRadarTick(props: {
+  cx?: number;
+  cy?: number;
   x?: number;
   y?: number;
   payload?: { value: string };
   textAnchor?: string;
   rows: Row[];
+  locale: Locale;
 }) {
-  const { x = 0, y = 0, payload, textAnchor, rows } = props;
+  const { cx = 0, cy = 0, x = 0, y = 0, payload, textAnchor, rows, locale } = props;
   const row = rows.find((r) => r.id === payload?.value);
   const fill = row ? accentFor(row) : "#211d17";
+  // Radiale Richtung vom Diagramm-Zentrum durch den Tick-Punkt – der
+  // Info-Button wird entlang dieser Richtung ein Stück weiter nach außen
+  // versetzt, statt seine Position anhand von textAnchor zu schätzen. So
+  // sitzt er bei jeder Speiche (egal ob oben, unten oder seitlich) sauber
+  // neben statt auf der Code-Beschriftung.
+  const dx = x - cx;
+  const dy = y - cy;
+  const dist = Math.hypot(dx, dy) || 1;
+  const badgeOffset = 15;
+  const badgeX = x + (dx / dist) * badgeOffset;
+  const badgeY = y + (dy / dist) * badgeOffset;
   return (
-    <text x={x} y={y} textAnchor={textAnchor as never} fill={fill} fontSize={10} fontWeight={600} fontFamily="var(--font-plex-sans)">
-      {payload?.value}
-    </text>
+    <g>
+      <text x={x} y={y} textAnchor={textAnchor as never} fill={fill} fontSize={10} fontWeight={600} fontFamily="var(--font-plex-sans)">
+        {payload?.value}
+      </text>
+      {row && (
+        <foreignObject x={badgeX - 8} y={badgeY - 8} width={16} height={16}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 16, height: 16 }}>
+            <CriterionInfoButton criterionId={row.id} name={row.name} locale={locale} accent={fill} />
+          </div>
+        </foreignObject>
+      )}
+    </g>
   );
 }
 
@@ -368,7 +402,7 @@ function CriterionRadarChart({ data, locale }: { data: Row[]; locale: Locale }) 
     <ResponsiveContainer width="100%" height={height}>
       <RadarChart data={data} outerRadius="68%">
         <PolarGrid stroke="#e7e1d4" />
-        <PolarAngleAxis dataKey="id" tick={(props) => <CriterionRadarTick {...props} rows={data} />} />
+        <PolarAngleAxis dataKey="id" tick={(props) => <CriterionRadarTick {...props} rows={data} locale={locale} />} />
         <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fill: "#211d17aa", fontSize: 9 }} tickCount={5} />
         <Tooltip
           formatter={(value: number) => [`${value}%`, ""]}
