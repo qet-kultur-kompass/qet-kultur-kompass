@@ -12,6 +12,7 @@ import { CompanyDashboardCharts } from "./CompanyDashboardCharts";
 import { InviteeList, type InviteeRow } from "./InviteeList";
 import { SelfLogoutButton } from "./SelfLogoutButton";
 import { SubmissionHistory, type SubmissionSummary } from "./SubmissionHistory";
+import { ProfileNameEditor } from "./ProfileNameEditor";
 
 export type { SubmissionSummary };
 
@@ -38,6 +39,8 @@ export interface MeinDashboardData {
 
 export function MeinDashboardView({ data }: { data: MeinDashboardData }) {
   const [locale, setLocale] = useState<Locale>("de");
+  const [name, setName] = useState(data.name);
+  const [companyName, setCompanyName] = useState(data.companyName);
 
   return (
     <main className="mx-auto min-h-screen max-w-4xl px-6 py-12">
@@ -67,10 +70,16 @@ export function MeinDashboardView({ data }: { data: MeinDashboardData }) {
         </div>
       </div>
 
-      <h1 className="mt-6 font-display text-3xl font-semibold text-ink">
-        {t(locale, "dashboardGreeting", { name: data.name })}
-      </h1>
-      <p className="text-sm text-ink/60">{data.companyName}</p>
+      <ProfileNameEditor
+        name={name}
+        companyName={companyName}
+        showCompanyField={data.role === "owner" && data.accountType === "company"}
+        locale={locale}
+        onSaved={(next) => {
+          setName(next.name);
+          setCompanyName(next.companyName);
+        }}
+      />
 
       {!data.ownSubmission ? (
         <div className="mt-6 rounded-2xl border border-dashed border-ink/20 p-8 text-center">
