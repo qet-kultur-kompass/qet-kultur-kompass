@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { CRITERION_DESCRIPTIONS } from "@/lib/content/criteriaDescriptions";
 import { t } from "@/lib/content/i18n";
 import { resolveText } from "@/lib/content/types";
@@ -12,6 +13,19 @@ import type { Locale } from "@/lib/content/types";
  * Teilnehmende beim Betrachten ihres Ergebnisses fachlichen Hintergrund zur
  * jeweiligen Aussage bekommen. Rendert nichts, falls für die Kriterien-ID
  * keine Beschreibung hinterlegt ist.
+ *
+ * Das Overlay wird bewusst per `createPortal` direkt unter `document.body`
+ * gerendert statt lokal im Komponentenbaum: dieser Button wird auch INNERHALB
+ * eines SVG-<foreignObject> eingesetzt (Balken-, Kurven- und Netzdiagramm-
+ * Ansicht in CriterionBars.tsx), und `position: fixed` verhält sich dort
+ * browserabhängig unzuverlässig – das Overlay blieb dann unsichtbar bzw. auf
+ * die winzigen foreignObject-Maße eingeklemmt, obwohl der Klick selbst
+ * registriert wurde (deshalb öffnete sich das Info-Feld bislang nur in der
+ * Tabellen-Ansicht wie erwartet, wo der Button direkt im normalen HTML-Baum
+ * sitzt). Per Portal ist das Overlay überall echtes, viewport-fixes Markup
+ * außerhalb jedes SVG-Koordinatensystems – unabhängig davon, von welcher
+ * Darstellungsform aus der Button eingesetzt wird, verhält es sich dadurch
+ * überall identisch.
  */
 export function CriterionInfoButton({
   criterionId,
@@ -43,33 +57,35 @@ export function CriterionInfoButton({
       >
         i
       </button>
-      {open && (
-        <div
-          className="no-print fixed inset-0 z-50 flex items-end justify-center bg-ink/40 p-4 sm:items-center"
-          onClick={() => setOpen(false)}
-          role="dialog"
-          aria-modal="true"
-        >
+      {open &&
+        createPortal(
           <div
-            className="max-h-[80vh] w-full max-w-md overflow-y-auto rounded-2xl bg-white p-6 shadow-card"
-            onClick={(e) => e.stopPropagation()}
+            className="no-print fixed inset-0 z-50 flex items-end justify-center bg-ink/40 p-4 sm:items-center"
+            onClick={() => setOpen(false)}
+            role="dialog"
+            aria-modal="true"
           >
-            <div className="flex items-start justify-between gap-3">
-              <h3 className="font-display text-lg font-semibold text-ink">{name}</h3>
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                aria-label={t(locale, "criterionInfoClose")}
-                className="shrink-0 rounded-full p-1 text-ink/50 transition hover:bg-ink/5 hover:text-ink"
-              >
-                ✕
-              </button>
+            <div
+              className="max-h-[80vh] w-full max-w-md overflow-y-auto rounded-2xl bg-white p-6 shadow-card"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <h3 className="font-display text-lg font-semibold text-ink">{name}</h3>
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  aria-label={t(locale, "criterionInfoClose")}
+                  className="shrink-0 rounded-full p-1 text-ink/50 transition hover:bg-ink/5 hover:text-ink"
+                >
+                  ✕
+                </button>
+              </div>
+              <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-ink/75">{description}</p>
+              <p className="mt-4 text-xs text-ink/40">{t(locale, "criterionInfoSource")}</p>
             </div>
-            <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-ink/75">{description}</p>
-            <p className="mt-4 text-xs text-ink/40">{t(locale, "criterionInfoSource")}</p>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
     </>
   );
 }
