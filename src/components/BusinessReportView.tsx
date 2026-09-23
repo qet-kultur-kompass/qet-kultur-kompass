@@ -6,8 +6,7 @@ import { LOCALES, t } from "@/lib/content/i18n";
 import { resolveText } from "@/lib/content/types";
 import type { Locale, PillarKey } from "@/lib/content/types";
 import { bandFor, type Band } from "@/lib/scoring";
-import { QetLogo } from "./QetLogo";
-import { QetSymbol } from "./QetSymbol";
+import { BrandHeaderLink } from "./BrandHeaderLink";
 import { QetIndexGauge } from "./QetIndexGauge";
 import { QetIndexRing } from "./QetIndexRing";
 import type { MeinDashboardData } from "./MeinDashboardView";
@@ -145,11 +144,8 @@ export function BusinessReportView({ data }: { data: MeinDashboardData }) {
         </div>
       </div>
 
-      <div className="mt-8 flex items-center gap-2">
-        <span className="h-[18px] w-[18px] shrink-0">
-          <QetSymbol />
-        </span>
-        <QetLogo className="h-[18px] w-auto" />
+      <div className="mt-8">
+        <BrandHeaderLink size={18} />
       </div>
       <h1 className="mt-4 font-display text-3xl font-semibold text-ink">{t(locale, "reportTitle")}</h1>
       <p className="mt-2 max-w-2xl text-sm text-ink/60">{t(locale, "reportSubtitle")}</p>
