@@ -19,6 +19,7 @@ import {
   PolarRadiusAxis,
 } from "recharts";
 import type { Criterion, PillarKey, Locale } from "@/lib/content/types";
+import { resolveText } from "@/lib/content/types";
 import { PILLAR_COLOR } from "./PillarRadar";
 import { CriterionInfoButton } from "./CriterionInfoButton";
 import { CriterionNoteCell, type CriterionNoteValue } from "./CriterionNoteCell";
@@ -70,7 +71,7 @@ export function CriterionBars({
     () =>
       criteria.map((c) => ({
         id: c.id,
-        name: c.name[locale],
+        name: resolveText(c.name, locale),
         pillar: c.pillar,
         value: Math.round(scores[c.id] ?? 0),
       })),
@@ -199,7 +200,7 @@ function CriterionYAxisTick(props: {
               minWidth: 0,
               fontSize: 11.5,
               lineHeight: "13px",
-              color: "#1d1d1f",
+              color: "#211d17",
               fontFamily: "var(--font-plex-sans)",
               whiteSpace: "normal",
               overflowWrap: "break-word",
@@ -233,26 +234,26 @@ function CriterionBarChart({
   return (
     <ResponsiveContainer width="100%" height={height}>
       <BarChart data={data} layout="vertical" margin={{ left: 8, right: 24, top: 4, bottom: 4 }}>
-        <CartesianGrid horizontal={false} stroke="#e5e5e7" />
+        <CartesianGrid horizontal={false} stroke="#e7e1d4" />
         <XAxis
           type="number"
           domain={[0, 100]}
-          tick={{ fill: "#1d1d1faa", fontSize: 11 }}
-          axisLine={{ stroke: "#e5e5e7" }}
+          tick={{ fill: "#211d17aa", fontSize: 11 }}
+          axisLine={{ stroke: "#e7e1d4" }}
         />
         <YAxis
           type="category"
           dataKey="id"
           width={218}
           tick={(props) => <CriterionYAxisTick {...props} rows={data} locale={locale} rowHeight={rowHeight} />}
-          axisLine={{ stroke: "#e5e5e7" }}
+          axisLine={{ stroke: "#e7e1d4" }}
         />
         <Tooltip
           formatter={(value: number) => [`${value}%`, ""]}
           labelFormatter={criterionTooltipLabel(data)}
           contentStyle={{
             borderRadius: 10,
-            border: "1px solid #e5e5e7",
+            border: "1px solid #e7e1d4",
             fontFamily: "var(--font-plex-sans)",
             fontSize: 13,
           }}
@@ -270,7 +271,7 @@ function CriterionBarChart({
 function CriterionLineDot(props: { cx?: number; cy?: number; payload?: Row }) {
   const { cx, cy, payload } = props;
   if (cx == null || cy == null || !payload) return null;
-  return <circle cx={cx} cy={cy} r={4} fill={PILLAR_COLOR[payload.pillar]} stroke="#ffffff" strokeWidth={1.5} />;
+  return <circle cx={cx} cy={cy} r={4} fill={PILLAR_COLOR[payload.pillar]} stroke="#faf7f0" strokeWidth={1.5} />;
 }
 
 function CriterionLineChart({
@@ -287,33 +288,33 @@ function CriterionLineChart({
   return (
     <ResponsiveContainer width="100%" height={height}>
       <LineChart data={data} layout="vertical" margin={{ left: 8, right: 24, top: 4, bottom: 4 }}>
-        <CartesianGrid horizontal={false} stroke="#e5e5e7" />
+        <CartesianGrid horizontal={false} stroke="#e7e1d4" />
         <XAxis
           type="number"
           domain={[0, 100]}
-          tick={{ fill: "#1d1d1faa", fontSize: 11 }}
-          axisLine={{ stroke: "#e5e5e7" }}
+          tick={{ fill: "#211d17aa", fontSize: 11 }}
+          axisLine={{ stroke: "#e7e1d4" }}
         />
         <YAxis
           type="category"
           dataKey="id"
           width={218}
           tick={(props) => <CriterionYAxisTick {...props} rows={data} locale={locale} rowHeight={rowHeight} />}
-          axisLine={{ stroke: "#e5e5e7" }}
+          axisLine={{ stroke: "#e7e1d4" }}
         />
         <Tooltip
           formatter={(value: number) => [`${value}%`, ""]}
           labelFormatter={criterionTooltipLabel(data)}
           contentStyle={{
             borderRadius: 10,
-            border: "1px solid #e5e5e7",
+            border: "1px solid #e7e1d4",
             fontFamily: "var(--font-plex-sans)",
             fontSize: 13,
           }}
         />
         <Line
           dataKey="value"
-          stroke="#1d1d1f55"
+          stroke="#211d1755"
           strokeWidth={2}
           dot={<CriterionLineDot />}
           activeDot={{ r: 5 }}
@@ -339,7 +340,7 @@ function CriterionRadarTick(props: {
 }) {
   const { x = 0, y = 0, payload, textAnchor, rows } = props;
   const row = rows.find((r) => r.id === payload?.value);
-  const fill = row ? PILLAR_COLOR[row.pillar] : "#1d1d1f";
+  const fill = row ? PILLAR_COLOR[row.pillar] : "#211d17";
   return (
     <text x={x} y={y} textAnchor={textAnchor as never} fill={fill} fontSize={10} fontWeight={600} fontFamily="var(--font-plex-sans)">
       {payload?.value}
@@ -352,15 +353,15 @@ function CriterionRadarChart({ data, locale }: { data: Row[]; locale: Locale }) 
   return (
     <ResponsiveContainer width="100%" height={height}>
       <RadarChart data={data} outerRadius="68%">
-        <PolarGrid stroke="#e5e5e7" />
+        <PolarGrid stroke="#e7e1d4" />
         <PolarAngleAxis dataKey="id" tick={(props) => <CriterionRadarTick {...props} rows={data} />} />
-        <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fill: "#1d1d1faa", fontSize: 9 }} tickCount={5} />
+        <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fill: "#211d17aa", fontSize: 9 }} tickCount={5} />
         <Tooltip
           formatter={(value: number) => [`${value}%`, ""]}
           labelFormatter={criterionTooltipLabel(data)}
           contentStyle={{
             borderRadius: 10,
-            border: "1px solid #e5e5e7",
+            border: "1px solid #e7e1d4",
             fontFamily: "var(--font-plex-sans)",
             fontSize: 13,
           }}
@@ -368,11 +369,11 @@ function CriterionRadarChart({ data, locale }: { data: Row[]; locale: Locale }) 
         <Radar
           name="Score"
           dataKey="value"
-          stroke="#1d1d1f"
-          fill="#1d1d1f"
+          stroke="#211d17"
+          fill="#211d17"
           fillOpacity={0.16}
           strokeWidth={2}
-          dot={{ r: 2.5, fill: "#1d1d1f" }}
+          dot={{ r: 2.5, fill: "#211d17" }}
           isAnimationActive={false}
         />
       </RadarChart>
@@ -402,7 +403,7 @@ function CriterionTable({
   const notesEnabled = Boolean(notes && onToggleDone && onSaveText);
   return (
     <div className="overflow-x-auto rounded-2xl border border-ink/10 bg-white/60">
-      <table className="w-full min-w-[460px] border-collapse text-sm">
+      <table className="w-full min-w-[420px] border-collapse text-sm">
         <tbody>
           {data.map((d) => {
             const accent = PILLAR_COLOR[d.pillar];
@@ -430,11 +431,10 @@ function CriterionTable({
                   </div>
                 </td>
                 {notesEnabled && (
-                  <td className="w-56 py-2.5 pr-4 align-middle">
+                  <td className="w-44 py-2.5 pr-4 align-middle">
                     <CriterionNoteCell
                       criterionId={d.id}
                       name={d.name}
-                      value={d.value}
                       note={notes?.[d.id]}
                       locale={locale}
                       onToggleDone={(next) => onToggleDone?.(d.id, next)}
