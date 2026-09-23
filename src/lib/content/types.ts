@@ -1,6 +1,40 @@
-export type Locale = "de" | "en" | "tr";
+export type Locale = "de" | "en" | "tr" | "ro";
 
-export type LocalizedText = Record<Locale, string>;
+/**
+ * Lokalisierter Text: für die Basissprachen vollständig gepflegt, für neu
+ * hinzugefügte Sprachen (z.B. "ro") zunächst optional. resolveText() liefert
+ * für eine fehlende Sprache automatisch einen sinnvollen Fallback-Text.
+ *
+ * Genau hier ist auch der vorgesehene Erweiterungspunkt für eine künftige
+ * Live-Übersetzungs-API: sobald eine echte Übersetzungsanbindung (z.B. DeepL)
+ * verfügbar ist, kann resolveText() so erweitert werden, dass sie bei einer
+ * fehlenden Sprache statt des Fallback-Texts automatisch eine Übersetzung
+ * abruft (und z.B. cacht) – der Aufruf-Vertrag an allen Stellen im Code
+ * (Locale rein, string raus) bleibt dabei unverändert.
+ */
+export type LocalizedText = Partial<Record<Locale, string>>;
+
+/** Bevorzugte Fallback-Reihenfolge, falls ein Text in der gewünschten
+ * Sprache (noch) nicht vorliegt. */
+const FALLBACK_ORDER: Locale[] = ["en", "de", "tr", "ro"];
+
+/**
+ * Löst einen LocalizedText für eine gewünschte Sprache auf. Fällt bei
+ * fehlender Übersetzung auf Englisch, dann Deutsch, dann Türkisch, dann
+ * Rumänisch, dann auf die erste vorhandene Sprache zurück, damit die UI nie
+ * eine leere Stelle zeigt. Erweiterungspunkt für eine künftige
+ * Live-Übersetzungs-API, siehe LocalizedText.
+ */
+export function resolveText(text: LocalizedText, locale: Locale): string {
+  if (text[locale]) return text[locale] as string;
+  for (const fallback of FALLBACK_ORDER) {
+    if (text[fallback]) return text[fallback] as string;
+  }
+  for (const key of Object.keys(text) as Locale[]) {
+    if (text[key]) return text[key] as string;
+  }
+  return "";
+}
 
 export type PillarKey = "Q" | "E" | "T";
 
