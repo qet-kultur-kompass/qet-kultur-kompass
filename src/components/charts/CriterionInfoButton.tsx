@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { CRITERION_DESCRIPTIONS } from "@/lib/content/criteriaDescriptions";
 import { t } from "@/lib/content/i18n";
+import { resolveText } from "@/lib/content/types";
 import type { Locale } from "@/lib/content/types";
 
 /**
@@ -24,7 +25,8 @@ export function CriterionInfoButton({
   accent: string;
 }) {
   const [open, setOpen] = useState(false);
-  const description = CRITERION_DESCRIPTIONS[criterionId]?.[locale];
+  const descriptionText = CRITERION_DESCRIPTIONS[criterionId];
+  const description = descriptionText ? resolveText(descriptionText, locale) : undefined;
   if (!description) return null;
 
   return (
