@@ -24,7 +24,7 @@ export const MANAGEMENT_FIELDS: ManagementField[] = [
   {
     // QET M01: Führung
     key: "leadership",
-    name: { de: "Führung", en: "Leadership", tr: "Liderlik" },
+    name: { de: "Führung", en: "Leadership", ro: "Conducere", tr: "Liderlik" },
     criteriaIds: [
       "Q01", "Q02", "Q03", "Q04", "Q05", "Q06", "Q13", "Q18",
       "E01", "E02", "E11", "E20",
@@ -34,7 +34,7 @@ export const MANAGEMENT_FIELDS: ManagementField[] = [
   {
     // QET M02: Mitarbeiter
     key: "employees",
-    name: { de: "Mitarbeiter", en: "Employees", tr: "Çalışanlar" },
+    name: { de: "Mitarbeiter", en: "Employees", ro: "Angajați", tr: "Çalışanlar" },
     criteriaIds: [
       "Q02", "Q05", "Q07", "Q12", "Q17", "Q18",
       "E01", "E02", "E03", "E04", "E06", "E07", "E08", "E09", "E10", "E11", "E12", "E13", "E14", "E15", "E16",
@@ -47,6 +47,7 @@ export const MANAGEMENT_FIELDS: ManagementField[] = [
     name: {
       de: "Kunden/Produkte/Märkte",
       en: "Customers, Products & Markets",
+      ro: "Clienți, Produse și Piețe",
       tr: "Müşteriler, Ürünler ve Pazarlar",
     },
     criteriaIds: [
@@ -58,7 +59,7 @@ export const MANAGEMENT_FIELDS: ManagementField[] = [
   {
     // QET M04: Geschäftsprozesse
     key: "business_processes",
-    name: { de: "Geschäftsprozesse", en: "Business Processes", tr: "İş Süreçleri" },
+    name: { de: "Geschäftsprozesse", en: "Business Processes", ro: "Procese de afaceri", tr: "İş Süreçleri" },
     criteriaIds: [
       "Q06", "Q10", "Q14", "Q15", "Q16", "Q17", "Q18",
       "E03", "E05", "E18",
@@ -68,13 +69,13 @@ export const MANAGEMENT_FIELDS: ManagementField[] = [
   {
     // QET M05: Finanzen
     key: "finance",
-    name: { de: "Finanzen", en: "Finance", tr: "Finans" },
+    name: { de: "Finanzen", en: "Finance", ro: "Finanțe", tr: "Finans" },
     criteriaIds: ["Q01", "Q08", "Q14", "Q19", "E04", "E08", "T04", "T05", "T07", "T10", "T14", "T19"],
   },
   {
     // QET M07: Unternehmensimage
     key: "corporate_image",
-    name: { de: "Unternehmensimage", en: "Corporate Image", tr: "Kurumsal İmaj" },
+    name: { de: "Unternehmensimage", en: "Corporate Image", ro: "Imaginea companiei", tr: "Kurumsal İmaj" },
     criteriaIds: [
       "Q11", "Q13", "Q17", "Q18",
       "E02", "E17", "E20",
@@ -84,7 +85,7 @@ export const MANAGEMENT_FIELDS: ManagementField[] = [
   {
     // QET M06: Soziokulturelle Verantwortung (CSR)
     key: "csr",
-    name: { de: "CSR", en: "CSR", tr: "KSS (Kurumsal Sosyal Sorumluluk)" },
+    name: { de: "CSR", en: "CSR", ro: "RSC (Responsabilitate Socială Corporativă)", tr: "KSS (Kurumsal Sosyal Sorumluluk)" },
     criteriaIds: [
       "Q14", "Q17",
       "E03", "E07", "E09", "E10", "E11", "E12", "E13", "E14", "E16", "E18", "E19", "E20",
