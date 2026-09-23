@@ -1,7 +1,7 @@
 import { CRITERIA, PILLARS } from "./criteria";
 import { MANAGEMENT_FIELDS } from "./managementFields";
 import type { Criterion, Locale, LocalizedText, TestScope } from "./types";
-import { scopeToId } from "./types";
+import { resolveText, scopeToId } from "./types";
 
 /** Alle 60 Kriterien-IDs, die zu einem Test-Scope gehören. */
 export function criteriaForScope(scope: TestScope): Criterion[] {
@@ -15,16 +15,19 @@ export function criteriaForScope(scope: TestScope): Criterion[] {
   return CRITERIA.filter((c) => idSet.has(c.id));
 }
 
-export function labelForScope(scope: TestScope, locale: "de" | "en" | "tr"): string {
+export function labelForScope(scope: TestScope, locale: Locale): string {
   if (scope.kind === "full") {
-    return { de: "QET-Gesamttest", en: "Full QET Test", tr: "QET Genel Testi" }[locale];
+    return resolveText(
+      { de: "QET-Gesamttest", en: "Full QET Test", ro: "Testul general QET", tr: "QET Genel Testi" },
+      locale
+    );
   }
   if (scope.kind === "pillar") {
     const pillar = PILLARS.find((p) => p.key === scope.pillar);
-    return pillar?.name[locale] ?? scope.pillar;
+    return pillar ? resolveText(pillar.name, locale) : scope.pillar;
   }
   const field = MANAGEMENT_FIELDS.find((f) => f.key === scope.fieldKey);
-  return field?.name[locale] ?? scope.fieldKey;
+  return field ? resolveText(field.name, locale) : scope.fieldKey;
 }
 
 export interface ScopeStep {
@@ -41,7 +44,7 @@ export function stepsForScope(scope: TestScope, locale: Locale): ScopeStep[] {
   if (scope.kind === "full") {
     return PILLARS.map((p) => ({
       key: p.key,
-      label: p.name[locale],
+      label: resolveText(p.name, locale),
       criteria: CRITERIA.filter((c) => c.pillar === p.key),
     }));
   }
@@ -63,7 +66,7 @@ export function allSelectableScopes(): SelectableScope[] {
     {
       id: "full",
       scope: { kind: "full" },
-      name: { de: "QET-Gesamttest", en: "Full QET Test", tr: "QET Genel Testi" },
+      name: { de: "QET-Gesamttest", en: "Full QET Test", ro: "Testul general QET", tr: "QET Genel Testi" },
       criteriaCount: CRITERIA.length,
       group: "full",
     },
