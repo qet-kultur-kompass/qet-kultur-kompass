@@ -5,8 +5,7 @@ import { PILLARS } from "@/lib/content/criteria";
 import { LOCALES, t } from "@/lib/content/i18n";
 import { resolveText } from "@/lib/content/types";
 import type { Locale, PillarKey } from "@/lib/content/types";
-import { QetLogo } from "./QetLogo";
-import { QetSymbol } from "./QetSymbol";
+import { BrandHeaderLink } from "./BrandHeaderLink";
 import type { GoalItem, GoalStatus } from "./StrategyView";
 
 const PILLAR_COLOR: Record<PillarKey, string> = { Q: "#3d54b0", E: "#2d7a56", T: "#c9862a" };
@@ -74,11 +73,8 @@ export function StrategyHandoutView({
         </div>
       </div>
 
-      <div className="mt-8 flex items-center gap-2">
-        <span className="h-[18px] w-[18px] shrink-0">
-          <QetSymbol />
-        </span>
-        <QetLogo className="h-[18px] w-auto" />
+      <div className="mt-8">
+        <BrandHeaderLink size={18} />
       </div>
       <h1 className="mt-4 font-display text-3xl font-semibold text-ink">{t(locale, "handoutTitle")}</h1>
       <p className="mt-2 max-w-2xl text-sm text-ink/60">{t(locale, "handoutSubtitle")}</p>
