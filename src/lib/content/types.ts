@@ -50,6 +50,11 @@ export interface Criterion {
   pillar: PillarKey;
   name: LocalizedText;
   statements: [LocalizedText, LocalizedText, LocalizedText];
+  /** Markiert ein Sonderkriterium außerhalb der 60 regulären Kriterien
+   * (aktuell: das KI-Sonderkriterium Q21/E21/T21), das in allen Charts in
+   * einer eigenen, von den drei Säulenfarben klar unterscheidbaren Akzentfarbe
+   * dargestellt wird, statt in der Farbe seiner Säule. */
+  special?: boolean;
 }
 
 // answers: Kriterium-ID -> [Wert Statement 1, Wert Statement 2, Wert Statement 3] (0-100)
