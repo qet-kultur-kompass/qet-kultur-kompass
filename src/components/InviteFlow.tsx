@@ -9,6 +9,7 @@ import type { Answers, Locale, PillarKey, Role, TestScope } from "@/lib/content/
 import { scopeFromId, scopeToId } from "@/lib/content/types";
 import { computeScores, overallIndex, pickAnswers } from "@/lib/scoring";
 import { QetSymbol } from "./QetSymbol";
+import { QetLogo } from "./QetLogo";
 import { StatementSlider } from "./StatementSlider";
 import { QetIndexGauge } from "./QetIndexGauge";
 import { QetIndexRing } from "./QetIndexRing";
@@ -635,12 +636,16 @@ function CenteredNote({ children }: { children: React.ReactNode }) {
 }
 
 function BrandMark({ locale }: { locale: Locale }) {
+  void locale;
   return (
-    <div className="flex items-center gap-2 text-sm font-medium text-ink/60">
-      <span className="h-5 w-5">
+    <div className="flex items-center gap-2">
+      <span className="h-[14.7px] w-[14.7px] shrink-0">
         <QetSymbol />
       </span>
-      {t(locale, "brand")}
+      <QetLogo className="h-[14.7px] w-auto" />
+      <span className="hidden text-[14.7px] font-medium text-ink/40 sm:inline">
+        Our compass. Your course.
+      </span>
     </div>
   );
 }
