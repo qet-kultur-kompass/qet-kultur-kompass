@@ -12,6 +12,7 @@ import { CompanyDashboardCharts } from "./CompanyDashboardCharts";
 import { InviteeList, type InviteeRow } from "./InviteeList";
 import { SelfLogoutButton } from "./SelfLogoutButton";
 import { SubmissionHistory, type SubmissionSummary } from "./SubmissionHistory";
+import { ProgressTrendChart } from "./ProgressTrendChart";
 import { ProfileNameEditor } from "./ProfileNameEditor";
 
 export type { SubmissionSummary };
@@ -125,6 +126,9 @@ export function MeinDashboardView({ data }: { data: MeinDashboardData }) {
             <span className="text-xs text-ink/45">
               {data.ownSubmissions!.length} {data.ownSubmissions!.length === 1 ? "Testlauf" : "Testläufe"}
             </span>
+          </div>
+          <div className="mt-4">
+            <ProgressTrendChart submissions={data.ownSubmissions!} locale={locale} />
           </div>
           <div className="mt-4">
             <SubmissionHistory submissions={data.ownSubmissions!} locale={locale} />
