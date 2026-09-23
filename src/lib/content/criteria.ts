@@ -1,7 +1,9 @@
 import type { Criterion, Pillar } from "./types";
 
-// Die 60 Kriterien basieren auf den drei Säulen der QET-Masterclass
-// (Qualität, Ethik, Transparenz – qet-masterclass.com), je 20 pro Säule.
+// Die Kriterien basieren auf den drei Säulen der QET-Masterclass
+// (Qualität, Ethik, Transparenz – qet-masterclass.com), je 20 reguläre
+// Kriterien pro Säule plus das KI-Sonderkriterium QET61 (Q21/E21/T21,
+// `special: true`), macht 21 pro Säule / 63 insgesamt.
 // Die drei bewertbaren Statements je Kriterium wurden für dieses
 // Kultur-Dashboard neu formuliert und sind trilingual (DE/EN/TR) hinterlegt.
 // Hinweis: Die türkischen Formulierungen sollten vor dem produktiven Einsatz
@@ -1342,6 +1344,86 @@ export const CRITERIA: Criterion[] = [
         de: "Zertifikate werden gegenüber Kunden und Partnern glaubwürdig kommuniziert.",
         en: "Certificates are communicated credibly to customers and partners.",
         tr: "Sertifikalar müşterilere ve iş ortaklarına inandırıcı şekilde iletilir.",
+      },
+    ],
+  },
+
+  // ---------------------------------------------------------------------
+  // SONDERKRITERIUM: KÜNSTLICHE INTELLIGENZ (QET61)
+  // ---------------------------------------------------------------------
+  // Laut Quelle (QET61-Sonderedition) ein Sonderkriterium für alle drei
+  // Säulen zugleich (Q: Qualität automatisierter Prozesse, E:
+  // Verantwortungsvoller KI-Einsatz, T: Transparenz für Mitarbeiter/Kunden),
+  // deshalb als 21. Kriterium in jeder Säule mit identischen Statements
+  // geführt und in der UI per `special: true` farblich abgesetzt (nicht die
+  // Säulenfarbe, sondern eine eigene Akzentfarbe) sowie in allen 7
+  // Managementfeldern zugeordnet (siehe managementFields.ts).
+  {
+    id: "Q21",
+    pillar: "Q",
+    special: true,
+    name: { de: "Künstliche Intelligenz (KI)", en: "Artificial Intelligence (AI)", tr: "Yapay Zeka (YZ)" },
+    statements: [
+      {
+        de: "Der verantwortungsvolle und transparente Einsatz von Künstlicher Intelligenz ist ein besonderes Anliegen unseres Unternehmens.",
+        en: "The responsible and transparent use of artificial intelligence is a particular concern for our company.",
+        tr: "Yapay zekânın sorumlu ve şeffaf kullanımı şirketimiz için özel bir önem taşır.",
+      },
+      {
+        de: "Trotz des größeren Aufwands erfüllen wir mindestens die gesetzlichen Anforderungen der KI-Verordnung an unsere eingesetzten Systeme.",
+        en: "Despite the greater effort involved, we meet at least the legal requirements of the AI Act for the systems we use.",
+        tr: "Daha fazla çaba gerektirse de, kullandığımız sistemler için yapay zeka yönetmeliğinin yasal gerekliliklerini en azından karşılıyoruz.",
+      },
+      {
+        de: "Unser Unternehmen schult die Mitarbeitenden zum Thema Künstliche Intelligenz – theoretisch und praktisch – und sorgt für eine nachvollziehbare, überprüfbare Nutzung KI-gestützter Systeme.",
+        en: "Our company trains employees on artificial intelligence – both theoretically and practically – and ensures a transparent, verifiable use of AI-supported systems.",
+        tr: "Şirketimiz, çalışanları yapay zeka konusunda teorik ve pratik olarak eğitir ve yapay zeka destekli sistemlerin izlenebilir, denetlenebilir şekilde kullanılmasını sağlar.",
+      },
+    ],
+  },
+  {
+    id: "E21",
+    pillar: "E",
+    special: true,
+    name: { de: "Künstliche Intelligenz (KI)", en: "Artificial Intelligence (AI)", tr: "Yapay Zeka (YZ)" },
+    statements: [
+      {
+        de: "Der verantwortungsvolle und transparente Einsatz von Künstlicher Intelligenz ist ein besonderes Anliegen unseres Unternehmens.",
+        en: "The responsible and transparent use of artificial intelligence is a particular concern for our company.",
+        tr: "Yapay zekânın sorumlu ve şeffaf kullanımı şirketimiz için özel bir önem taşır.",
+      },
+      {
+        de: "Trotz des größeren Aufwands erfüllen wir mindestens die gesetzlichen Anforderungen der KI-Verordnung an unsere eingesetzten Systeme.",
+        en: "Despite the greater effort involved, we meet at least the legal requirements of the AI Act for the systems we use.",
+        tr: "Daha fazla çaba gerektirse de, kullandığımız sistemler için yapay zeka yönetmeliğinin yasal gerekliliklerini en azından karşılıyoruz.",
+      },
+      {
+        de: "Unser Unternehmen schult die Mitarbeitenden zum Thema Künstliche Intelligenz – theoretisch und praktisch – und sorgt für eine nachvollziehbare, überprüfbare Nutzung KI-gestützter Systeme.",
+        en: "Our company trains employees on artificial intelligence – both theoretically and practically – and ensures a transparent, verifiable use of AI-supported systems.",
+        tr: "Şirketimiz, çalışanları yapay zeka konusunda teorik ve pratik olarak eğitir ve yapay zeka destekli sistemlerin izlenebilir, denetlenebilir şekilde kullanılmasını sağlar.",
+      },
+    ],
+  },
+  {
+    id: "T21",
+    pillar: "T",
+    special: true,
+    name: { de: "Künstliche Intelligenz (KI)", en: "Artificial Intelligence (AI)", tr: "Yapay Zeka (YZ)" },
+    statements: [
+      {
+        de: "Der verantwortungsvolle und transparente Einsatz von Künstlicher Intelligenz ist ein besonderes Anliegen unseres Unternehmens.",
+        en: "The responsible and transparent use of artificial intelligence is a particular concern for our company.",
+        tr: "Yapay zekânın sorumlu ve şeffaf kullanımı şirketimiz için özel bir önem taşır.",
+      },
+      {
+        de: "Trotz des größeren Aufwands erfüllen wir mindestens die gesetzlichen Anforderungen der KI-Verordnung an unsere eingesetzten Systeme.",
+        en: "Despite the greater effort involved, we meet at least the legal requirements of the AI Act for the systems we use.",
+        tr: "Daha fazla çaba gerektirse de, kullandığımız sistemler için yapay zeka yönetmeliğinin yasal gerekliliklerini en azından karşılıyoruz.",
+      },
+      {
+        de: "Unser Unternehmen schult die Mitarbeitenden zum Thema Künstliche Intelligenz – theoretisch und praktisch – und sorgt für eine nachvollziehbare, überprüfbare Nutzung KI-gestützter Systeme.",
+        en: "Our company trains employees on artificial intelligence – both theoretically and practically – and ensures a transparent, verifiable use of AI-supported systems.",
+        tr: "Şirketimiz, çalışanları yapay zeka konusunda teorik ve pratik olarak eğitir ve yapay zeka destekli sistemlerin izlenebilir, denetlenebilir şekilde kullanılmasını sağlar.",
       },
     ],
   },
