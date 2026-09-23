@@ -3,12 +3,14 @@
  * QET-Masterclass-Unterlagen: ein offener Ring als "Q" mit diagonalem
  * Schweif, gefolgt von "ET"). Als Vektor nachgebaut, damit keine externe
  * Bilddatei benötigt wird und die Marke in jeder Auflösung scharf bleibt.
+ * Durchgängig einfarbig (Ring, Schweif, "ET" und "®" in derselben Farbe) –
+ * genau wie im offiziellen Logo, wo der Schriftzug nicht zweifarbig ist.
  *
- * `tone="white"` liefert eine einfarbig weiße Variante für den Einsatz auf
- * dunklem/farbigem Grund (z.B. im Zentrum des QetIndexRing). `width`/`height`
- * setzen die Größe direkt als SVG-Attribute (statt über `className`) – nötig,
- * wenn das Logo als verschachteltes <svg> in einem anderen SVG-Koordinaten-
- * system positioniert wird, wo Tailwind-Größenklassen nicht sauber skalieren.
+ * `tone="white"` liefert die Variante für den Einsatz auf dunklem/farbigem
+ * Grund (z.B. im Zentrum des QetIndexRing). `width`/`height` setzen die
+ * Größe direkt als SVG-Attribute (statt über `className`) – nötig, wenn das
+ * Logo als verschachteltes <svg> in einem anderen SVG-Koordinatensystem
+ * positioniert wird, wo Tailwind-Größenklassen nicht sauber skalieren.
  */
 export function QetLogo({
   className = "h-8 w-auto",
@@ -22,8 +24,8 @@ export function QetLogo({
   height?: number;
 }) {
   const ringColor = tone === "white" ? "#ffffff" : "#1d1d1f";
-  const tailColor = tone === "white" ? "#ffffff" : "#3d54b0";
-  const textColor = tone === "white" ? "#ffffff" : "#1d1d1f";
+  const tailColor = ringColor;
+  const textColor = ringColor;
   const sized = width !== undefined || height !== undefined;
 
   return (
