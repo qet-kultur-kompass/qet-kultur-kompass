@@ -4,16 +4,16 @@ import { PILLARS } from "@/lib/content/criteria";
 import { MANAGEMENT_FIELDS } from "@/lib/content/managementFields";
 import { overallIndex } from "@/lib/scoring";
 import { t } from "@/lib/content/i18n";
-import { ShareButtons } from "./ShareButtons";
+import { resolveText } from "@/lib/content/types";
 import type { Locale, PillarKey } from "@/lib/content/types";
 
 /** Gleiche Säulenfarben wie überall sonst in der App (Tabellen, Balken) –
  * siehe tailwind.config.ts (quality/ethics/transparency.500). */
 const PILLAR_COLOR: Record<PillarKey, string> = { Q: "#3d54b0", E: "#2d7a56", T: "#c9862a" };
 
-/** Heller, neutraler Grauton für die "leere" Ring-Restfläche – identisch
- * zum QetIndexGauge, damit beide Gauges optisch zusammenpassen. */
-const TRACK_COLOR = "#e5e5e7";
+/** Heller, warmer Track-Ton – identisch zum bisherigen QetIndexGauge, damit
+ * beide Gauges optisch zusammenpassen. */
+const TRACK_COLOR = "#e7e1d4";
 
 /** "Knallgrün" für den voll erreichten QET-Gesamtwert. Bewusst kräftiger als
  * das gedeckte Ethik-Grün, damit die Gesamtwertung optisch eindeutig von der
@@ -25,7 +25,7 @@ const QET_GREEN = "#16a34a";
  * QetSymbol.tsx). Zeigt den noch nicht erreichten Anteil je Feld; der
  * erreichte Anteil wird zentrisch darüber in Grün eingeblendet (siehe
  * FIELD_FILL_COLOR) und verdrängt den grauen Anteil zusehends. */
-const FIELD_RING_COLOR = "#48484a";
+const FIELD_RING_COLOR = "#4a453d";
 
 /** Dunkler Ton, nur noch für die Kontur-Halo der Prozent-Beschriftung
  * (Text bleibt so lesbar, egal ob er über dem hellen oder dunklen Anteil
@@ -33,7 +33,7 @@ const FIELD_RING_COLOR = "#48484a";
  * (noch nicht erreichte) Fläche ist schlicht hellgrau (TRACK_COLOR); die
  * Trennung zwischen Segmenten ergibt sich allein aus dem Zwischenraum
  * (fieldGap/pillarGap). */
-const SEGMENT_BORDER_COLOR = "#1d1d1f";
+const SEGMENT_BORDER_COLOR = "#211d17";
 
 const rad = (deg: number) => (deg * Math.PI) / 180;
 
@@ -200,7 +200,7 @@ export function QetIndexRing({
           const rFillInner = rMid - filledThickness / 2;
           return (
             <g key={field.key}>
-              <title>{`${field.name[locale]}: ${Math.round(field.score)}%`}</title>
+              <title>{`${resolveText(field.name, locale)}: ${Math.round(field.score)}%`}</title>
               <path d={wedgePath(cx, cy, rInner, rOuter, start, end)} fill={TRACK_COLOR} />
               {filledThickness > 0.5 && (
                 <path d={wedgePath(cx, cy, rFillInner, rFillOuter, start, end)} fill={FIELD_RING_COLOR} />
@@ -237,7 +237,7 @@ export function QetIndexRing({
           const rInner = outerR2 - pillarRingWidth / 2;
           return (
             <g key={seg.key}>
-              <title>{`${pillarMeta.name[locale]}: ${Math.round(score)}%`}</title>
+              <title>{`${resolveText(pillarMeta.name, locale)}: ${Math.round(score)}%`}</title>
               <path d={wedgePath(cx, cy, rInner, rOuter, seg.start, seg.start + pillarSweep)} fill={TRACK_COLOR} />
               {filledSweep > 0.5 && (
                 <path
@@ -252,7 +252,7 @@ export function QetIndexRing({
               />
               <text fontSize={pillarFontSize} fontWeight={700} fill="#ffffff" letterSpacing={0.4}>
                 <textPath href={`#${labelId}`} startOffset="50%" textAnchor="middle" dominantBaseline="central">
-                  {pillarMeta.name[locale].toUpperCase()} · {Math.round(score)}%
+                  {resolveText(pillarMeta.name, locale).toUpperCase()} · {Math.round(score)}%
                 </textPath>
               </text>
             </g>
@@ -306,51 +306,12 @@ export function QetIndexRing({
         </text>
       </svg>
 
-      {/* Gesamtindex teilen – dieselbe Zahl wie im Ring-Zentrum. */}
-      <div className="mt-4 flex items-center gap-1.5">
-        <span className="text-xs font-medium text-ink/60">
-          {caption} · {Math.round(clampedIndex)}%
-        </span>
-        <ShareButtons label={caption} value={clampedIndex} />
-      </div>
-
-      {/* Säulen-Legende: gleiche 3 Werte wie im mittleren Ring, zusätzlich
-       * einzeln teilbar. */}
-      <div className="mt-3 flex flex-col gap-1 text-xs text-ink/70">
-        {pillarSegments.map((seg) => {
-          const pillarMeta = PILLARS.find((p) => p.key === seg.key)!;
-          const score = Math.max(0, Math.min(100, pillarScores[seg.key] ?? 0));
-          return (
-            <div key={seg.key} className="flex items-center justify-between gap-2">
-              <span className="inline-flex min-w-0 items-center gap-1.5">
-                <span
-                  className="inline-block h-2 w-2 shrink-0 rounded-full"
-                  style={{ backgroundColor: PILLAR_COLOR[seg.key] }}
-                  aria-hidden
-                />
-                <span className="truncate">
-                  {pillarMeta.name[locale]} · {Math.round(score)}%
-                </span>
-              </span>
-              <ShareButtons label={pillarMeta.name[locale]} value={score} className="shrink-0" />
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Managementfelder-Legende: gleiche 7 Werte wie im äußeren Ring,
-       * zusätzlich einzeln teilbar. */}
-      <div className="mt-3 grid grid-cols-1 gap-x-5 gap-y-1 text-xs text-ink/70 sm:grid-cols-2">
+      <div className="mt-4 grid grid-cols-1 gap-x-5 gap-y-1 text-xs text-ink/70 sm:grid-cols-2">
         {fields.map((field) => (
-          <div key={field.key} className="flex items-center justify-between gap-2">
-            <span className="inline-flex min-w-0 items-center gap-1.5">
-              <span className="inline-block h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: FIELD_RING_COLOR }} aria-hidden />
-              <span className="truncate">
-                {field.name[locale]} · {Math.round(field.score)}%
-              </span>
-            </span>
-            <ShareButtons label={field.name[locale]} value={field.score} className="shrink-0" />
-          </div>
+          <span key={field.key} className="inline-flex items-center gap-1.5">
+            <span className="inline-block h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: FIELD_RING_COLOR }} aria-hidden />
+            {resolveText(field.name, locale)} · {Math.round(field.score)}%
+          </span>
         ))}
       </div>
     </div>
