@@ -5,6 +5,7 @@ import Link from "next/link";
 import { LOCALES, t } from "@/lib/content/i18n";
 import type { Locale } from "@/lib/content/types";
 import { QetLogo } from "./QetLogo";
+import { QetSymbol } from "./QetSymbol";
 
 export function LoginForm() {
   const [locale, setLocale] = useState<Locale>("de");
@@ -34,8 +35,11 @@ export function LoginForm() {
     <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-16">
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <QetLogo className="h-7 w-auto" />
-          <span className="hidden text-xs font-medium text-ink/40 sm:inline">
+          <span className="h-[14.7px] w-[14.7px] shrink-0">
+            <QetSymbol />
+          </span>
+          <QetLogo className="h-[14.7px] w-auto" />
+          <span className="hidden text-[14.7px] font-medium text-ink/40 sm:inline">
             Our compass. Your course.
           </span>
         </div>
