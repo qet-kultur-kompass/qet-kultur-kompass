@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { CRITERIA, PILLARS } from "@/lib/content/criteria";
 import { MANAGEMENT_FIELDS } from "@/lib/content/managementFields";
 import { bandFor, overallIndex, type Band } from "@/lib/scoring";
@@ -136,23 +136,28 @@ type SegmentSelection = { kind: "field"; key: string } | { kind: "pillar"; key: 
  * - Mittlerer Ring: die 3 Säulen (Qualität/Ethik/Transparenz) – hier zeigt
  *   eine Farbfüllung den erreichten Anteil an, der Rest des Segments bleibt
  *   im hellen Track-Ton.
- * - Zentrum: der QET-Gesamtindex als zentrisch von innen nach außen
- *   wachsender Kreis in einem neutralen Dunkelgrau (FIELD_RING_COLOR,
- *   derselbe Ton wie der erreichte Anteil im äußeren Feldring – bewusst
- *   nicht mehr Knallgrün, das mit der Säule "Ethik" verwechselbar wäre),
- *   umgeben vom hellen Track-Ton. Anders als die Ring-Segmente wächst diese
- *   Füllung radial (Radius proportional zum Indexwert) statt als
- *   Kreissektor/Uhrzeiger-Sweep – das visuelle Bild eines "wachsenden
- *   Kerns" passt besser zu einem einzelnen Gesamtwert ohne Start-/
- *   Endwinkel. Darüber – als eigenständige Wortmarke aus "INDEX" plus der
- *   Zahl, nicht mehr das QET-Logo selbst, dessen weißer Schriftzug über dem
- *   hellen Rest-Anteil kaum lesbar war (erst bei 100 % voll sichtbar). Die
- *   neue Beschriftung nutzt den gleichen Kontur-Halo-Trick wie die
- *   Managementfeld-Prozente (weiße Füllung, dunkle Kontur) und bleibt so
- *   unabhängig vom Füllstand immer lesbar – das dreiteilige
- *   Säulen-Farbschema des Rings selbst (siehe QetSymbol.tsx) trägt die
- *   Markenidentität, "QET-Index" + Zahl bleiben rein informativ und bilden
- *   mit dem Ring eine durchgängige, konsistente Darstellung.
+ * - Zentrum: der QET-Gesamtindex als durchgehend kreisrunde Fläche
+ *   (Radius konstant = centerR), deren Füllung als diagonale Schraffur
+ *   den erreichten Anteil zeigt – bei niedrigem Indexwert dünne
+ *   Diagonalstreifen mit viel Abstand zueinander (FIELD_RING_COLOR auf
+ *   hellem Track-Ton), die mit steigendem Wert kontinuierlich breiter
+ *   werden und den Zwischenraum verdrängen, bis die Fläche bei 100 %
+ *   vollständig (nahtlos) gefüllt ist. Technisch ein SVG-<pattern> mit
+ *   einer einzelnen, diagonal rotierten Linie pro Kachel, deren
+ *   Strichstärke proportional zum Indexwert wächst (siehe
+ *   hatchStrokeWidth weiter unten) – bewusst kein Knallgrün (mit der
+ *   Säule "Ethik" verwechselbar) und bewusst keine wachsende Kreisfläche
+ *   mehr (frühere Variante), da die Schraffur den Füllgrad zusätzlich zur
+ *   reinen Fläche auch über die Liniendichte kommuniziert. Darüber – als
+ *   eigenständige Wortmarke aus "INDEX" plus der Zahl, nicht mehr das
+ *   QET-Logo selbst, dessen weißer Schriftzug über dem hellen Rest-Anteil
+ *   kaum lesbar war (erst bei 100 % voll sichtbar). Die Beschriftung
+ *   nutzt den gleichen Kontur-Halo-Trick wie die Managementfeld-Prozente
+ *   (weiße Füllung, dunkle Kontur) und bleibt so unabhängig vom Füllstand
+ *   immer lesbar – das dreiteilige Säulen-Farbschema des Rings selbst
+ *   (siehe QetSymbol.tsx) trägt die Markenidentität, "QET-Index" + Zahl
+ *   bleiben rein informativ und bilden mit dem Ring eine durchgängige,
+ *   konsistente Darstellung.
  *
  * Jedes Feld- und Säulen-Segment ist anklickbar (Maus & Tastatur): ein Klick
  * blendet direkt unter dem Ring die dazugehörige Kriterien-Auswertung ein
@@ -185,6 +190,12 @@ export function QetIndexRing({
   const caption = label ?? t(locale, "qetIndex");
   const cx = size / 2;
   const cy = size / 2;
+  /** Eindeutige Id für das Schraffur-<pattern> im Ringzentrum (siehe unten)
+   * – nötig, da QetIndexRing mehrfach auf derselben Seite eingebunden sein
+   * kann (z.B. Testübersicht) und SVG-<pattern>-Ids global im Dokument
+   * eindeutig sein müssen; Doppelpunkte aus useId() werden entfernt, damit
+   * die Id als reines IDREF (url(#...)) unproblematisch bleibt. */
+  const hatchId = `qet-index-hatch-${useId().replace(/:/g, "")}`;
 
   const fieldRingWidth = size * 0.1;
   const pillarRingWidth = size * 0.09;
@@ -197,6 +208,18 @@ export function QetIndexRing({
   const centerR = innerEdgePillar - innerGap;
   const indexLabelFontSize = centerR * 0.17;
   const indexNumberFontSize = centerR * 0.6;
+
+  /** Kachelgröße der Zentrums-Schraffur (siehe hatchId oben) – proportional
+   * zu centerR, damit die Streifenbreite bei jeder Ring-Größe (size-Prop)
+   * gleich wirkt. Die Strichstärke pro Kachel wächst linear mit dem
+   * Indexwert von einer dünnen Mindestbreite (sichtbar ab >0,5 %) bis auf
+   * knapp über die Kachelgröße bei 100 % – dort deckt der Strich die
+   * gesamte Kachel und lässt keine sichtbare Lücke (nahtlos "vollflächig"),
+   * der leichte Überstand (Faktor 1.08) verhindert Antialiasing-Nahtlinien
+   * exakt bei 100 %. */
+  const hatchSize = Math.max(4, centerR * 0.22);
+  const hatchStrokeWidth =
+    clampedIndex > 0.5 ? Math.max(hatchSize * 0.05, hatchSize * (clampedIndex / 100) * 1.08) : 0;
 
   const fields = MANAGEMENT_FIELDS.map((f) => ({
     ...f,
@@ -256,6 +279,27 @@ export function QetIndexRing({
   return (
     <div className="flex flex-col items-center">
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+        {/* Schraffur-Muster für das Ringzentrum (siehe hatchId/hatchSize/
+         * hatchStrokeWidth oben): eine einzelne, um 45° gedrehte Linie pro
+         * quadratischer Kachel. Der Kachel-Hintergrund ist der helle
+         * Track-Ton (die "noch nicht erreichte" Fläche), die Linie darüber
+         * in FIELD_RING_COLOR wächst in der Strichstärke mit dem Indexwert
+         * und verdrängt so zunehmend den hellen Zwischenraum. */}
+        <defs>
+          <pattern id={hatchId} patternUnits="userSpaceOnUse" width={hatchSize} height={hatchSize} patternTransform="rotate(45)">
+            <rect width={hatchSize} height={hatchSize} fill={TRACK_COLOR} />
+            {hatchStrokeWidth > 0 && (
+              <line
+                x1={hatchSize / 2}
+                y1={0}
+                x2={hatchSize / 2}
+                y2={hatchSize}
+                stroke={FIELD_RING_COLOR}
+                strokeWidth={hatchStrokeWidth}
+              />
+            )}
+          </pattern>
+        </defs>
         {/* Äußerer Ring: 7 klar getrennte Managementfeld-Segmente (gerade
          * Kanten, kein Rundungs-Stroke – siehe wedgePath). Hintergrund je
          * Segment hellgrau (Track), ohne Rand; der erreichte Anteil wird
@@ -384,18 +428,16 @@ export function QetIndexRing({
           );
         })}
 
-        {/* Zentrum: QET-Gesamtindex als zentrisch (radial) wachsender Kreis
-         * in neutralem Dunkelgrau – der Radius skaliert direkt mit dem
-         * Indexwert, statt wie zuvor als Kreissektor im Uhrzeigersinn zu
-         * wachsen. Darüber "QET-INDEX" + Zahl als durchgängig lesbare
-         * Wortmarke (weiße Füllung mit dunkler Kontur-Halo, wie die
-         * Managementfeld-Prozente im äußeren Ring) – bleibt so bei jedem
-         * Füllstand klar erkennbar, statt wie zuvor erst bei 100 % sichtbar
-         * zu werden. */}
-        <circle cx={cx} cy={cy} r={centerR} fill={TRACK_COLOR} />
-        {clampedIndex > 0.5 && (
-          <circle cx={cx} cy={cy} r={centerR * (clampedIndex / 100)} fill={FIELD_RING_COLOR} />
-        )}
+        {/* Zentrum: QET-Gesamtindex als kreisrunde Fläche mit konstantem
+         * Radius (centerR), gefüllt mit der oben definierten diagonalen
+         * Schraffur (url(#hatchId)) statt einer wachsenden Kreisfläche –
+         * die Strichstärke pro Kachel wächst mit dem Indexwert von dünnen,
+         * weit auseinanderliegenden Linien bis zur nahtlos vollflächigen
+         * Deckung bei 100 %. Darüber "QET-INDEX" + Zahl als durchgängig
+         * lesbare Wortmarke (weiße Füllung mit dunkler Kontur-Halo, wie
+         * die Managementfeld-Prozente im äußeren Ring) – bleibt so bei
+         * jedem Füllstand klar erkennbar. */}
+        <circle cx={cx} cy={cy} r={centerR} fill={`url(#${hatchId})`} />
         <title>{`QET-Index: ${Math.round(clampedIndex)}%`}</title>
 
         <text
