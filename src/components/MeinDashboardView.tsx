@@ -72,6 +72,12 @@ export function MeinDashboardView({ data }: { data: MeinDashboardData }) {
           >
             {t(locale, "reportOpenReport")}
           </a>
+          <a
+            href="/mein-dashboard/strategie"
+            className="rounded-full border border-ink/15 px-3 py-1.5 text-xs font-medium text-ink/70 transition hover:bg-ink/5"
+          >
+            {t(locale, "strategyOpenLink")}
+          </a>
           <SelfLogoutButton locale={locale} />
         </div>
       </div>
