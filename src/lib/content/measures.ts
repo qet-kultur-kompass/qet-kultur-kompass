@@ -82,4 +82,3 @@ export const MEASURES: Record<string, LocalizedText> = {
   T20: { de: "Relevante Zertifizierungen, z.B. ISO oder Fair-Trade-Siegel, für das eigene Geschäftsfeld prüfen." },
   T21: { de: "Transparent kommunizieren, wo und wie im Unternehmen KI eingesetzt wird." },
 };
-
