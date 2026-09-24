@@ -7,7 +7,7 @@ import { allSelectableScopes, criteriaForScope, labelForScope, stepsForScope } f
 import type { Answers, Locale, PillarKey, Role, TestScope } from "@/lib/content/types";
 import { resolveText, scopeToId } from "@/lib/content/types";
 import { computeScores, overallIndex, pickAnswers } from "@/lib/scoring";
-import { QetSymbol } from "./QetSymbol";
+import { BrandHeaderLink } from "./BrandHeaderLink";
 import { StatementSlider } from "./StatementSlider";
 import { QetIndexGauge } from "./QetIndexGauge";
 import { QetIndexRing } from "./QetIndexRing";
@@ -128,7 +128,7 @@ export function SurveyFlow({ token }: { token: string }) {
   if (stage === "intro") {
     return (
       <main className="mx-auto min-h-screen max-w-xl px-6 py-16">
-        <BrandMark locale={locale} />
+        <BrandHeaderLink size={20} />
         <h1 className="mt-6 font-display text-3xl font-semibold text-ink">{t(locale, "introTitle")}</h1>
         <p className="mt-3 text-ink/70">{t(locale, "introSubtitle")}</p>
 
@@ -202,7 +202,7 @@ export function SurveyFlow({ token }: { token: string }) {
   if (stage === "scope") {
     return (
       <main className="mx-auto min-h-screen max-w-2xl px-6 py-16">
-        <BrandMark locale={locale} />
+        <BrandHeaderLink size={20} />
         <h1 className="mt-6 font-display text-3xl font-semibold text-ink">{t(locale, "chooseScope")}</h1>
         <p className="mt-3 text-ink/70">{t(locale, "chooseScopeSubtitle")}</p>
 
@@ -244,7 +244,7 @@ export function SurveyFlow({ token }: { token: string }) {
   if (stage === "survey" && currentStep) {
     return (
       <main className="mx-auto min-h-screen max-w-2xl px-6 py-10">
-        <BrandMark locale={locale} />
+        <BrandHeaderLink size={20} />
 
         <div className="mt-6 flex items-center gap-2">
           {steps.map((s, i) => (
@@ -330,7 +330,7 @@ export function SurveyFlow({ token }: { token: string }) {
     return (
       <main className="mx-auto min-h-screen max-w-3xl px-6 py-12">
         <div className="no-print">
-          <BrandMark locale={locale} />
+          <BrandHeaderLink size={20} />
         </div>
         <h1 className="mt-4 font-display text-3xl font-semibold text-ink">{t(locale, "resultsTitle")}</h1>
         <p className="mt-2 text-ink/70">
@@ -472,17 +472,6 @@ function CenteredNote({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen items-center justify-center px-6 text-center text-ink/60">
       {children}
-    </div>
-  );
-}
-
-function BrandMark({ locale }: { locale: Locale }) {
-  return (
-    <div className="flex items-center gap-2 text-sm font-medium text-ink/60">
-      <span className="h-5 w-5">
-        <QetSymbol />
-      </span>
-      {t(locale, "brand")}
     </div>
   );
 }
