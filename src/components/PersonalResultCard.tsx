@@ -1,5 +1,6 @@
 import { QetIndexGauge } from "./QetIndexGauge";
 import { QetIndexRing } from "./QetIndexRing";
+import { BrandCardMark } from "./BrandCardMark";
 import { t } from "@/lib/content/i18n";
 import type { Locale } from "@/lib/content/types";
 
@@ -32,7 +33,10 @@ export function PersonalResultCard({
 
   return (
     <div className="rounded-2xl border border-ink/10 bg-white/60 p-6 shadow-card">
-      <h2 className="font-display text-lg font-semibold text-ink">{t(locale, "dashboardYourResult")}</h2>
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="font-display text-lg font-semibold text-ink">{t(locale, "dashboardYourResult")}</h2>
+        <BrandCardMark size={16} />
+      </div>
       {isFull ? (
         <div className="mt-4 flex justify-center">
           <QetIndexRing
