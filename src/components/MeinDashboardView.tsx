@@ -8,6 +8,7 @@ import { BrandHeaderLink } from "./BrandHeaderLink";
 import { BrandCardMark } from "./BrandCardMark";
 import { CopyField } from "./CopyField";
 import { PersonalResultCard, type PersonalSubmissionData } from "./PersonalResultCard";
+import { MeasureSuggestions } from "./MeasureSuggestions";
 import { CompanyDashboardCharts } from "./CompanyDashboardCharts";
 import { InviteeList, type InviteeRow } from "./InviteeList";
 import { SelfLogoutButton } from "./SelfLogoutButton";
@@ -104,6 +105,9 @@ export function MeinDashboardView({ data }: { data: MeinDashboardData }) {
       ) : (
         <div className="mt-6">
           <PersonalResultCard submission={data.ownSubmission} locale={locale} />
+          <div className="mt-4">
+            <MeasureSuggestions criterionScores={data.ownSubmission.criterionScores} locale={locale} />
+          </div>
           <a
             href={`/invite/${data.ownInviteToken}?new=1`}
             className="mt-4 flex items-center justify-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper shadow-card transition hover:bg-ink/90"
