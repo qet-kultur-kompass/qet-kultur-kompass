@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { aggregateSubmissions, MIN_RESPONSES_FOR_AGGREGATE } from "@/lib/scoring";
 import { CompanyDashboardCharts } from "@/components/CompanyDashboardCharts";
 import { ROLE_LABELS } from "@/lib/content/i18n";
+import { BrandHeaderLink } from "@/components/BrandHeaderLink";
 
 export const dynamic = "force-dynamic";
 
@@ -19,8 +20,10 @@ export default async function PublicCompanyDashboardPage({ params }: { params: {
 
   return (
     <main className="mx-auto min-h-screen max-w-4xl px-6 py-12">
-      <h1 className="font-display text-3xl font-semibold text-ink">{company.name}</h1>
-      <p className="text-sm text-ink/60">Unternehmenskultur-Dashboard · QET Kultur-Kompass</p>
+      <BrandHeaderLink size={20} />
+
+      <h1 className="mt-6 font-display text-3xl font-semibold text-ink">{company.name}</h1>
+      <p className="text-sm text-ink/60">Unternehmenskultur-Dashboard</p>
 
       {!aggregate ? (
         <div className="mt-8 rounded-2xl border border-dashed border-ink/20 p-10 text-center text-sm text-ink/50">
