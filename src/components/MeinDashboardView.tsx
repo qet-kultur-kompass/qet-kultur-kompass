@@ -18,6 +18,17 @@ import { ProfileNameEditor } from "./ProfileNameEditor";
 
 export type { SubmissionSummary };
 
+/** Kompakte Zusammenfassung der offenen Ziele einer Person fürs
+ * Dashboard-Widget (siehe unten) – volle Bearbeitung bleibt der
+ * Strategie-Seite vorbehalten, hier zählt nur "gibt es etwas zu tun". */
+export interface GoalsSummary {
+  openCount: number;
+  overdueCount: number;
+  nextDueTitle: string | null;
+  /** ISO-Datumsstring oder null. */
+  nextDueDate: string | null;
+}
+
 export interface MeinDashboardData {
   role: "owner" | "employee";
   name: string;
@@ -37,6 +48,11 @@ export interface MeinDashboardData {
   surveyShareUrl?: string;
   invitees?: InviteeRow[];
   hasPassword?: boolean;
+  goalsSummary?: GoalsSummary;
+}
+
+function localeTagFor(locale: Locale): string {
+  return locale === "de" ? "de-DE" : locale === "tr" ? "tr-TR" : locale === "ro" ? "ro-RO" : "en-US";
 }
 
 export function MeinDashboardView({ data }: { data: MeinDashboardData }) {
@@ -91,6 +107,36 @@ export function MeinDashboardView({ data }: { data: MeinDashboardData }) {
           setCompanyName(next.companyName);
         }}
       />
+
+      {data.goalsSummary && data.goalsSummary.openCount > 0 && (
+        <a
+          href="/mein-dashboard/strategie"
+          className={`mt-6 flex items-center justify-between rounded-2xl border p-4 shadow-card transition hover:opacity-90 ${
+            data.goalsSummary.overdueCount > 0 ? "border-red-200 bg-red-50" : "border-ink/10 bg-white/60"
+          }`}
+        >
+          <div>
+            <div
+              className={`text-sm font-medium ${data.goalsSummary.overdueCount > 0 ? "text-red-700" : "text-ink"}`}
+            >
+              {data.goalsSummary.overdueCount > 0
+                ? t(locale, "dashboardGoalsOverdue", { count: data.goalsSummary.overdueCount })
+                : t(locale, "dashboardGoalsOpen", { count: data.goalsSummary.openCount })}
+            </div>
+            {data.goalsSummary.nextDueDate && (
+              <div className="mt-0.5 text-xs text-ink/50">
+                {t(locale, "dashboardGoalsNextDue", {
+                  date: new Date(data.goalsSummary.nextDueDate).toLocaleDateString(localeTagFor(locale)),
+                })}
+                {data.goalsSummary.nextDueTitle ? ` · ${data.goalsSummary.nextDueTitle}` : ""}
+              </div>
+            )}
+          </div>
+          <span className="whitespace-nowrap text-xs font-medium text-ink/60">
+            {t(locale, "dashboardGoalsCta")}
+          </span>
+        </a>
+      )}
 
       {!data.ownSubmission ? (
         <div className="mt-6 rounded-2xl border border-dashed border-ink/20 p-8 text-center">
