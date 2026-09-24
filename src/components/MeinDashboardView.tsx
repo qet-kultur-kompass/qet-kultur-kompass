@@ -5,6 +5,7 @@ import { LOCALES, t } from "@/lib/content/i18n";
 import type { Locale } from "@/lib/content/types";
 import type { AggregateResult } from "@/lib/scoring";
 import { BrandHeaderLink } from "./BrandHeaderLink";
+import { BrandCardMark } from "./BrandCardMark";
 import { CopyField } from "./CopyField";
 import { PersonalResultCard, type PersonalSubmissionData } from "./PersonalResultCard";
 import { CompanyDashboardCharts } from "./CompanyDashboardCharts";
@@ -133,7 +134,10 @@ export function MeinDashboardView({ data }: { data: MeinDashboardData }) {
       )}
 
       <div className="mt-8">
-        <h2 className="font-display text-lg font-semibold text-ink">{t(locale, "dashboardTeamResult")}</h2>
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="font-display text-lg font-semibold text-ink">{t(locale, "dashboardTeamResult")}</h2>
+          <BrandCardMark size={16} />
+        </div>
         {data.aggregate ? (
           <div className="mt-4">
             <CompanyDashboardCharts aggregate={data.aggregate} />
