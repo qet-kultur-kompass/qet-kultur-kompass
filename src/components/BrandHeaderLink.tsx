@@ -17,24 +17,32 @@ import { QetSymbol } from "./QetSymbol";
  * da eine zur Laufzeit zusammengesetzte Tailwind-Klasse vom JIT-Compiler
  * nicht erkannt und somit keine CSS-Regel dafür erzeugt würde.
  *
- * VERTIKALE AUSRICHTUNG (`wordmarkNudgeRatio`): Die Wortmarken-Grafik
+ * VERTIKALE AUSRICHTUNG (`WORDMARK_NUDGE_RATIO`): Die Wortmarken-Grafik
  * (public/qet-wordmark.png, 719×300) hat oben spürbar mehr "Luft" (Platz
- * für das ®-Zeichen) als unten (der Schweif des "Q" reicht fast bis zum
- * unteren Bildrand). Per Bildanalyse (Alpha-Kanal der PNG-Datei, Zeilen der
- * "T"-Säule ohne das ®-Zeichen) liegt die optische Mitte der eigentlichen
- * Buchstaben bei ca. 60,5 % der Bildhöhe statt bei 50 % – die sichtbaren
- * Buchstaben sitzen also ca. 10,5 % der Bildhöhe UNTERHALB der geometrischen
- * Bildmitte. Ohne Korrektur richtet `items-center` nur die BOUNDING BOXES
- * von Symbol (symmetrisch, optische Mitte = Box-Mitte) und Wortmarken-Bild
- * aneinander aus – dadurch wirkt der Kreis relativ zu den sichtbaren
- * Buchstaben zu hoch. Die Korrektur verschiebt die Wortmarke deshalb IMMER
- * (nicht mehr optional pro Aufrufer) um `size * wordmarkNudgeRatio` nach
- * oben, damit Kreis und Schriftzug an jeder verwendeten Größe auf derselben
- * horizontalen Achse sitzen. Da eine zur Laufzeit berechnete Tailwind-
- * Arbitrary-Value-Klasse (z.B. `-translate-y-[${px}px]`) vom JIT-Compiler
- * nicht erkannt würde (siehe oben), erfolgt die Verschiebung über eine
- * umschließende <span> mit Inline-Style statt über eine Tailwind-Klasse auf
- * dem <img> selbst.
+ * für das ®-Zeichen) als unten, wodurch die sichtbaren Buchstaben unterhalb
+ * der geometrischen Bildmitte sitzen. Ohne Korrektur richtet `items-center`
+ * nur die BOUNDING BOXES von Symbol und Wortmarken-Bild aneinander aus –
+ * dadurch wirkt der Ring relativ zu den sichtbaren Buchstaben zu hoch. Die
+ * Korrektur verschiebt die Wortmarke deshalb um `size * WORDMARK_NUDGE_RATIO`
+ * nach oben, damit Ring und Schriftzug auf derselben horizontalen Achse
+ * sitzen. Da eine zur Laufzeit berechnete Tailwind-Arbitrary-Value-Klasse
+ * (z.B. `-translate-y-[${px}px]`) vom JIT-Compiler nicht erkannt würde
+ * (siehe oben), erfolgt die Verschiebung über eine umschließende <span> mit
+ * Inline-Style statt über eine Tailwind-Klasse auf dem <img> selbst.
+ *
+ * Der Wert hier (0.242) wurde speziell für die Kopfzeile per Live-
+ * Pixelmessung des produktiv ausgelieferten Logos ermittelt (Screenshot-
+ * Zoom + Analyse der Kanal-/Sättigungswerte, getrennt für den Ring und für
+ * die tatsächlichen Buchstaben Q/E/T ohne das ®-Zeichen): Bei der bisherigen
+ * Basis-Korrektur (0.105, siehe BrandCardMark.tsx) lag die Buchstaben-Mitte
+ * noch ca. 4 Bildzeilen (≈2px bei size=15) UNTERHALB der Ring-Mitte, d.h. der
+ * Ring wirkte weiterhin zu hoch / der Text zu tief. BrandCardMark verwendet
+ * bewusst weiterhin 0.105 (vom Nutzer für das Ergebnisfeld ausdrücklich als
+ * korrekt bestätigt) – die abweichenden Werte deuten darauf hin, dass die
+ * beiden Kontexte (anklickbarer <Link> vs. reines <span>, leicht
+ * unterschiedliche `size`) das Bild nicht pixelidentisch rendern; deshalb
+ * hat jede Komponente ihre eigene, empirisch ermittelte Konstante statt
+ * einer geteilten.
  *
  * Zuvor gab es dafür ein optionales `wordmarkClassName`-Prop, das nur an
  * 3 von 21 Einbindungen (LoginForm/SignupForm/MeinDashboardView, alle mit
@@ -45,7 +53,7 @@ import { QetSymbol } from "./QetSymbol";
  * muss. Das Prop bleibt als seltener Fein-Justierungs-Hook erhalten, wirkt
  * nun aber zusätzlich zur automatischen Basis-Korrektur.
  */
-const WORDMARK_NUDGE_RATIO = 0.105;
+const WORDMARK_NUDGE_RATIO = 0.242;
 
 export function BrandHeaderLink({
   size = 18,
