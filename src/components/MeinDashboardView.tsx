@@ -64,7 +64,7 @@ export function MeinDashboardView({ data }: { data: MeinDashboardData }) {
     <main className="mx-auto min-h-screen max-w-4xl px-6 py-12">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <BrandHeaderLink size={15} />
+          <BrandHeaderLink size={15} wordmarkClassName="-translate-y-0.5" />
           <span className="hidden text-[14.7px] font-medium text-ink/40 sm:inline">
             Our compass. Your course.
           </span>
