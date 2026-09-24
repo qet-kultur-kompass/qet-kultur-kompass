@@ -24,6 +24,13 @@
  * bekannten Seitenverhältnis (719:300) die jeweils fehlende Dimension
  * berechnet und beide Werte explizit gesetzt – das ist robuster als sich
  * auf automatische Seitenverhältnis-Berechnung der Browser zu verlassen.
+ *
+ * `className` wird IMMER angewendet (auch wenn `width`/`height` gesetzt
+ * sind), nicht nur im ungesized Fall – die Inline-Styles für Breite/Höhe
+ * gewinnen ohnehin per CSS-Spezifität gegen klassenbasierte Größen, daher
+ * ist das gefahrlos. Das erlaubt z.B. `BrandHeaderLink`, über eine zusätzlich
+ * durchgereichte Klasse (z.B. eine kleine `-translate-y-*`-Korrektur) die
+ * Wortmarke fein zu positionieren, ohne die Größenberechnung zu berühren.
  */
 const WORDMARK_WIDTH = 719;
 const WORDMARK_HEIGHT = 300;
@@ -61,7 +68,7 @@ export function QetLogo({
       alt="QET"
       width={WORDMARK_WIDTH}
       height={WORDMARK_HEIGHT}
-      className={sized ? undefined : className}
+      className={className}
       style={{
         ...(styleWidth !== undefined ? { width: styleWidth } : null),
         ...(styleHeight !== undefined ? { height: styleHeight } : null),
