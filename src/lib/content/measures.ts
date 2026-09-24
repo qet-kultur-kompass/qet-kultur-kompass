@@ -4,7 +4,7 @@ import type { LocalizedText } from "./types";
  * Konkrete, sofort umsetzbare Maßnahmen-Vorschläge je Kriterium (Feature
  * "Automatische Maßnahmen-Vorschläge je Kriterium"). Ergänzt das bestehende
  * Strategie/Ziele-Feature (siehe StrategyView.tsx): während dort Ziele frei
- * formuliert werden, liefert dieser Katalog für jedes der 63 Kriterien einen
+ * formuliert werden, liefert dieser Katalog für jedes der 67 Kriterien einen
  * fertigen, direkt in ein Ziel übernehmbaren Vorschlag – angezeigt über
  * MeasureSuggestions.tsx für die schwächsten Kriterien eines Testergebnisses.
  *
@@ -36,7 +36,8 @@ export const MEASURES: Record<string, LocalizedText> = {
   Q18: { de: "Einen niedrigschwelligen Kanal für Verbesserungsideen einrichten, z.B. eine Ideenbox oder ein digitales Formular." },
   Q19: { de: "Die größten betrieblichen Risiken in einer einfachen Liste erfassen und Verantwortliche sowie Gegenmaßnahmen zuordnen." },
   Q20: { de: "Einen regelmäßigen KVP-Termin etablieren, in dem Verbesserungsvorschläge gesammelt und umgesetzt werden." },
-  Q21: { de: "Klare Qualitätsstandards für den Einsatz von KI-Tools festlegen, z.B. eine Review-Pflicht bei KI-generierten Inhalten." },
+  Q21: { de: "Klare Qualitätsstandards für KI-gestützte Produkt- und Servicefunktionen festlegen, z.B. eine Review-Pflicht bei KI-generierten Kundeninhalten und ein einfaches Monitoring der Fehlerquote." },
+  Q22: { de: "Für KI-gestützte Prozessschritte eine klare menschliche Zuständigkeit benennen und stichprobenartige Qualitätschecks der automatisierten Ergebnisse einführen." },
 
   E01: { de: "Einen kurzen Ethik-Kodex erarbeiten, der die wichtigsten Werte und Verhaltensregeln des Unternehmens festhält." },
   E02: { de: "Regelmäßige, offene Kommunikationsrunden einführen, in denen auch schwierige Themen angesprochen werden dürfen." },
@@ -58,7 +59,9 @@ export const MEASURES: Record<string, LocalizedText> = {
   E18: { de: "Lieferanten und Partner auf faire Handelsbedingungen prüfen und die Kriterien in die Auswahl einbeziehen." },
   E19: { de: "Die größten ökologischen Auswirkungen des Betriebs identifizieren und erste Reduktionsmaßnahmen festlegen." },
   E20: { de: "Ein kleines, konkretes CSR-Projekt initiieren, z.B. lokales Engagement, und im Team kommunizieren." },
-  E21: { de: "Ethische Leitlinien für den KI-Einsatz erarbeiten, z.B. zum Umgang mit Daten und zur Transparenz gegenüber Kund:innen und Mitarbeitenden." },
+  E21: { de: "Verbindliche Leitlinien der Unternehmensführung für den KI-Einsatz erarbeiten (wofür KI genutzt werden darf, wofür nicht) und mit dem Team kommunizieren." },
+  E22: { de: "Eine fachliche Prüf-Pflicht für KI-gestützte Buchungsvorschläge und Finanzauswertungen einführen, bevor sie übernommen werden." },
+  E23: { de: "KI-gestützte Systeme regelmäßig auf Verzerrungen (Bias) gegenüber bestimmten Gruppen prüfen und die Ergebnisse dokumentieren." },
 
   T01: { de: "Unternehmensleitlinien schriftlich festhalten und für alle Mitarbeitenden zugänglich machen." },
   T02: { de: "Ein einheitliches Erscheinungsbild bei Logo, Farben und Wording für alle Kommunikationskanäle festlegen." },
@@ -80,5 +83,6 @@ export const MEASURES: Record<string, LocalizedText> = {
   T18: { de: "Ein internes oder externes Audit zur Überprüfung wichtiger Prozesse und Standards planen." },
   T19: { de: "Eine Teilnahme an einem anerkannten Nachhaltigkeits- oder Unternehmensrating prüfen." },
   T20: { de: "Relevante Zertifizierungen, z.B. ISO oder Fair-Trade-Siegel, für das eigene Geschäftsfeld prüfen." },
-  T21: { de: "Transparent kommunizieren, wo und wie im Unternehmen KI eingesetzt wird." },
+  T21: { de: "Ein Schulungsformat zum Thema KI für Mitarbeitende einführen (Grundlagen + praktischer Umgang) und eine feste Ansprechperson für Fragen benennen." },
+  T22: { de: "Offen kommunizieren, wo und wie im Unternehmen KI eingesetzt wird, z.B. über die Website oder in Kundenmaterialien." },
 };
