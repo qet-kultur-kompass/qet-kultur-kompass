@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAnySelfServiceSession } from "@/lib/session";
 import { aggregateSubmissions, computeScores, MIN_RESPONSES_FOR_AGGREGATE } from "@/lib/scoring";
 import type { Answers } from "@/lib/content/types";
-import { MeinDashboardView, type MeinDashboardData, type SubmissionSummary } from "@/components/MeinDashboardView";
+import { MeinDashboardView, type MeinDashboardData, type SubmissionSummary, type GoalsSummary } from "@/components/MeinDashboardView";
 
 export const dynamic = "force-dynamic";
 
@@ -33,6 +33,32 @@ function toSummaries(
   }));
 }
 
+/** Fasst die offenen Ziele einer Person für das kompakte Dashboard-Widget
+ * zusammen (siehe MeinDashboardView) – bewusst nur Zähler + nächster
+ * Termin statt der vollen Liste, damit niemand zur Strategie-Seite
+ * navigieren muss, um zu sehen, ob etwas überfällig ist. "Überfällig" wird
+ * wie in StrategyView.tsx bestimmt: Status != "done" und Zieltermin vor
+ * heute (reiner Datumsvergleich, ohne Uhrzeit). */
+function summarizeGoals(
+  goals: { title: string; dueDate: Date | null; status: string }[]
+): GoalsSummary {
+  const todayIso = new Date().toISOString().slice(0, 10);
+  const open = goals.filter((g) => g.status !== "done");
+  const overdueCount = open.filter(
+    (g) => g.dueDate !== null && g.dueDate.toISOString().slice(0, 10) < todayIso
+  ).length;
+  const withDueDate = [...open]
+    .filter((g) => g.dueDate !== null)
+    .sort((a, b) => (a.dueDate! < b.dueDate! ? -1 : a.dueDate! > b.dueDate! ? 1 : 0));
+  const next = withDueDate[0] ?? null;
+  return {
+    openCount: open.length,
+    overdueCount,
+    nextDueTitle: next?.title ?? null,
+    nextDueDate: next?.dueDate ? next.dueDate.toISOString() : null,
+  };
+}
+
 export default async function MeinDashboardPage() {
   const session = await requireAnySelfServiceSession();
   if (!session) redirect("/login");
@@ -56,6 +82,12 @@ export default async function MeinDashboardPage() {
     // Neueste Einreichung zuerst (siehe orderBy oben) – so zeigt "Mein
     // Ergebnis" immer den letzten Testlauf, auch wenn mehrere existieren.
     const latestOwnSubmission = ownInvitee?.submissions[0] ?? null;
+    // Eigene Ziele separat geladen (nicht Teil des invitees-Includes oben),
+    // da wir sie nur für die eigene Person brauchen, nicht für alle
+    // Mitarbeitenden – siehe summarizeGoals().
+    const ownGoals = ownInvitee
+      ? await prisma.goal.findMany({ where: { inviteeId: ownInvitee.id } })
+      : [];
     const aggregate =
       company.submissions.length >= MIN_RESPONSES_FOR_AGGREGATE
         ? aggregateSubmissions(company.submissions)
@@ -99,6 +131,7 @@ export default async function MeinDashboardPage() {
           inviteToken: inv.inviteToken,
         })),
       companyId: company.id,
+      goalsSummary: summarizeGoals(ownGoals),
     };
 
     return <MeinDashboardView data={data} />;
@@ -110,6 +143,7 @@ export default async function MeinDashboardPage() {
     include: {
       company: { include: { submissions: true } },
       submissions: { orderBy: { createdAt: "desc" } },
+      goals: true,
     },
   });
   if (!invitee) redirect("/login");
@@ -147,6 +181,7 @@ export default async function MeinDashboardPage() {
     origin,
     hasPassword: Boolean(invitee.passwordHash),
     companyId: invitee.companyId,
+    goalsSummary: summarizeGoals(invitee.goals),
   };
 
   return <MeinDashboardView data={data} />;
