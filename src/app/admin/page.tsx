@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { NewCompanyForm } from "@/components/NewCompanyForm";
 import { SignOutButton } from "@/components/SignOutButton";
+import { BrandHeaderLink } from "@/components/BrandHeaderLink";
 
 export const dynamic = "force-dynamic";
 
@@ -15,8 +16,8 @@ export default async function AdminPage() {
     <main className="mx-auto min-h-screen max-w-4xl px-6 py-12">
       <header className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-2xl font-semibold text-ink">QET Kultur-Kompass</h1>
-          <p className="text-sm text-ink/60">Admin-Übersicht Ihrer Firmen</p>
+          <BrandHeaderLink size={22} />
+          <p className="mt-1 text-sm text-ink/60">Admin-Übersicht Ihrer Firmen</p>
         </div>
         <SignOutButton />
       </header>
