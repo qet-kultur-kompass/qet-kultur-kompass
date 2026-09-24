@@ -29,4 +29,3 @@ export function BrandCardMark({ size = 16, className = "" }: { size?: number; cl
     </span>
   );
 }
-
