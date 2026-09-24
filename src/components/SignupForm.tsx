@@ -46,7 +46,7 @@ export function SignupForm() {
     <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-16">
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <BrandHeaderLink size={15} />
+          <BrandHeaderLink size={15} wordmarkClassName="-translate-y-0.5" />
           <span className="hidden text-[14.7px] font-medium text-ink/40 sm:inline">
             Our compass. Your course.
           </span>
