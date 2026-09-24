@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { BrandHeaderLink } from "@/components/BrandHeaderLink";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -30,13 +31,16 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center px-6">
+    <main className="flex min-h-screen flex-col items-center justify-center px-6">
+      <div className="mb-6">
+        <BrandHeaderLink size={20} />
+      </div>
+
       <form
         onSubmit={onSubmit}
         className="w-full max-w-sm rounded-2xl border border-ink/10 bg-white/60 p-8 shadow-card"
       >
         <h1 className="font-display text-2xl font-semibold text-ink">Admin-Login</h1>
-        <p className="mt-1 text-sm text-ink/60">QET Kultur-Kompass</p>
 
         <label className="mt-6 block text-sm font-medium text-ink/80">
           E-Mail
