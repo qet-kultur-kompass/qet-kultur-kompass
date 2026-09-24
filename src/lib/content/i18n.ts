@@ -121,6 +121,8 @@ export const UI: Record<Locale, Record<string, string>> = {
     dashboardTeamResult: "Team-Ergebnis (anonymisiert)",
     dashboardTeamLocked: "Aus Datenschutzgründen wird das Team-Ergebnis erst ab {min} Einreichungen angezeigt. Bisher: {count}.",
     dashboardOnlyYou: "Sie sind bisher die einzige Person, die teilgenommen hat.",
+    dashboardByRoleTitle: "Ergebnis nach Rolle",
+    dashboardByRoleResponses: "{count} Einreichung(en)",
     dashboardGoalsOverdue: "{count} Ziel(e) überfällig",
     dashboardGoalsOpen: "{count} Ziel(e) offen",
     dashboardGoalsNextDue: "Nächster Termin: {date}",
@@ -327,6 +329,8 @@ export const UI: Record<Locale, Record<string, string>> = {
     dashboardTeamResult: "Team result (anonymized)",
     dashboardTeamLocked: "For privacy reasons, the team result is only shown from {min} submissions onward. So far: {count}.",
     dashboardOnlyYou: "So far you are the only person who has participated.",
+    dashboardByRoleTitle: "Result by role",
+    dashboardByRoleResponses: "{count} submission(s)",
     dashboardGoalsOverdue: "{count} goal(s) overdue",
     dashboardGoalsOpen: "{count} goal(s) open",
     dashboardGoalsNextDue: "Next due: {date}",
@@ -531,6 +535,8 @@ export const UI: Record<Locale, Record<string, string>> = {
     dashboardTeamResult: "Takım sonucu (anonimleştirilmiş)",
     dashboardTeamLocked: "Gizlilik nedeniyle takım sonucu ancak {min} gönderiden itibaren gösterilir. Şu ana kadar: {count}.",
     dashboardOnlyYou: "Şu ana kadar katılan tek kişi sizsiniz.",
+    dashboardByRoleTitle: "Role göre sonuç",
+    dashboardByRoleResponses: "{count} gönderi",
     dashboardGoalsOverdue: "{count} hedef gecikti",
     dashboardGoalsOpen: "{count} açık hedef",
     dashboardGoalsNextDue: "Sıradaki tarih: {date}",
@@ -736,6 +742,8 @@ export const UI: Record<Locale, Record<string, string>> = {
     dashboardTeamResult: "Rezultatul echipei (anonimizat)",
     dashboardTeamLocked: "Din motive de protecție a datelor, rezultatul echipei este afișat abia de la {min} trimiteri. Până acum: {count}.",
     dashboardOnlyYou: "Până acum sunteți singura persoană care a participat.",
+    dashboardByRoleTitle: "Rezultat pe roluri",
+    dashboardByRoleResponses: "{count} trimitere(i)",
     dashboardGoalsOverdue: "{count} obiectiv(e) restant(e)",
     dashboardGoalsOpen: "{count} obiectiv(e) deschis(e)",
     dashboardGoalsNextDue: "Următorul termen: {date}",
@@ -849,3 +857,4 @@ export function t(locale: Locale, key: string, vars?: Record<string, string | nu
   }
   return text;
 }
+
