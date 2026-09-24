@@ -190,7 +190,7 @@ export function MeinDashboardView({ data }: { data: MeinDashboardData }) {
         </div>
         {data.aggregate ? (
           <div className="mt-4">
-            <CompanyDashboardCharts aggregate={data.aggregate} />
+            <CompanyDashboardCharts aggregate={data.aggregate} locale={locale} />
           </div>
         ) : (
           <div className="mt-4 rounded-2xl border border-dashed border-ink/20 p-8 text-center text-sm text-ink/50">
@@ -254,3 +254,4 @@ export function MeinDashboardView({ data }: { data: MeinDashboardData }) {
     </main>
   );
 }
+
