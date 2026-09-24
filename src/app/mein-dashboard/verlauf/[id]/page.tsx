@@ -10,6 +10,7 @@ import { QetIndexGauge } from "@/components/QetIndexGauge";
 import { QetIndexRing } from "@/components/QetIndexRing";
 import { CriterionBars } from "@/components/charts/CriterionBars";
 import { BrandHeaderLink } from "@/components/BrandHeaderLink";
+import { MeasureSuggestions } from "@/components/MeasureSuggestions";
 
 export const dynamic = "force-dynamic";
 
@@ -122,6 +123,10 @@ export default async function SubmissionDetailPage({ params }: { params: { id: s
             ))}
           </ul>
         </div>
+      </div>
+
+      <div className="mt-6">
+        <MeasureSuggestions criterionScores={criterionScores} />
       </div>
 
       <div className="mt-8 flex flex-wrap gap-3">
