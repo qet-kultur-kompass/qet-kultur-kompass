@@ -13,9 +13,21 @@
  * eine Graustufen-Datei vorliegt, wird sie dafür per CSS-Filter
  * (`brightness(0) invert(1)`) nach Weiß umgefärbt statt eine zweite Datei
  * vorzuhalten.
+ *
+ * WICHTIG zur Größenberechnung: Wird nur `height` ODER nur `width` gesetzt,
+ * darf die jeweils andere Dimension NICHT einfach weggelassen werden. Ohne
+ * eigene CSS-Breite greift der Browser auf das HTML-`width`-Attribut
+ * (719px) als tatsächlichen CSS-Wert zurück, statt die Breite proportional
+ * aus der gesetzten Höhe zu berechnen – das Bild wurde dadurch (z.B. in
+ * BrandHeaderLink mit nur `height`) auf 719px Breite bei z.B. 20px Höhe
+ * gestreckt ("total verzerrt"). Deshalb wird hier IMMER selbst aus dem
+ * bekannten Seitenverhältnis (719:300) die jeweils fehlende Dimension
+ * berechnet und beide Werte explizit gesetzt – das ist robuster als sich
+ * auf automatische Seitenverhältnis-Berechnung der Browser zu verlassen.
  */
 const WORDMARK_WIDTH = 719;
 const WORDMARK_HEIGHT = 300;
+const WORDMARK_RATIO = WORDMARK_WIDTH / WORDMARK_HEIGHT;
 
 export function QetLogo({
   className = "h-8 w-auto",
@@ -30,6 +42,19 @@ export function QetLogo({
 }) {
   const sized = width !== undefined || height !== undefined;
 
+  let styleWidth: number | undefined;
+  let styleHeight: number | undefined;
+  if (width !== undefined && height !== undefined) {
+    styleWidth = width;
+    styleHeight = height;
+  } else if (width !== undefined) {
+    styleWidth = width;
+    styleHeight = width / WORDMARK_RATIO;
+  } else if (height !== undefined) {
+    styleHeight = height;
+    styleWidth = height * WORDMARK_RATIO;
+  }
+
   return (
     <img
       src="/qet-wordmark.png"
@@ -38,8 +63,8 @@ export function QetLogo({
       height={WORDMARK_HEIGHT}
       className={sized ? undefined : className}
       style={{
-        ...(height !== undefined ? { height } : null),
-        ...(width !== undefined ? { width } : null),
+        ...(styleWidth !== undefined ? { width: styleWidth } : null),
+        ...(styleHeight !== undefined ? { height: styleHeight } : null),
         ...(tone === "white" ? { filter: "brightness(0) invert(1)" } : null),
       }}
     />
