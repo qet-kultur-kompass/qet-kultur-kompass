@@ -16,15 +16,29 @@ import { QetSymbol } from "./QetSymbol";
  * berechnete Tailwind-Arbitrary-Value-Klasse (z.B. `h-[${size}px]`) gelöst,
  * da eine zur Laufzeit zusammengesetzte Tailwind-Klasse vom JIT-Compiler
  * nicht erkannt und somit keine CSS-Regel dafür erzeugt würde.
+ *
+ * `wordmarkClassName` (optional, statische Klasse – KEIN zur Laufzeit
+ * zusammengesetzter String, daher unproblematisch für den JIT-Compiler)
+ * erlaubt eine kleine visuelle Korrektur nur an der Wortmarke, ohne das
+ * QetSymbol zu verschieben. Hintergrund: Die Wortmarken-Grafik hat oben
+ * etwas mehr "Luft" (Platz für das ®-Zeichen) als unten (der Schweif des
+ * "Q" reicht fast bis zum unteren Bildrand) – dadurch wirkt "QET" neben
+ * normalem Fließtext (der über die Zeilenhöhe automatisch mittiger sitzt)
+ * optisch leicht zu tief. Wird z.B. in LoginForm/SignupForm/
+ * MeinDashboardView verwendet, wo die Wortmarke neben dem Tagline-Text
+ * "Our compass. Your course." steht, um beide auf eine gemeinsame optische
+ * Linie zu bringen.
  */
 export function BrandHeaderLink({
   size = 18,
   className = "",
   tone = "ink",
+  wordmarkClassName = "",
 }: {
   size?: number;
   className?: string;
   tone?: "ink" | "white";
+  wordmarkClassName?: string;
 }) {
   return (
     <Link
@@ -35,7 +49,7 @@ export function BrandHeaderLink({
       <span className="shrink-0" style={{ height: size, width: size }} aria-hidden>
         <QetSymbol />
       </span>
-      <QetLogo tone={tone} height={size} />
+      <QetLogo tone={tone} height={size} className={wordmarkClassName} />
     </Link>
   );
 }
