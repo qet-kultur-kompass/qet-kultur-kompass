@@ -25,24 +25,18 @@ import { QetSymbol } from "./QetSymbol";
  * dadurch wirkt der Ring relativ zu den sichtbaren Buchstaben zu hoch. Die
  * Korrektur verschiebt die Wortmarke deshalb um `size * WORDMARK_NUDGE_RATIO`
  * nach oben, damit Ring und Schriftzug auf derselben horizontalen Achse
- * sitzen. Da eine zur Laufzeit berechnete Tailwind-Arbitrary-Value-Klasse
- * (z.B. `-translate-y-[${px}px]`) vom JIT-Compiler nicht erkannt würde
- * (siehe oben), erfolgt die Verschiebung über eine umschließende <span> mit
- * Inline-Style statt über eine Tailwind-Klasse auf dem <img> selbst.
+ * sitzen.
  *
- * Der Wert hier (0.242) wurde speziell für die Kopfzeile per Live-
- * Pixelmessung des produktiv ausgelieferten Logos ermittelt (Screenshot-
- * Zoom + Analyse der Kanal-/Sättigungswerte, getrennt für den Ring und für
- * die tatsächlichen Buchstaben Q/E/T ohne das ®-Zeichen): Bei der bisherigen
- * Basis-Korrektur (0.105, siehe BrandCardMark.tsx) lag die Buchstaben-Mitte
- * noch ca. 4 Bildzeilen (≈2px bei size=15) UNTERHALB der Ring-Mitte, d.h. der
- * Ring wirkte weiterhin zu hoch / der Text zu tief. BrandCardMark verwendet
- * bewusst weiterhin 0.105 (vom Nutzer für das Ergebnisfeld ausdrücklich als
- * korrekt bestätigt) – die abweichenden Werte deuten darauf hin, dass die
- * beiden Kontexte (anklickbarer <Link> vs. reines <span>, leicht
- * unterschiedliche `size`) das Bild nicht pixelidentisch rendern; deshalb
- * hat jede Komponente ihre eigene, empirisch ermittelte Konstante statt
- * einer geteilten.
+ * Der Wert (0.105) ist bewusst IDENTISCH mit BrandCardMark.tsx – jener
+ * Komponente, deren Logo-Darstellung im Ergebnisfeld (PersonalResultCard,
+ * "Ihr eigenes Ergebnis") vom Nutzer ausdrücklich als korrekt bestätigt
+ * wurde. Es gibt hier absichtlich KEINE eigene, abweichende Konstante mehr:
+ * die Kopfzeile soll exakt so aussehen wie das bestätigte Ergebnisfeld-Logo,
+ * nicht wie ein separat "nachgemessener" Wert. (Eine frühere Version dieser
+ * Datei verwendete testweise 0.242, basierend auf einer eigenen Pixelmessung
+ * der Kopfzeile – das war falsch und wurde auf ausdrücklichen Wunsch des
+ * Nutzers zurückgenommen: es soll keine erfundenen/abweichenden Werte geben,
+ * sondern exakt die bestätigte Darstellung.)
  *
  * Zuvor gab es dafür ein optionales `wordmarkClassName`-Prop, das nur an
  * 3 von 21 Einbindungen (LoginForm/SignupForm/MeinDashboardView, alle mit
@@ -53,7 +47,7 @@ import { QetSymbol } from "./QetSymbol";
  * muss. Das Prop bleibt als seltener Fein-Justierungs-Hook erhalten, wirkt
  * nun aber zusätzlich zur automatischen Basis-Korrektur.
  */
-const WORDMARK_NUDGE_RATIO = 0.242;
+const WORDMARK_NUDGE_RATIO = 0.105;
 
 export function BrandHeaderLink({
   size = 18,
