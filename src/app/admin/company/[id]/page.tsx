@@ -105,25 +105,6 @@ export default async function CompanyDetailPage({ params }: { params: { id: stri
         )}
       </div>
 
-      {aggregate && (
-        <div className="mt-8 grid grid-cols-3 gap-4">
-          {(["employee", "customer", "partner"] as const).map((role) => (
-            <div key={role} className="rounded-2xl border border-ink/10 bg-white/60 p-5 shadow-card">
-              <div className="text-xs font-medium uppercase tracking-wide text-ink/50">
-                {ROLE_LABELS[role].de}
-              </div>
-              <div className="mt-1 font-mono text-2xl font-semibold text-ink">
-                {aggregate.byRole[role].count > 0 ? `${Math.round(aggregate.byRole[role].qetIndex)}%` : "–"}
-              </div>
-              <div className="text-xs text-ink/50">
-                {aggregate.byRole[role].count}{" "}
-                {aggregate.byRole[role].count === 1 ? "Antwort" : "Antworten"}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
       {company.submissions.length > 0 && (
         <div className="mt-8 overflow-x-auto rounded-2xl border border-ink/10 bg-white/60 shadow-card">
           <table className="w-full min-w-[560px] text-left text-sm">
