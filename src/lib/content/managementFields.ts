@@ -13,9 +13,16 @@ import type { LocalizedText } from "./types";
  * vorgesehen und wird von der App unterstützt (keine disjunkte Partition).
  * Alle 60 Kriterien sind mindestens einem Feld zugeordnet.
  *
- * Das KI-Sonderkriterium (Q21/E21/T21, siehe criteria.ts) betrifft laut
- * Quelle das Unternehmen als Ganzes und ist deshalb – als einzige Ausnahme –
- * bewusst allen 7 Managementfeldern zugeordnet.
+ * Die KI-Sonderkriterien (siehe criteria.ts, Abschnitt "SONDERKRITERIEN")
+ * waren ursprünglich EIN Kriterium mit identischem Text, das dreifach
+ * (Q21/E21/T21) angelegt und jedem der 7 Felder komplett zugeordnet war –
+ * dadurch erschien "Künstliche Intelligenz" in jedem Managementfeld-Test 3x
+ * mit demselben, generischen Text. Jetzt hat jedes Feld GENAU EIN eigenes,
+ * auf sein Oberthema zugeschnittenes KI-Kriterium (z.B. Finanzen → KI in
+ * Buchhaltung/Controlling statt generischem Text):
+ *   Führung → E21, Mitarbeiter → T21, Kunden/Produkte/Märkte → Q21,
+ *   Geschäftsprozesse → Q22, Finanzen → E22, Unternehmensimage → T22,
+ *   CSR → E23.
  */
 
 export interface ManagementField {
@@ -33,7 +40,7 @@ export const MANAGEMENT_FIELDS: ManagementField[] = [
       "Q01", "Q02", "Q03", "Q04", "Q05", "Q06", "Q13", "Q18",
       "E01", "E02", "E11", "E20",
       "T01", "T03", "T07", "T08", "T09", "T12",
-      "Q21", "E21", "T21",
+      "E21",
     ],
   },
   {
@@ -44,7 +51,7 @@ export const MANAGEMENT_FIELDS: ManagementField[] = [
       "Q02", "Q05", "Q07", "Q12", "Q17", "Q18",
       "E01", "E02", "E03", "E04", "E06", "E07", "E08", "E09", "E10", "E11", "E12", "E13", "E14", "E15", "E16",
       "T01", "T07", "T12",
-      "Q21", "E21", "T21",
+      "T21",
     ],
   },
   {
@@ -60,7 +67,7 @@ export const MANAGEMENT_FIELDS: ManagementField[] = [
       "Q06", "Q07", "Q08", "Q09", "Q12", "Q18", "Q19", "Q20",
       "E02", "E03", "E04", "E17", "E18", "E19",
       "T01", "T04", "T05", "T06", "T10", "T11", "T15", "T16", "T17", "T19",
-      "Q21", "E21", "T21",
+      "Q21",
     ],
   },
   {
@@ -71,14 +78,14 @@ export const MANAGEMENT_FIELDS: ManagementField[] = [
       "Q06", "Q10", "Q14", "Q15", "Q16", "Q17", "Q18",
       "E03", "E05", "E18",
       "T05", "T10", "T13", "T14", "T18", "T20",
-      "Q21", "E21", "T21",
+      "Q22",
     ],
   },
   {
     // QET M05: Finanzen
     key: "finance",
     name: { de: "Finanzen", en: "Finance", ro: "Finanțe", tr: "Finans" },
-    criteriaIds: ["Q01", "Q08", "Q14", "Q19", "E04", "E08", "T04", "T05", "T07", "T10", "T14", "T19", "Q21", "E21", "T21"],
+    criteriaIds: ["Q01", "Q08", "Q14", "Q19", "E04", "E08", "T04", "T05", "T07", "T10", "T14", "T19", "E22"],
   },
   {
     // QET M07: Unternehmensimage
@@ -88,7 +95,7 @@ export const MANAGEMENT_FIELDS: ManagementField[] = [
       "Q11", "Q13", "Q17", "Q18",
       "E02", "E17", "E20",
       "T01", "T02", "T06", "T09", "T19", "T20",
-      "Q21", "E21", "T21",
+      "T22",
     ],
   },
   {
@@ -99,7 +106,7 @@ export const MANAGEMENT_FIELDS: ManagementField[] = [
       "Q14", "Q17",
       "E03", "E07", "E09", "E10", "E11", "E12", "E13", "E14", "E16", "E18", "E19", "E20",
       "T01", "T04",
-      "Q21", "E21", "T21",
+      "E23",
     ],
   },
 ];
