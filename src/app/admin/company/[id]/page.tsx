@@ -8,6 +8,7 @@ import { CopyField } from "@/components/CopyField";
 import { SapSettingsPanel } from "@/components/SapSettingsPanel";
 import { InviteeList } from "@/components/InviteeList";
 import { ROLE_LABELS } from "@/lib/content/i18n";
+import { BrandHeaderLink } from "@/components/BrandHeaderLink";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +35,9 @@ export default async function CompanyDetailPage({ params }: { params: { id: stri
 
   return (
     <main className="mx-auto min-h-screen max-w-4xl px-6 py-12">
-      <Link href="/admin" className="text-sm text-ink/50 hover:text-ink">
+      <BrandHeaderLink size={18} />
+
+      <Link href="/admin" className="mt-4 inline-block text-sm text-ink/50 hover:text-ink">
         ← Alle Firmen
       </Link>
 
