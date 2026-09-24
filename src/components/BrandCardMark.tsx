@@ -18,14 +18,25 @@ import { QetSymbol } from "./QetSymbol";
  * platziert die Kennzeichnung je nach Kartenlayout selbst (z.B. in einer
  * `justify-between`-Kopfzeile neben einer Überschrift), damit die Komponente
  * in unterschiedlichen Karten-Layouts wiederverwendbar bleibt.
+ *
+ * Vertikale Ausrichtung: siehe ausführlicher Kommentar in BrandHeaderLink.tsx
+ * (gleiche Ursache – die Wortmarken-Grafik hat oben mehr Leerraum als unten
+ * – und identische Korrektur `size * WORDMARK_NUDGE_RATIO`, hier bislang gar
+ * nicht vorhanden gewesen, nicht nur unvollständig wie bei BrandHeaderLink).
  */
+const WORDMARK_NUDGE_RATIO = 0.105;
+
 export function BrandCardMark({ size = 16, className = "" }: { size?: number; className?: string }) {
+  const wordmarkNudgePx = size * WORDMARK_NUDGE_RATIO;
   return (
     <span className={`inline-flex shrink-0 items-center gap-1.5 ${className}`} aria-hidden>
       <span className="shrink-0" style={{ height: size, width: size }}>
         <QetSymbol />
       </span>
-      <QetLogo height={size} />
+      <span className="inline-block shrink-0" style={{ transform: `translateY(-${wordmarkNudgePx}px)` }}>
+        <QetLogo height={size} />
+      </span>
     </span>
   );
 }
+
