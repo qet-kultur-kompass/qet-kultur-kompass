@@ -44,6 +44,7 @@ export interface MeinDashboardData {
   minResponses: number;
   origin: string;
   companyId: string;
+  participantLimit?: number | null;
   dashboardShareUrl?: string;
   surveyShareUrl?: string;
   invitees?: InviteeRow[];
@@ -243,6 +244,7 @@ export function MeinDashboardView({ data }: { data: MeinDashboardData }) {
                 companyId={data.companyId}
                 origin={data.origin}
                 invitees={data.invitees ?? []}
+                participantLimit={data.participantLimit ?? null}
                 locale={locale}
               />
             </div>
