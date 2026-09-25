@@ -225,6 +225,9 @@ export const UI: Record<Locale, Record<string, string>> = {
     // --- E-Mail-Einladung ----------------------------------------------------
     mailInviteSubject: "Einladung zur QET-Kulturbefragung von {company}",
     mailInviteBody: "Sie wurden von {company} zur QET-Kulturbefragung eingeladen. Bitte nehmen Sie sich ein paar Minuten Zeit und füllen Sie die Befragung über folgenden persönlichen Link aus:\n\n{link}\n\nIhre Antworten fließen ausschließlich anonymisiert in das Team-Ergebnis ein.",
+    mailPurchaseWelcomeSubject: "Ihr Zugang zum QET Kultur-Kompass ist bereit",
+        mailPurchaseWelcomeBody: "Vielen Dank für Ihren Kauf! Ihr Paket: {plan}.\n\nBitte richten Sie über folgenden Link Ihr Passwort ein, um sich künftig anzumelden:\n\n{link}\n\nBei Fragen antworten Sie einfach auf diese E-Mail.",
+        participantLimitReached: "Teilnehmerlimit erreicht ({used} von {limit}). Bitte Paket erweitern, um weitere Personen einzuladen.",
   },
   en: {
     brand: "QET Culture Compass",
@@ -432,6 +435,9 @@ export const UI: Record<Locale, Record<string, string>> = {
 
     mailInviteSubject: "Invitation to {company}'s QET culture assessment",
     mailInviteBody: "You have been invited by {company} to take part in the QET culture assessment. Please take a few minutes to complete it using your personal link:\n\n{link}\n\nYour answers are only ever included anonymously in the team result.",
+    mailPurchaseWelcomeSubject: "Your QET Culture Compass access is ready",
+        mailPurchaseWelcomeBody: "Thank you for your purchase! Your plan: {plan}.\n\nPlease set your password using the link below to log in from now on:\n\n{link}\n\nJust reply to this email if you have any questions.",
+        participantLimitReached: "Participant limit reached ({used} of {limit}). Please upgrade your plan to invite more people.",
   },
   tr: {
     brand: "QET Kültür Pusulası",
@@ -638,6 +644,9 @@ export const UI: Record<Locale, Record<string, string>> = {
 
     mailInviteSubject: "{company} QET kültür anketine davet",
     mailInviteBody: "{company} tarafından QET kültür anketine davet edildiniz. Lütfen birkaç dakikanızı ayırıp kişisel bağlantınız üzerinden anketi doldurun:\n\n{link}\n\nCevaplarınız yalnızca anonim olarak takım sonucuna yansır.",
+    mailPurchaseWelcomeSubject: "QET Kültür Pusulası erişiminiz hazır",
+        mailPurchaseWelcomeBody: "Satın aldığınız için teşekkürler! Paketiniz: {plan}.\n\nBundan sonra giriş yapabilmek için lütfen aşağıdaki bağlantıdan şifrenizi belirleyin:\n\n{link}\n\nSorularınız için bu e-postayı yanıtlamanız yeterli.",
+        participantLimitReached: "Katılımcı limitine ulaşıldı ({used} / {limit}). Daha fazla kişi davet etmek için lütfen paketinizi yükseltin.",
   },
   ro: {
     brand: "Busola Culturii QET",
@@ -845,6 +854,9 @@ export const UI: Record<Locale, Record<string, string>> = {
 
     mailInviteSubject: "Invitație la chestionarul de cultură QET al {company}",
     mailInviteBody: "Ați fost invitat de {company} la chestionarul de cultură QET. Vă rugăm să vă acordați câteva minute pentru a completa chestionarul folosind linkul personal de mai jos:\n\n{link}\n\nRăspunsurile dumneavoastră sunt incluse exclusiv anonimizat în rezultatul echipei.",
+    mailPurchaseWelcomeSubject: "Accesul dvs. la QET Culture Compass este pregătit",
+        mailPurchaseWelcomeBody: "Vă mulțumim pentru achiziție! Pachetul dvs.: {plan}.\n\nVă rugăm să vă setați parola folosind linkul de mai jos pentru a vă putea autentifica:\n\n{link}\n\nPentru întrebări, răspundeți pur și simplu la acest e-mail.",
+        participantLimitReached: "Limita de participanți a fost atinsă ({used} din {limit}). Vă rugăm să faceți upgrade pentru a invita mai multe persoane.",
   },
 };
 
