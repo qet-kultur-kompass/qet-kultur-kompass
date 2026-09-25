@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdminOrOwnerSession } from "@/lib/adminGuard";
 import { generateToken } from "@/lib/tokens";
 import { sendInviteEmail } from "@/lib/mail";
+import { canAddParticipant } from "@/lib/participantLimit";
 import type { Locale } from "@/lib/content/types";
 
 const createSchema = z.object({
@@ -33,6 +34,16 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     return NextResponse.json({ error: "invalid_input", details: parsed.error.flatten() }, { status: 400 });
   }
 
+    // Lizenz-/Preisstufen-Grenze (z.B. aus einem Digistore24-Kauf) durchsetzen
+    // – siehe src/lib/participantLimit.ts. Firmen ohne gesetztes Limit
+    // (participantLimit === null) sind unbegrenzt, wie bisher.
+    const limitCheck = await canAddParticipant(params.id);
+    if (!limitCheck.allowed) {
+          return NextResponse.json(
+            { error: "participant_limit_reached", used: limitCheck.used, limit: limitCheck.limit },
+            { status: 403 }
+                );
+    }
   const invitee = await prisma.invitee.create({
     data: {
       companyId: params.id,
