@@ -49,6 +49,11 @@ export default async function CompanyDetailPage({ params }: { params: { id: stri
             {company.submissions.length === 1 ? "Einreichung" : "Einreichungen"}
             {!company.isActive && " · Link deaktiviert"}
           </p>
+          {company.billingSource === "digistore24" && (
+        <p className="mt-1 text-xs text-ink/40">
+            Digistore24 · {company.planLabel ?? "—"}
+          {company.digistore24OrderId && ` · Order ${company.digistore24OrderId}`}</p>
+      )}
         </div>
       </header>
 
@@ -82,6 +87,7 @@ export default async function CompanyDetailPage({ params }: { params: { id: stri
         <InviteeList
           companyId={company.id}
           origin={origin}
+          participantLimit={company.participantLimit}
           invitees={company.invitees.map((inv) => ({
             id: inv.id,
             name: inv.name,
