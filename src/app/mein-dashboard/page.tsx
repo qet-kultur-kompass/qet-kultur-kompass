@@ -131,6 +131,7 @@ export default async function MeinDashboardPage() {
           inviteToken: inv.inviteToken,
         })),
       companyId: company.id,
+      participantLimit: company.participantLimit,
       goalsSummary: summarizeGoals(ownGoals),
     };
 
