@@ -21,11 +21,14 @@ export function InviteeList({
   companyId,
   invitees,
   origin,
+  participantLimit = null,
   locale = "de",
 }: {
   companyId: string;
   invitees: InviteeRow[];
   origin: string;
+  /** Lizenz-Obergrenze (z.B. aus Digistore24-Kauf), null = unbegrenzt. */
+    participantLimit?: number | null;
   locale?: Locale;
 }) {
   const router = useRouter();
@@ -36,11 +39,15 @@ export function InviteeList({
   const [sendEmail, setSendEmail] = useState(true);
   const [saving, setSaving] = useState(false);
   const [lastEmailNotice, setLastEmailNotice] = useState<string | null>(null);
+  const [limitError, setLimitError] = useState<string | null>(null);
+
+    const limitReached = participantLimit !== null && invitees.length >= participantLimit;
 
   async function addInvitee(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
     setLastEmailNotice(null);
+    setLimitError(null);
     const res = await fetch(`/api/companies/${companyId}/invitees`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -48,6 +55,10 @@ export function InviteeList({
     });
     const data = await res.json().catch(() => null);
     setSaving(false);
+    if (res.status === 403 && data?.error === "participant_limit_reached") {
+        setLimitError(t(locale, "participantLimitReached", { used: data.used, limit: data.limit }));
+        return;
+    }
     setName("");
     setEmail("");
     setShowAdd(false);
@@ -65,16 +76,23 @@ export function InviteeList({
     <div className="rounded-2xl border border-ink/10 bg-white/60 p-6 shadow-card">
       <div className="flex items-center justify-between">
         <h2 className="font-display text-lg font-semibold text-ink">
-          {t(locale, "dashboardInviteTeam")} ({invitees.length})
-        </h2>
+          {t(locale, "dashboardInviteTeam")}{" "}
+          {participantLimit !== null ? `(${invitees.length} / ${participantLimit})` : `(${invitees.length})`}</h2>
         <button
           type="button"
           onClick={() => setShowAdd((s) => !s)}
-          className="text-sm font-medium text-quality-600 hover:underline"
-        >
+          disabled={limitReached}
+          className="text-sm font-medium text-quality-600 hover:underline disabled:cursor-not-allowed disabled:text-ink/30 disabled:no-underline"        >
           {showAdd ? "×" : "+ " + t(locale, "dashboardInviteTeam")}
         </button>
       </div>
+
+      {limitReached && (
+        <p className="mt-3 text-xs text-amber-700">
+          {t(locale, "participantLimitReached", { used: invitees.length, limit: participantLimit ?? 0 })}</p>
+      )}
+
+      {limitError && <p className="mt-3 text-xs text-red-600">{limitError}</p>}
 
       {lastEmailNotice && (
         <p className="mt-3 text-xs text-ink/50">
@@ -142,7 +160,7 @@ export function InviteeList({
                   {ROLE_LABELS[inv.role][locale]}
                   {inv.department ? ` · ${inv.department}` : ""} ·{" "}
                   {inv.status === "completed" ? "beantwortet" : "ausstehend"} ·{" "}
-                  {inv.source === "sap_sync" ? "aus SAP" : inv.source === "self_service" ? "Selbstregistrierung" : "manuell"}
+                  {inv.source === "sap_sync" ? "aus SAP" : inv.source === "self_service" ? "Selbstregistrierung" : inv.source === "digistore24" ? "Digistore24-Kauf" : "manuell"}
                 </div>
               </div>
               <div className="w-full max-w-xs sm:w-auto">
