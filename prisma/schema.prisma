@@ -83,7 +83,37 @@ model Company {
   sapLastSyncAt   DateTime?
   sapLastExportAt DateTime?
 
+  // --- Lizenz/Abrechnung (z.B. über Digistore24) ------------------------
+  // Begrenzt, wie viele Invitees insgesamt für diese Firma angelegt werden
+  // dürfen (siehe src/lib/participantLimit.ts) – wird beim Kauf aus der
+  // Produkt/Preisstufe gesetzt (src/lib/digistore24.ts). null = unbegrenzt
+  // (z.B. von Ralph manuell angelegte Firmen ohne Digistore24-Kauf, oder
+  // SAP-Großkunden mit Sondervertrag).
+  participantLimit    Int?
+  // "digistore24" | null (= manuell/Admin angelegt, kein externes Abo)
+  billingSource        String?
+  digistore24OrderId   String? @unique
+  // z.B. "bis 50 Teilnehmer – monatlich", nur zur Anzeige im Admin-Bereich
+  planLabel            String?
+
   invitees Invitee[]
+}
+
+// Rohprotokoll eingehender Zahlungs-/Abo-Webhooks (aktuell: Digistore24-IPN).
+// Dient (a) der Idempotenz – dieselbe IPN kann mehrfach zugestellt werden,
+// wird dann aber nur einmal verarbeitet – und (b) der Fehlersuche, falls ein
+// Kauf nicht wie erwartet zu einem Firmen-Zugang führt.
+model WebhookEvent {
+  id          String   @id @default(cuid())
+  provider    String // "digistore24"
+  eventType   String // z.B. "on_payment", "on_refund", "last_paid_day"
+  externalId  String? // Digistore24 order_id
+  payloadJson String // vollständige, roh empfangene Parameter (JSON-String)
+  status      String   @default("received") // "received" | "processed" | "ignored" | "error"
+  receivedAt  DateTime @default(now())
+
+  @@index([provider, eventType])
+  @@index([externalId])
 }
 
 // Personalisierte Einladung (aus SAP importiert, manuell angelegt, oder durch
