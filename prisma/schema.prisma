@@ -9,14 +9,8 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  // Migrationen (prisma migrate deploy) brauchen eine DIREKTE Verbindung.
-  // Der Supabase-Connection-Pooler (Port 6543, "Transaction"-Modus) unterstützt
-  // die dafür nötigen Advisory Locks nicht – ohne diese zweite URL bleibt
-  // "prisma migrate deploy" beim Verbindungsaufbau einfach hängen (kein
-  // Fehler, einfach keine weitere Log-Zeile mehr). Siehe .env.example.
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model AdminUser {
@@ -54,6 +48,43 @@ model Company {
   ownerEmail        String? @unique
   ownerPasswordHash String?
 
+  // --- Abrechnung / Bezahlschranke -------------------------------------
+  // "free"   – Standard bei Selbstregistrierung über /start, ohne Zahlung
+  //            (Teilnehmerzahl begrenzt auf FREE_PARTICIPANT_LIMIT, siehe
+  //            src/lib/billing.ts).
+  // "stripe" – bezahltes Abo über Stripe (Checkout + Webhook, siehe
+  //            src/app/api/checkout, src/app/api/webhooks/stripe).
+  // "manual" – Zugang von Ralph im Admin-Bereich manuell freigeschaltet,
+  //            z.B. nach einem Digistore24-Kauf ohne eigene Stripe-Anbindung.
+  billingProvider String @default("free")
+  // Anzeigename des aktuellen Tarifs (z.B. "Team", "Business", "Enterprise"),
+  // rein informativ – maßgeblich für die tatsächliche Freischaltung ist
+  // ausschließlich participantLimit.
+  tier            String?
+  // Wie viele Personen (Konto-Inhaber:in inklusive) insgesamt eingeladen
+  // werden dürfen. Wird beim Kauf/Upgrade über Stripe automatisch anhand der
+  // gekauften Menge gesetzt; admin-verwaltete Firmen sind davon unabhängig
+  // (siehe requireAdminOrOwnerSession in src/lib/adminGuard.ts).
+  participantLimit Int    @default(3)
+
+  stripeCustomerId     String?   @unique
+  stripeSubscriptionId String?   @unique
+  // "active" | "trialing" | "past_due" | "canceled" | "incomplete" – Spiegel
+  // des Stripe-Subscription-Status, siehe Webhook-Handler.
+  subscriptionStatus   String?
+  currentPeriodEnd     DateTime?
+  // Verhindert doppelte Verlängerungs-Erinnerungen innerhalb desselben
+  // Abrechnungszeitraums (Stripe kann "invoice.upcoming" theoretisch mehrfach
+  // feuern, z.B. bei Preisänderungen im selben Zeitraum).
+  renewalReminderSentAt DateTime?
+  // Einmal-Token: wenn eine Firma per Stripe-Kauf entsteht, OHNE dass sich
+  // die Person vorher über /start registriert hat, bekommt sie per E-Mail
+  // einen Link, um ihr Passwort zu setzen (siehe
+  // src/app/api/account-setup/[token]/route.ts). Nach Gebrauch: null.
+  accountSetupToken String?   @unique
+  // Ablaufzeitpunkt des accountSetupToken (siehe mail.ts ACCOUNT_SETUP_TOKEN_VALID_HOURS).
+  accountSetupTokenExpiresAt DateTime?
+
   // --- SAP-Integration (optional, pro Firma, da jede Firma ihr eigenes
   // SAP-System/Mandant hat) -------------------------------------------------
   sapEnabled          Boolean   @default(false)
@@ -83,37 +114,7 @@ model Company {
   sapLastSyncAt   DateTime?
   sapLastExportAt DateTime?
 
-  // --- Lizenz/Abrechnung (z.B. über Digistore24) ------------------------
-  // Begrenzt, wie viele Invitees insgesamt für diese Firma angelegt werden
-  // dürfen (siehe src/lib/participantLimit.ts) – wird beim Kauf aus der
-  // Produkt/Preisstufe gesetzt (src/lib/digistore24.ts). null = unbegrenzt
-  // (z.B. von Ralph manuell angelegte Firmen ohne Digistore24-Kauf, oder
-  // SAP-Großkunden mit Sondervertrag).
-  participantLimit    Int?
-  // "digistore24" | null (= manuell/Admin angelegt, kein externes Abo)
-  billingSource        String?
-  digistore24OrderId   String? @unique
-  // z.B. "bis 50 Teilnehmer – monatlich", nur zur Anzeige im Admin-Bereich
-  planLabel            String?
-
   invitees Invitee[]
-}
-
-// Rohprotokoll eingehender Zahlungs-/Abo-Webhooks (aktuell: Digistore24-IPN).
-// Dient (a) der Idempotenz – dieselbe IPN kann mehrfach zugestellt werden,
-// wird dann aber nur einmal verarbeitet – und (b) der Fehlersuche, falls ein
-// Kauf nicht wie erwartet zu einem Firmen-Zugang führt.
-model WebhookEvent {
-  id          String   @id @default(cuid())
-  provider    String // "digistore24"
-  eventType   String // z.B. "on_payment", "on_refund", "last_paid_day"
-  externalId  String? // Digistore24 order_id
-  payloadJson String // vollständige, roh empfangene Parameter (JSON-String)
-  status      String   @default("received") // "received" | "processed" | "ignored" | "error"
-  receivedAt  DateTime @default(now())
-
-  @@index([provider, eventType])
-  @@index([externalId])
 }
 
 // Personalisierte Einladung (aus SAP importiert, manuell angelegt, oder durch
@@ -143,27 +144,11 @@ model Invitee {
   // Auditor bei einer Firma, oder die Person selbst bei einem Einzelkunden-Konto).
   isOwner      Boolean  @default(false)
 
-  // Alle eigenen Einreichungen dieser Person – ausschließlich damit die
-  // Person SELBST ihre Ergebnisse im persönlichen Dashboard wiederfindet
-  // (Historie, Zeitachse, Re-Audits). Für alle anderen (Firmen-/Admin-
-  // Dashboard, Aggregation) bleibt es bei rein aggregierten Werten, siehe
-  // Submission.inviteeId. Seit V2.0 bewusst 1:n statt 1:1 – derselbe
-  // Scope kann mehrfach getestet werden (Re-Audit), siehe Roadmap.
-  submissions Submission[]
-
-  // Persönliche Notizen/Todos je Kriterium (Checkbox "erledigt" + Freitext,
-  // siehe CriterionNote unten) – rein privat, hängt an der Person selbst
-  // (nicht an einer einzelnen Submission), bleibt also über mehrere
-  // Testläufe hinweg bestehen und ist nie Teil der Firmen-Aggregation.
-  criterionNotes CriterionNote[]
-
-  // --- Persönliche Strategie/Zielsetzung (siehe Goal unten) --------------
-  // Freie strategische Ausrichtung als Fließtext, direkt am Invitee statt
-  // in einer eigenen Tabelle, da es je Person nur GENAU einen aktuellen
-  // Stand gibt (kein Verlauf nötig, anders als bei den Zielen selbst).
-  // Rein privat, nie Teil der Firmen-Aggregation.
-  strategyIntro String @default("")
-  goals         Goal[]
+  // Optionale 1:1-Verknüpfung zur eigenen Einreichung – ausschließlich damit
+  // die Person SELBST ihr eigenes Ergebnis im persönlichen Dashboard
+  // wiederfindet. Für alle anderen (Firmen-/Admin-Dashboard, Aggregation)
+  // bleibt es bei rein aggregierten Werten, siehe Submission.inviteeId.
+  submission Submission?
 
   @@index([companyId])
   @@unique([companyId, externalId])
@@ -178,10 +163,8 @@ model Submission {
   // eingereicht wurde – ausschließlich zur privaten "Mein Ergebnis"-Ansicht
   // der einreichenden Person. Wird NIRGENDS zusammen mit Namen/Antworten
   // Dritten angezeigt; die Firmen-Aggregation liest weiterhin nur die
-  // Summenwerte über alle Submissions, nie diese Verknüpfung. Seit V2.0
-  // bewusst NICHT mehr unique – eine Person kann denselben oder einen
-  // anderen Scope mehrfach einreichen (Re-Audit), siehe Roadmap V2.0.
-  inviteeId          String?
+  // Summenwerte über alle Submissions, nie diese Verknüpfung.
+  inviteeId          String?  @unique
   invitee            Invitee? @relation(fields: [inviteeId], references: [id], onDelete: SetNull)
   role               String // "employee" | "customer" | "partner"
   language           String // "de" | "en" | "tr"
@@ -190,9 +173,6 @@ model Submission {
   // src/lib/content/scopes.ts). Ältere Einreichungen ohne dieses Feld sind
   // implizit "full" (Default).
   testScope          String   @default("full")
-  // Optionale freie Kennzeichnung eines Testlaufs, z.B. "Erstaudit" oder
-  // "Re-Audit #2" – rein informativ für die künftige Zeitachsen-Ansicht.
-  label              String?
   respondentName     String?
   respondentEmail    String?
   qualityScore       Float // nur bei testScope "full" über alle 20 Q-Kriterien; bei Teiltests ggf. 0/partiell, siehe scopeIndex
@@ -208,50 +188,4 @@ model Submission {
   createdAt          DateTime @default(now())
 
   @@index([companyId])
-  @@index([inviteeId])
-}
-
-// Persönliche Notiz/Todo zu einem einzelnen Kriterium (z.B. "Q07"), damit
-// sich eine Person beim Betrachten ihres Ergebnisses direkt Merkposten
-// notieren kann ("eckiges Kästchen" = erledigt-Checkbox, Stift-Icon = Text
-// bearbeiten – siehe CriterionNoteCell.tsx). Bewusst an den Invitee
-// gehängt statt an eine einzelne Submission, damit die Notiz über mehrere
-// Testläufe/Re-Audits hinweg bestehen bleibt. Rein privat – wird nirgends
-// zusammen mit der Firmen-Aggregation angezeigt oder ausgewertet.
-model CriterionNote {
-  id          String   @id @default(cuid())
-  inviteeId   String
-  invitee     Invitee  @relation(fields: [inviteeId], references: [id], onDelete: Cascade)
-  criterionId String // z.B. "Q07" – siehe Criterion.id in src/lib/content/criteria.ts
-  text        String   @default("")
-  done        Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@unique([inviteeId, criterionId])
-  @@index([inviteeId])
-}
-
-// Einzelnes persönliches Ziel im Rahmen der eigenen Strategie (siehe
-// Invitee.strategyIntro für die freie strategische Ausrichtung). Rein
-// privat, wie CriterionNote nie Teil der Firmen-Aggregation. `pillar`
-// verknüpft ein Ziel optional mit einer der drei QET-Säulen (rein
-// informativ, für die Anzeige/Filterung) – bewusst gröber als ein Bezug
-// auf ein einzelnes Kriterium, damit das Anlegen eines Ziels schnell und
-// niedrigschwellig bleibt. `dueDate` speist die Terminübersicht/den
-// Kalender sowie das 1-Seiten-PDF-Handout (siehe StrategyView.tsx).
-model Goal {
-  id          String    @id @default(cuid())
-  inviteeId   String
-  invitee     Invitee   @relation(fields: [inviteeId], references: [id], onDelete: Cascade)
-  title       String
-  description String    @default("")
-  pillar      String? // "Q" | "E" | "T" | null (kein Bezug)
-  dueDate     DateTime?
-  status      String    @default("open") // "open" | "in_progress" | "done"
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  @@index([inviteeId])
-  @@index([inviteeId, dueDate])
 }
