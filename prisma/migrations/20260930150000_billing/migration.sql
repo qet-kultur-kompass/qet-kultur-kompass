@@ -4,7 +4,9 @@
 
 ALTER TABLE "Company" ADD COLUMN "billingProvider" TEXT NOT NULL DEFAULT 'free';
 ALTER TABLE "Company" ADD COLUMN "tier" TEXT;
-ALTER TABLE "Company" ADD COLUMN "participantLimit" INTEGER NOT NULL DEFAULT 3;
+UPDATE "Company" SET "participantLimit" = 3 WHERE "participantLimit" IS NULL;
+ALTER TABLE "Company" ALTER COLUMN "participantLimit" SET DEFAULT 3;
+ALTER TABLE "Company" ALTER COLUMN "participantLimit" SET NOT NULL;
 ALTER TABLE "Company" ADD COLUMN "stripeCustomerId" TEXT;
 ALTER TABLE "Company" ADD COLUMN "stripeSubscriptionId" TEXT;
 ALTER TABLE "Company" ADD COLUMN "subscriptionStatus" TEXT;
