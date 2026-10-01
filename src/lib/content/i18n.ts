@@ -226,8 +226,76 @@ export const UI: Record<Locale, Record<string, string>> = {
     mailInviteSubject: "Einladung zur QET-Kulturbefragung von {company}",
     mailInviteBody: "Sie wurden von {company} zur QET-Kulturbefragung eingeladen. Bitte nehmen Sie sich ein paar Minuten Zeit und füllen Sie die Befragung über folgenden persönlichen Link aus:\n\n{link}\n\nIhre Antworten fließen ausschließlich anonymisiert in das Team-Ergebnis ein.",
     mailPurchaseWelcomeSubject: "Ihr Zugang zum QET Kultur-Kompass ist bereit",
-        mailPurchaseWelcomeBody: "Vielen Dank für Ihren Kauf! Ihr Paket: {plan}.\n\nBitte richten Sie über folgenden Link Ihr Passwort ein, um sich künftig anzumelden:\n\n{link}\n\nBei Fragen antworten Sie einfach auf diese E-Mail.",
-        participantLimitReached: "Teilnehmerlimit erreicht ({used} von {limit}). Bitte Paket erweitern, um weitere Personen einzuladen.",
+    mailPurchaseWelcomeBody: "Vielen Dank für Ihren Kauf! Ihr Paket: {plan}.\n\nBitte richten Sie über folgenden Link Ihr Passwort ein, um sich künftig anzumelden:\n\n{link}\n\nBei Fragen antworten Sie einfach auf diese E-Mail.",
+    participantLimitReached: "Teilnehmerlimit erreicht ({used} von {limit}). Bitte Paket erweitern, um weitere Personen einzuladen.",
+
+    // --- Abrechnung / Nutzung (Dashboard, Stripe) -----------------------------
+    dashboardPlanFree: "Kostenloser Plan",
+    dashboardPlanPaid: "Bezahlter Plan",
+    dashboardParticipantsUsed: "{used} von {limit} Teilnehmenden genutzt",
+    dashboardParticipantsUnlimited: "Unbegrenzte Teilnehmende",
+    dashboardUpgrade: "Plan erweitern",
+    dashboardManageBilling: "Abo verwalten",
+    dashboardLimitReached: "Sie haben Ihr Teilnehmerlimit erreicht. Erweitern Sie Ihren Plan, um weitere Personen einzuladen.",
+    dashboardRenewsOn: "Verlängert sich am {date}",
+    dashboardSubscriptionCanceled: "Ihr Abo wurde gekündigt und endet am {date}.",
+    dashboardPaymentFailed: "Die letzte Zahlung ist fehlgeschlagen. Bitte aktualisieren Sie Ihre Zahlungsmethode.",
+
+    // --- Checkout (Stripe) -----------------------------------------------------
+    checkoutTitle: "Teilnehmerplätze kaufen",
+    checkoutParticipants: "Anzahl Teilnehmende",
+    checkoutMonthly: "Monatlich",
+    checkoutYearly: "Jährlich (2 Monate gratis)",
+    checkoutSubmit: "Weiter zur Zahlung",
+    checkoutSuccessTitle: "Vielen Dank für Ihren Kauf!",
+    checkoutSuccessSubtitle: "Ihr QET-Kompass-Zugang wurde freigeschaltet.",
+    checkoutSuccessCheckEmail: "Bitte prüfen Sie Ihr E-Mail-Postfach für die nächsten Schritte.",
+    checkoutSuccessGoToDashboard: "Zum Dashboard",
+    checkoutCanceled: "Der Bezahlvorgang wurde abgebrochen.",
+
+    // --- Konto-Einrichtung (Stripe-Kauf zuerst, Login danach) -----------------
+    accountSetupTitle: "Konto einrichten",
+    accountSetupSubtitle: "Legen Sie ein Passwort fest, um auf Ihr QET-Kompass-Konto zuzugreifen.",
+    accountSetupSubmit: "Konto aktivieren",
+    accountSetupSubmitting: "Wird aktiviert …",
+    accountSetupDone: "Konto aktiviert! Sie werden weitergeleitet …",
+    accountSetupInvalidToken: "Dieser Einrichtungslink ist ungültig oder wurde bereits verwendet.",
+    accountSetupErrorGeneric: "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
+
+    // --- E-Mail: Abrechnung / Kundenservice (Stripe) ---------------------------
+    mailWelcomeSubject: "Willkommen beim QET-Kompass, {company}!",
+    mailWelcomeBodySetup:
+      "Vielen Dank für Ihren Kauf! Ihr QET-Kompass-Konto für {company} ist bereit. Bitte richten Sie jetzt Ihr Passwort ein, um loszulegen:\n\n{link}\n\nDieser Link ist {hours} Stunden gültig.",
+    mailWelcomeBodyExisting:
+      "Vielen Dank für Ihren Kauf! Ihr Teilnehmerlimit für {company} wurde soeben erweitert. Sie können sich wie gewohnt in Ihrem Dashboard anmelden:\n\n{link}",
+    mailUpgradeSubject: "Ihr QET-Kompass-Plan wurde erweitert",
+    mailUpgradeBody:
+      "Ihr Teilnehmerlimit für {company} wurde auf {limit} Personen erhöht. Sie können jetzt weitere Mitarbeitende, Kunden oder Partner einladen:\n\n{link}",
+    mailRenewalSubject: "Ihr QET-Kompass-Abo verlängert sich bald",
+    mailRenewalBody:
+      "Ihr Abo für {company} verlängert sich am {date} automatisch. Falls Sie nichts unternehmen, wird Ihre hinterlegte Zahlungsmethode wie gewohnt belastet. Details verwalten Sie hier:\n\n{link}",
+    mailPaymentFailedSubject: "Zahlung für Ihr QET-Kompass-Abo fehlgeschlagen",
+    mailPaymentFailedBody:
+      "Leider konnten wir die Zahlung für Ihr Abo ({company}) nicht verarbeiten. Bitte aktualisieren Sie Ihre Zahlungsmethode, damit Ihr Zugang aktiv bleibt:\n\n{link}",
+    mailCanceledSubject: "Ihr QET-Kompass-Abo wurde gekündigt",
+    mailCanceledBody:
+      "Ihr Abo für {company} wurde zum {date} gekündigt. Wir würden uns freuen, Sie wiederzusehen. Sie können Ihr Abo jederzeit hier reaktivieren:\n\n{link}",
+    enterpriseTitle: "Enterprise-Angebot anfragen",
+    enterpriseSubtitle: "Mehr als 500 Teilnehmende? Wir erstellen Ihnen ein individuelles Angebot.",
+    enterpriseParticipantsLabel: "Ungefähre Teilnehmerzahl",
+    enterpriseMessageLabel: "Ihre Nachricht (optional)",
+    enterpriseSubmit: "Anfrage senden",
+    enterpriseSubmitting: "Wird gesendet…",
+    enterpriseSuccessTitle: "Vielen Dank!",
+    enterpriseSuccessBody:
+      "Wir haben Ihre Anfrage erhalten und melden uns innerhalb von 1-2 Werktagen mit einem individuellen Angebot.",
+    enterpriseErrorGeneric: "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut oder schreiben Sie uns direkt.",
+    mailEnterpriseConfirmSubject: "Ihre Enterprise-Anfrage bei QET Compass",
+    mailEnterpriseConfirmBody:
+      "Vielen Dank für Ihr Interesse an QET Compass für {company} (ca. {count} Teilnehmende). Wir melden uns innerhalb von 1-2 Werktagen mit einem individuellen Angebot bei Ihnen.",
+    dashboardInvoicesTitle: "Rechnungen",
+    dashboardInvoicesEmpty: "Noch keine Rechnungen vorhanden.",
+    dashboardInvoiceOpen: "Ansehen",
   },
   en: {
     brand: "QET Culture Compass",
@@ -360,7 +428,6 @@ export const UI: Record<Locale, Record<string, string>> = {
     profileSave: "Save",
     profileCancel: "Cancel",
     profileNameRequired: "Please enter a name.",
-
     // --- Audit handbook / business report -----------------------------------
     reportTitle: "QET Audit Handbook",
     reportSubtitle: "Business report on your corporate culture, generated automatically from your QET Culture Compass results.",
@@ -436,8 +503,71 @@ export const UI: Record<Locale, Record<string, string>> = {
     mailInviteSubject: "Invitation to {company}'s QET culture assessment",
     mailInviteBody: "You have been invited by {company} to take part in the QET culture assessment. Please take a few minutes to complete it using your personal link:\n\n{link}\n\nYour answers are only ever included anonymously in the team result.",
     mailPurchaseWelcomeSubject: "Your QET Culture Compass access is ready",
-        mailPurchaseWelcomeBody: "Thank you for your purchase! Your plan: {plan}.\n\nPlease set your password using the link below to log in from now on:\n\n{link}\n\nJust reply to this email if you have any questions.",
-        participantLimitReached: "Participant limit reached ({used} of {limit}). Please upgrade your plan to invite more people.",
+    mailPurchaseWelcomeBody: "Thank you for your purchase! Your plan: {plan}.\n\nPlease set your password using the link below to log in from now on:\n\n{link}\n\nJust reply to this email if you have any questions.",
+    participantLimitReached: "Participant limit reached ({used} of {limit}). Please upgrade your plan to invite more people.",
+
+    dashboardPlanFree: "Free plan",
+    dashboardPlanPaid: "Paid plan",
+    dashboardParticipantsUsed: "{used} of {limit} participants used",
+    dashboardParticipantsUnlimited: "Unlimited participants",
+    dashboardUpgrade: "Upgrade plan",
+    dashboardManageBilling: "Manage subscription",
+    dashboardLimitReached: "You've reached your participant limit. Upgrade your plan to invite more people.",
+    dashboardRenewsOn: "Renews on {date}",
+    dashboardSubscriptionCanceled: "Your subscription has been canceled and ends on {date}.",
+    dashboardPaymentFailed: "Your last payment failed. Please update your payment method.",
+
+    checkoutTitle: "Buy participant seats",
+    checkoutParticipants: "Number of participants",
+    checkoutMonthly: "Monthly",
+    checkoutYearly: "Yearly (2 months free)",
+    checkoutSubmit: "Continue to payment",
+    checkoutSuccessTitle: "Thank you for your purchase!",
+    checkoutSuccessSubtitle: "Your QET Compass access has been activated.",
+    checkoutSuccessCheckEmail: "Please check your inbox for the next steps.",
+    checkoutSuccessGoToDashboard: "Go to dashboard",
+    checkoutCanceled: "The checkout process was canceled.",
+
+    accountSetupTitle: "Set up your account",
+    accountSetupSubtitle: "Create a password to access your QET Compass account.",
+    accountSetupSubmit: "Activate account",
+    accountSetupSubmitting: "Activating …",
+    accountSetupDone: "Account activated! Redirecting …",
+    accountSetupInvalidToken: "This setup link is invalid or has already been used.",
+    accountSetupErrorGeneric: "Something went wrong. Please try again.",
+
+    mailWelcomeSubject: "Welcome to QET Compass, {company}!",
+    mailWelcomeBodySetup:
+      "Thank you for your purchase! Your QET Compass account for {company} is ready. Please set up your password now to get started:\n\n{link}\n\nThis link is valid for {hours} hours.",
+    mailWelcomeBodyExisting:
+      "Thank you for your purchase! Your participant limit for {company} has just been increased. You can log in to your dashboard as usual:\n\n{link}",
+    mailUpgradeSubject: "Your QET Compass plan has been upgraded",
+    mailUpgradeBody:
+      "Your participant limit for {company} has been increased to {limit} people. You can now invite more employees, customers or partners:\n\n{link}",
+    mailRenewalSubject: "Your QET Compass subscription renews soon",
+    mailRenewalBody:
+      "Your subscription for {company} will renew automatically on {date}. If you do nothing, your saved payment method will be charged as usual. Manage the details here:\n\n{link}",
+    mailPaymentFailedSubject: "Payment for your QET Compass subscription failed",
+    mailPaymentFailedBody:
+      "Unfortunately, we couldn't process the payment for your subscription ({company}). Please update your payment method to keep your access active:\n\n{link}",
+    mailCanceledSubject: "Your QET Compass subscription has been canceled",
+    mailCanceledBody:
+      "Your subscription for {company} was canceled effective {date}. We'd love to have you back. You can reactivate your subscription anytime here:\n\n{link}",
+    enterpriseTitle: "Request an Enterprise offer",
+    enterpriseSubtitle: "More than 500 participants? We'll put together a custom offer for you.",
+    enterpriseParticipantsLabel: "Approximate number of participants",
+    enterpriseMessageLabel: "Your message (optional)",
+    enterpriseSubmit: "Send request",
+    enterpriseSubmitting: "Sending…",
+    enterpriseSuccessTitle: "Thank you!",
+    enterpriseSuccessBody: "We've received your request and will get back to you within 1-2 business days with a custom offer.",
+    enterpriseErrorGeneric: "Something went wrong. Please try again or email us directly.",
+    mailEnterpriseConfirmSubject: "Your Enterprise request for QET Compass",
+    mailEnterpriseConfirmBody:
+      "Thank you for your interest in QET Compass for {company} (approx. {count} participants). We'll get back to you within 1-2 business days with a custom offer.",
+    dashboardInvoicesTitle: "Invoices",
+    dashboardInvoicesEmpty: "No invoices yet.",
+    dashboardInvoiceOpen: "View",
   },
   tr: {
     brand: "QET Kültür Pusulası",
@@ -645,8 +775,71 @@ export const UI: Record<Locale, Record<string, string>> = {
     mailInviteSubject: "{company} QET kültür anketine davet",
     mailInviteBody: "{company} tarafından QET kültür anketine davet edildiniz. Lütfen birkaç dakikanızı ayırıp kişisel bağlantınız üzerinden anketi doldurun:\n\n{link}\n\nCevaplarınız yalnızca anonim olarak takım sonucuna yansır.",
     mailPurchaseWelcomeSubject: "QET Kültür Pusulası erişiminiz hazır",
-        mailPurchaseWelcomeBody: "Satın aldığınız için teşekkürler! Paketiniz: {plan}.\n\nBundan sonra giriş yapabilmek için lütfen aşağıdaki bağlantıdan şifrenizi belirleyin:\n\n{link}\n\nSorularınız için bu e-postayı yanıtlamanız yeterli.",
-        participantLimitReached: "Katılımcı limitine ulaşıldı ({used} / {limit}). Daha fazla kişi davet etmek için lütfen paketinizi yükseltin.",
+    mailPurchaseWelcomeBody: "Satın aldığınız için teşekkürler! Paketiniz: {plan}.\n\nBundan sonra giriş yapabilmek için lütfen aşağıdaki bağlantıdan şifrenizi belirleyin:\n\n{link}\n\nSorularınız için bu e-postayı yanıtlamanız yeterli.",
+    participantLimitReached: "Katılımcı limitine ulaşıldı ({used} / {limit}). Daha fazla kişi davet etmek için lütfen paketinizi yükseltin.",
+
+    dashboardPlanFree: "Ücretsiz plan",
+    dashboardPlanPaid: "Ücretli plan",
+    dashboardParticipantsUsed: "{limit} katılımcıdan {used} kullanıldı",
+    dashboardParticipantsUnlimited: "Sınırsız katılımcı",
+    dashboardUpgrade: "Planı yükselt",
+    dashboardManageBilling: "Aboneliği yönet",
+    dashboardLimitReached: "Katılımcı limitinize ulaştınız. Daha fazla kişi davet etmek için planınızı yükseltin.",
+    dashboardRenewsOn: "{date} tarihinde yenilenir",
+    dashboardSubscriptionCanceled: "Aboneliğiniz iptal edildi ve {date} tarihinde sona eriyor.",
+    dashboardPaymentFailed: "Son ödemeniz başarısız oldu. Lütfen ödeme yönteminizi güncelleyin.",
+
+    checkoutTitle: "Katılımcı hakkı satın al",
+    checkoutParticipants: "Katılımcı sayısı",
+    checkoutMonthly: "Aylık",
+    checkoutYearly: "Yıllık (2 ay ücretsiz)",
+    checkoutSubmit: "Ödemeye devam et",
+    checkoutSuccessTitle: "Satın alımınız için teşekkürler!",
+    checkoutSuccessSubtitle: "QET Pusulası erişiminiz etkinleştirildi.",
+    checkoutSuccessCheckEmail: "Sonraki adımlar için lütfen e-posta kutunuzu kontrol edin.",
+    checkoutSuccessGoToDashboard: "Panoya git",
+    checkoutCanceled: "Ödeme işlemi iptal edildi.",
+
+    accountSetupTitle: "Hesabınızı kurun",
+    accountSetupSubtitle: "QET Pusulası hesabınıza erişmek için bir şifre oluşturun.",
+    accountSetupSubmit: "Hesabı etkinleştir",
+    accountSetupSubmitting: "Etkinleştiriliyor …",
+    accountSetupDone: "Hesap etkinleştirildi! Yönlendiriliyorsunuz …",
+    accountSetupInvalidToken: "Bu kurulum bağlantısı geçersiz veya zaten kullanılmış.",
+    accountSetupErrorGeneric: "Bir şeyler ters gitti. Lütfen tekrar deneyin.",
+
+    mailWelcomeSubject: "QET Pusulası'na hoş geldiniz, {company}!",
+    mailWelcomeBodySetup:
+      "Satın alımınız için teşekkürler! {company} için QET Pusulası hesabınız hazır. Başlamak için lütfen şimdi şifrenizi oluşturun:\n\n{link}\n\nBu bağlantı {hours} saat geçerlidir.",
+    mailWelcomeBodyExisting:
+      "Satın alımınız için teşekkürler! {company} için katılımcı limitiniz artırıldı. Panonuza her zamanki gibi giriş yapabilirsiniz:\n\n{link}",
+    mailUpgradeSubject: "QET Pusulası planınız yükseltildi",
+    mailUpgradeBody:
+      "{company} için katılımcı limitiniz {limit} kişiye yükseltildi. Artık daha fazla çalışan, müşteri veya iş ortağı davet edebilirsiniz:\n\n{link}",
+    mailRenewalSubject: "QET Pusulası aboneliğiniz yakında yenileniyor",
+    mailRenewalBody:
+      "{company} için aboneliğiniz {date} tarihinde otomatik olarak yenilenecek. Herhangi bir işlem yapmazsanız, kayıtlı ödeme yönteminiz her zamanki gibi tahsil edilecektir. Detayları buradan yönetebilirsiniz:\n\n{link}",
+    mailPaymentFailedSubject: "QET Pusulası aboneliğiniz için ödeme başarısız oldu",
+    mailPaymentFailedBody:
+      "Maalesef aboneliğiniz ({company}) için ödemeyi işleme alamadık. Erişiminizin aktif kalması için lütfen ödeme yönteminizi güncelleyin:\n\n{link}",
+    mailCanceledSubject: "QET Pusulası aboneliğiniz iptal edildi",
+    mailCanceledBody:
+      "{company} için aboneliğiniz {date} tarihi itibarıyla iptal edildi. Sizi tekrar aramızda görmekten mutluluk duyarız. Aboneliğinizi istediğiniz zaman buradan yeniden etkinleştirebilirsiniz:\n\n{link}",
+    enterpriseTitle: "Kurumsal teklif talep edin",
+    enterpriseSubtitle: "500'den fazla katılımcı mı? Size özel bir teklif hazırlayalım.",
+    enterpriseParticipantsLabel: "Yaklaşık katılımcı sayısı",
+    enterpriseMessageLabel: "Mesajınız (isteğe bağlı)",
+    enterpriseSubmit: "Talebi gönder",
+    enterpriseSubmitting: "Gönderiliyor…",
+    enterpriseSuccessTitle: "Teşekkürler!",
+    enterpriseSuccessBody: "Talebinizi aldık ve 1-2 iş günü içinde size özel bir teklifle geri döneceğiz.",
+    enterpriseErrorGeneric: "Bir şeyler ters gitti. Lütfen tekrar deneyin ya da doğrudan bize e-posta gönderin.",
+    mailEnterpriseConfirmSubject: "QET Compass Kurumsal talebiniz",
+    mailEnterpriseConfirmBody:
+      "{company} için QET Compass'a gösterdiğiniz ilgi için teşekkür ederiz (yaklaşık {count} katılımcı). 1-2 iş günü içinde size özel bir teklifle geri döneceğiz.",
+    dashboardInvoicesTitle: "Faturalar",
+    dashboardInvoicesEmpty: "Henüz fatura yok.",
+    dashboardInvoiceOpen: "Görüntüle",
   },
   ro: {
     brand: "Busola Culturii QET",
@@ -855,8 +1048,71 @@ export const UI: Record<Locale, Record<string, string>> = {
     mailInviteSubject: "Invitație la chestionarul de cultură QET al {company}",
     mailInviteBody: "Ați fost invitat de {company} la chestionarul de cultură QET. Vă rugăm să vă acordați câteva minute pentru a completa chestionarul folosind linkul personal de mai jos:\n\n{link}\n\nRăspunsurile dumneavoastră sunt incluse exclusiv anonimizat în rezultatul echipei.",
     mailPurchaseWelcomeSubject: "Accesul dvs. la QET Culture Compass este pregătit",
-        mailPurchaseWelcomeBody: "Vă mulțumim pentru achiziție! Pachetul dvs.: {plan}.\n\nVă rugăm să vă setați parola folosind linkul de mai jos pentru a vă putea autentifica:\n\n{link}\n\nPentru întrebări, răspundeți pur și simplu la acest e-mail.",
-        participantLimitReached: "Limita de participanți a fost atinsă ({used} din {limit}). Vă rugăm să faceți upgrade pentru a invita mai multe persoane.",
+    mailPurchaseWelcomeBody: "Vă mulțumim pentru achiziție! Pachetul dvs.: {plan}.\n\nVă rugăm să vă setați parola folosind linkul de mai jos pentru a vă putea autentifica:\n\n{link}\n\nPentru întrebări, răspundeți pur și simplu la acest e-mail.",
+    participantLimitReached: "Limita de participanți a fost atinsă ({used} din {limit}). Vă rugăm să faceți upgrade pentru a invita mai multe persoane.",
+
+    dashboardPlanFree: "Plan gratuit",
+    dashboardPlanPaid: "Plan plătit",
+    dashboardParticipantsUsed: "{used} din {limit} participanți utilizați",
+    dashboardParticipantsUnlimited: "Participanți nelimitați",
+    dashboardUpgrade: "Extinde planul",
+    dashboardManageBilling: "Gestionează abonamentul",
+    dashboardLimitReached: "Ați atins limita de participanți. Extindeți planul pentru a invita mai multe persoane.",
+    dashboardRenewsOn: "Se reînnoiește la {date}",
+    dashboardSubscriptionCanceled: "Abonamentul dumneavoastră a fost anulat și se încheie la {date}.",
+    dashboardPaymentFailed: "Ultima plată a eșuat. Vă rugăm să actualizați metoda de plată.",
+
+    checkoutTitle: "Cumpărați locuri pentru participanți",
+    checkoutParticipants: "Număr de participanți",
+    checkoutMonthly: "Lunar",
+    checkoutYearly: "Anual (2 luni gratuite)",
+    checkoutSubmit: "Continuă spre plată",
+    checkoutSuccessTitle: "Vă mulțumim pentru achiziție!",
+    checkoutSuccessSubtitle: "Accesul dumneavoastră la QET Compass a fost activat.",
+    checkoutSuccessCheckEmail: "Vă rugăm să verificați căsuța de e-mail pentru pașii următori.",
+    checkoutSuccessGoToDashboard: "Mergi la tabloul de bord",
+    checkoutCanceled: "Procesul de plată a fost anulat.",
+
+    accountSetupTitle: "Configurați-vă contul",
+    accountSetupSubtitle: "Creați o parolă pentru a accesa contul dumneavoastră QET Compass.",
+    accountSetupSubmit: "Activează contul",
+    accountSetupSubmitting: "Se activează …",
+    accountSetupDone: "Cont activat! Sunteți redirecționat/ă …",
+    accountSetupInvalidToken: "Acest link de configurare este invalid sau a fost deja utilizat.",
+    accountSetupErrorGeneric: "Ceva nu a funcționat. Vă rugăm să încercați din nou.",
+
+    mailWelcomeSubject: "Bun venit la QET Compass, {company}!",
+    mailWelcomeBodySetup:
+      "Vă mulțumim pentru achiziție! Contul dumneavoastră QET Compass pentru {company} este pregătit. Vă rugăm să vă configurați acum parola pentru a începe:\n\n{link}\n\nAcest link este valabil {hours} ore.",
+    mailWelcomeBodyExisting:
+      "Vă mulțumim pentru achiziție! Limita de participanți pentru {company} a fost tocmai mărită. Vă puteți autentifica în tabloul de bord ca de obicei:\n\n{link}",
+    mailUpgradeSubject: "Planul dumneavoastră QET Compass a fost extins",
+    mailUpgradeBody:
+      "Limita de participanți pentru {company} a fost mărită la {limit} persoane. Acum puteți invita mai mulți angajați, clienți sau parteneri:\n\n{link}",
+    mailRenewalSubject: "Abonamentul dumneavoastră QET Compass se reînnoiește în curând",
+    mailRenewalBody:
+      "Abonamentul dumneavoastră pentru {company} se va reînnoi automat la {date}. Dacă nu întreprindeți nimic, metoda de plată salvată va fi taxată ca de obicei. Gestionați detaliile aici:\n\n{link}",
+    mailPaymentFailedSubject: "Plata pentru abonamentul dumneavoastră QET Compass a eșuat",
+    mailPaymentFailedBody:
+      "Din păcate, nu am putut procesa plata pentru abonamentul dumneavoastră ({company}). Vă rugăm să actualizați metoda de plată pentru ca accesul dumneavoastră să rămână activ:\n\n{link}",
+    mailCanceledSubject: "Abonamentul dumneavoastră QET Compass a fost anulat",
+    mailCanceledBody:
+      "Abonamentul dumneavoastră pentru {company} a fost anulat începând cu {date}. Ne-ar face plăcere să vă revedem. Puteți reactiva abonamentul oricând aici:\n\n{link}",
+    enterpriseTitle: "Solicitați o ofertă Enterprise",
+    enterpriseSubtitle: "Mai mult de 500 de participanți? Vă pregătim o ofertă personalizată.",
+    enterpriseParticipantsLabel: "Număr aproximativ de participanți",
+    enterpriseMessageLabel: "Mesajul dumneavoastră (opțional)",
+    enterpriseSubmit: "Trimite solicitarea",
+    enterpriseSubmitting: "Se trimite…",
+    enterpriseSuccessTitle: "Mulțumim!",
+    enterpriseSuccessBody: "Am primit solicitarea dumneavoastră și vă vom contacta în 1-2 zile lucrătoare cu o ofertă personalizată.",
+    enterpriseErrorGeneric: "Ceva nu a funcționat. Vă rugăm să încercați din nou sau să ne scrieți direct.",
+    mailEnterpriseConfirmSubject: "Solicitarea dumneavoastră Enterprise pentru QET Compass",
+    mailEnterpriseConfirmBody:
+      "Vă mulțumim pentru interesul acordat QET Compass pentru {company} (aprox. {count} participanți). Vă vom contacta în 1-2 zile lucrătoare cu o ofertă personalizată.",
+    dashboardInvoicesTitle: "Facturi",
+    dashboardInvoicesEmpty: "Încă nu există facturi.",
+    dashboardInvoiceOpen: "Vezi",
   },
 };
 
@@ -869,4 +1125,3 @@ export function t(locale: Locale, key: string, vars?: Record<string, string | nu
   }
   return text;
 }
-
