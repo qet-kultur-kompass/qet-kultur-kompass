@@ -9,8 +9,14 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // Für "prisma migrate deploy" beim Vercel-Build: Migrationen brauchen eine
+  // direkte Verbindung (Session-/Direct-Modus, meist Port 5432). Der normale
+  // DATABASE_URL zeigt bei Supabase auf den "Transaction"-Pooler (Port 6543),
+  // der für Migrationen hängen bleibt, da er die dafür nötigen Sperren nicht
+  // unterstützt. Siehe README, Abschnitt "Datenbank".
+  directUrl = env("DIRECT_URL")
 }
 
 model AdminUser {
