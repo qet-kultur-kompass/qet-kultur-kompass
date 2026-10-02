@@ -45,75 +45,42 @@ model Company {
   submissions    Submission[]
 
   // --- Self-Service-Konto ---------------------------------------------
-  // Registrierung ohne Admin-Eingriff: Einzelkunde ODER Firmen-Verantwortliche:r
-  // (Führungskraft/Auditor) meldet sich selbst an. accountType steuert nur die
-  // Darstellung/Copy ("individual" | "company"); technisch funktionieren
-  // beide identisch (eine Company mit optional mehreren Invitees).
   accountType       String  @default("company")
   ownerName         String?
   ownerEmail        String? @unique
   ownerPasswordHash String?
 
   // --- Abrechnung / Bezahlschranke -------------------------------------
-  // "free"   – Standard bei Selbstregistrierung über /start, ohne Zahlung
-  //            (Teilnehmerzahl begrenzt auf FREE_PARTICIPANT_LIMIT, siehe
-  //            src/lib/billing.ts).
-  // "stripe" – bezahltes Abo über Stripe (Checkout + Webhook, siehe
-  //            src/app/api/checkout, src/app/api/webhooks/stripe).
-  // "manual" – Zugang von Ralph im Admin-Bereich manuell freigeschaltet,
-  //            z.B. nach einem Digistore24-Kauf ohne eigene Stripe-Anbindung.
   billingProvider String @default("free")
-  // Anzeigename des aktuellen Tarifs (z.B. "Team", "Business", "Enterprise"),
-  // rein informativ – maßgeblich für die tatsächliche Freischaltung ist
-  // ausschließlich participantLimit.
+  billingSource      String?
+  digistore24OrderId String? @unique
   tier            String?
-  // Wie viele Personen (Konto-Inhaber:in inklusive) insgesamt eingeladen
-  // werden dürfen. Wird beim Kauf/Upgrade über Stripe automatisch anhand der
-  // gekauften Menge gesetzt; admin-verwaltete Firmen sind davon unabhängig
-  // (siehe requireAdminOrOwnerSession in src/lib/adminGuard.ts).
+  planLabel       String?
   participantLimit Int    @default(3)
 
   stripeCustomerId     String?   @unique
   stripeSubscriptionId String?   @unique
-  // "active" | "trialing" | "past_due" | "canceled" | "incomplete" – Spiegel
-  // des Stripe-Subscription-Status, siehe Webhook-Handler.
   subscriptionStatus   String?
   currentPeriodEnd     DateTime?
-  // Verhindert doppelte Verlängerungs-Erinnerungen innerhalb desselben
-  // Abrechnungszeitraums (Stripe kann "invoice.upcoming" theoretisch mehrfach
-  // feuern, z.B. bei Preisänderungen im selben Zeitraum).
   renewalReminderSentAt DateTime?
-  // Einmal-Token: wenn eine Firma per Stripe-Kauf entsteht, OHNE dass sich
-  // die Person vorher über /start registriert hat, bekommt sie per E-Mail
-  // einen Link, um ihr Passwort zu setzen (siehe
-  // src/app/api/account-setup/[token]/route.ts). Nach Gebrauch: null.
   accountSetupToken String?   @unique
-  // Ablaufzeitpunkt des accountSetupToken (siehe mail.ts ACCOUNT_SETUP_TOKEN_VALID_HOURS).
   accountSetupTokenExpiresAt DateTime?
 
-  // --- SAP-Integration (optional, pro Firma, da jede Firma ihr eigenes
-  // SAP-System/Mandant hat) -------------------------------------------------
+  // --- SAP-Integration ---------------------------------------------------
   sapEnabled          Boolean   @default(false)
-  // "successfactors" | "s4hana" – bestimmt, welcher Adapter verwendet wird
   sapSystemType        String?
-  sapTenantUrl         String? // Basis-URL des SAP-Systems/API-Gateways
-  sapAuthMode          String? // "oauth2_client_credentials" | "basic_auth"
+  sapTenantUrl         String?
+  sapAuthMode          String?
   sapClientId          String?
-  // AES-256-GCM-verschlüsselt gespeichert, nie im Klartext (siehe src/lib/crypto.ts)
   sapClientSecretEnc   String?
-  sapCompanyId         String? // SuccessFactors "Company ID" (falls benötigt)
+  sapCompanyId         String?
 
-  // Export der Auswertung an eine SAP-seitige Middleware (z.B. SAP Integration
-  // Suite/BTP) – generischer authentifizierter Webhook, siehe README.
   sapExportWebhookUrl    String?
   sapExportWebhookSecretEnc String?
   sapExportEnabled       Boolean @default(false)
 
-  // SSO-Login über SAP Identity Authentication Service (IAS) für den
-  // personalisierten Einladungslink. Dient NUR der Teilnahme-Verifizierung
-  // (wer hat schon geantwortet), nicht der Zuordnung von Antworten.
   sapSsoEnabled     Boolean @default(false)
-  sapSsoIssuerUrl   String? // z.B. https://<tenant>.accounts.ondemand.com
+  sapSsoIssuerUrl   String?
   sapSsoClientId    String?
   sapSsoClientSecretEnc String?
 
@@ -123,75 +90,98 @@ model Company {
   invitees Invitee[]
 }
 
-// Personalisierte Einladung (aus SAP importiert, manuell angelegt, oder durch
-// Self-Service-Registrierung des Konto-Inhabers selbst erzeugt).
 model Invitee {
   id            String    @id @default(cuid())
   companyId     String
   company       Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  externalId    String? // ID im SAP-System (z.B. SuccessFactors userId)
+  externalId    String?
   name          String?
   email         String?
   department    String?
-  role          String    @default("employee") // "employee" | "customer" | "partner"
-  inviteToken   String    @unique // persönlicher Umfrage-Link (kein Passwort nötig)
-  status        String    @default("pending") // "pending" | "completed"
-  source        String    @default("manual") // "manual" | "sap_sync" | "self_service"
+  role          String    @default("employee")
+  inviteToken   String    @unique
+  status        String    @default("pending")
+  source        String    @default("manual")
   completedAt   DateTime?
   lastRemindedAt DateTime?
   createdAt     DateTime  @default(now())
 
-  // --- Optionales Login fürs persönliche Dashboard ----------------------
-  // Ergänzung zum Link: wer möchte, kann sich zusätzlich ein Passwort setzen
-  // und sich künftig geräteübergreifend per E-Mail+Passwort anmelden, statt
-  // sich nur auf den gespeicherten Link zu verlassen.
   passwordHash String?
-  // true = dieser Invitee-Datensatz gehört dem Konto-Inhaber selbst (Führungskraft/
-  // Auditor bei einer Firma, oder die Person selbst bei einem Einzelkunden-Konto).
   isOwner      Boolean  @default(false)
 
-  // Optionale 1:1-Verknüpfung zur eigenen Einreichung – ausschließlich damit
-  // die Person SELBST ihr eigenes Ergebnis im persönlichen Dashboard
-  // wiederfindet. Für alle anderen (Firmen-/Admin-Dashboard, Aggregation)
-  // bleibt es bei rein aggregierten Werten, siehe Submission.inviteeId.
-  submission Submission?
+  submissions Submission[]
+
+  strategyIntro String @default("")
+  criterionNotes CriterionNote[]
+  goals          Goal[]
 
   @@index([companyId])
   @@unique([companyId, externalId])
 }
 
-// Eine ausgefüllte Umfrage einer einzelnen Person (Mitarbeiter/Kunde/Partner).
 model Submission {
   id                 String   @id @default(cuid())
   companyId          String
   company            Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  // Optional gesetzt, wenn über einen personalisierten Link (/invite/<token>)
-  // eingereicht wurde – ausschließlich zur privaten "Mein Ergebnis"-Ansicht
-  // der einreichenden Person. Wird NIRGENDS zusammen mit Namen/Antworten
-  // Dritten angezeigt; die Firmen-Aggregation liest weiterhin nur die
-  // Summenwerte über alle Submissions, nie diese Verknüpfung.
-  inviteeId          String?  @unique
+  inviteeId          String?
   invitee            Invitee? @relation(fields: [inviteeId], references: [id], onDelete: SetNull)
-  role               String // "employee" | "customer" | "partner"
-  language           String // "de" | "en" | "tr"
-  // Testart/Fokus: "full" | "pillar:Q"|"pillar:E"|"pillar:T" | "field:<key>"
-  // (1 Gesamttest + 3 Säulen-Tests + 7 Managementfeld-Tests, siehe
-  // src/lib/content/scopes.ts). Ältere Einreichungen ohne dieses Feld sind
-  // implizit "full" (Default).
+  role               String
+  label              String?
+  language           String
   testScope          String   @default("full")
   respondentName     String?
   respondentEmail    String?
-  qualityScore       Float // nur bei testScope "full" über alle 20 Q-Kriterien; bei Teiltests ggf. 0/partiell, siehe scopeIndex
+  qualityScore       Float
   ethicsScore        Float
   transparencyScore  Float
-  qetIndex           Float // wie oben: nur bei "full" das vollständige QET-Bild
-  // Für JEDEN Scope korrekter Gesamtwert der tatsächlich beantworteten
-  // Kriterien (bei "full" identisch mit qetIndex) – das ist der Wert, der
-  // pro Einreichung angezeigt werden sollte, unabhängig von der Testart.
+  qetIndex           Float
   scopeIndex         Float    @default(0)
-  // Rohantworten je Kriterium: { "Q01": [70,80,60], "Q02": [...], ..., "T20": [...] }
   answers            String
   createdAt          DateTime @default(now())
 
   @@index([companyId])
+  @@index([inviteeId])
+}
+
+model CriterionNote {
+  id          String   @id @default(cuid())
+  inviteeId   String
+  invitee     Invitee  @relation(fields: [inviteeId], references: [id], onDelete: Cascade)
+  criterionId String
+  text        String   @default("")
+  done        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([inviteeId])
+  @@unique([inviteeId, criterionId])
+}
+
+model Goal {
+  id          String    @id @default(cuid())
+  inviteeId   String
+  invitee     Invitee   @relation(fields: [inviteeId], references: [id], onDelete: Cascade)
+  title       String
+  description String    @default("")
+  pillar      String?
+  dueDate     DateTime?
+  status      String    @default("open")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([inviteeId])
+  @@index([inviteeId, dueDate])
+}
+
+model WebhookEvent {
+  id          String   @id @default(cuid())
+  provider    String
+  eventType   String
+  externalId  String?
+  payloadJson String
+  status      String   @default("received")
+  receivedAt  DateTime @default(now())
+
+  @@index([provider, eventType])
+  @@index([externalId])
 }
