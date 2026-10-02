@@ -9,7 +9,16 @@ import { CopyField } from "./CopyField";
 import { PersonalResultCard, type PersonalSubmissionData } from "./PersonalResultCard";
 import { CompanyDashboardCharts } from "./CompanyDashboardCharts";
 import { InviteeList, type InviteeRow } from "./InviteeList";
-import { SelfLogoutButton } from "./SelfLogoutButton";
+import { SelfLogoutButton } from "./SelfLogoutButton";import type { SubmissionSummary } from "./SubmissionHistory";
+
+export type { SubmissionSummary };
+
+export interface GoalsSummary {
+  openCount: number;
+  overdueCount: number;
+  nextDueTitle: string | null;
+  nextDueDate: string | null; // ISO-Datum, oder null
+}
 
 export interface BillingSummary {
   billingProvider: string; // "free" | "stripe" | "manual"
@@ -25,13 +34,17 @@ export interface MeinDashboardData {
   name: string;
   companyName: string;
   accountType: string;
-  ownSubmission: PersonalSubmissionData | null;
+    ownSubmission: PersonalSubmissionData | null;
+  ownSubmissionCount?: number;
+  ownSubmissions?: SubmissionSummary[];
   ownInviteToken: string;
   aggregate: AggregateResult | null;
   responseCount: number;
   minResponses: number;
   origin: string;
   companyId: string;
+  participantLimit?: number;
+  goalsSummary?: GoalsSummary;
   dashboardShareUrl?: string;
   surveyShareUrl?: string;
   invitees?: InviteeRow[];
