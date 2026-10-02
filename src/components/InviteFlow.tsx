@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useLocaleState } from "@/lib/useLocaleState";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CRITERIA, PILLARS } from "@/lib/content/criteria";
 import { LOCALES, ROLE_LABELS, t } from "@/lib/content/i18n";
@@ -49,7 +50,7 @@ export function InviteFlow({ token }: { token: string }) {
   const searchParams = useSearchParams();
   const [stage, setStage] = useState<Stage>("loading");
   const [info, setInfo] = useState<InviteInfo | null>(null);
-  const [locale, setLocale] = useState<Locale>("de");
+  const [locale, setLocale] = useLocaleState();
   const [answers, setAnswers] = useState<Answers>(defaultAnswers);
   const [scope, setScope] = useState<TestScope>({ kind: "full" });
   const [stepIndex, setStepIndex] = useState(0);

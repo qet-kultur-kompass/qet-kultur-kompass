@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLocaleState } from "@/lib/useLocaleState";
 import { LOCALES, t } from "@/lib/content/i18n";
 import type { Locale } from "@/lib/content/types";
 import { QetSymbol } from "./QetSymbol";
@@ -12,7 +13,7 @@ import { FREE_PARTICIPANT_LIMIT, ENTERPRISE_THRESHOLD } from "@/lib/billing";
 // den "Plan erweitern"-Button im Dashboard (ruft dieselbe /api/checkout-Route
 // auf, aber mit bestehender Session statt companyName/ownerName/ownerEmail).
 export function CheckoutForm() {
-  const [locale, setLocale] = useState<Locale>("de");
+  const [locale, setLocale] = useLocaleState();
   const [participants, setParticipants] = useState(FREE_PARTICIPANT_LIMIT + 1);
   const [interval, setIntervalValue] = useState<"monthly" | "yearly">("monthly");
   const [priceMonthly, setPriceMonthly] = useState<number | null>(null);

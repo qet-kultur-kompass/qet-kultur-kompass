@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useLocaleState } from "@/lib/useLocaleState";
 import { PILLARS } from "@/lib/content/criteria";
 import { LOCALES, t } from "@/lib/content/i18n";
 import { resolveText } from "@/lib/content/types";
@@ -92,7 +93,7 @@ const EMPTY_FORM: GoalFormValues = { title: "", description: "", pillar: "", due
  * wie CriterionNote/Goal serverseitig nie Teil der Firmen-Aggregation.
  */
 export function StrategyView({ intro: initialIntro, goals: initialGoals }: { intro: string; goals: GoalItem[] }) {
-  const [locale, setLocale] = useState<Locale>("de");
+  const [locale, setLocale] = useLocaleState();
 
   const [intro, setIntro] = useState(initialIntro);
   const [introDraft, setIntroDraft] = useState(initialIntro);

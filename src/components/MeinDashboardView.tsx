@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLocaleState } from "@/lib/useLocaleState";
 import { LOCALES, t } from "@/lib/content/i18n";
 import type { Locale } from "@/lib/content/types";
 import type { AggregateResult } from "@/lib/scoring";
@@ -219,7 +220,7 @@ function BillingSection({ billing, locale }: { billing: BillingSummary; locale: 
   );
 }
 export function MeinDashboardView({ data }: { data: MeinDashboardData }) {
-  const [locale, setLocale] = useState<Locale>("de");
+  const [locale, setLocale] = useLocaleState();
 
   return (
     <main className="mx-auto min-h-screen max-w-4xl px-6 py-12">

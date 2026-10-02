@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useLocaleState } from "@/lib/useLocaleState";
 import { CRITERIA, PILLARS } from "@/lib/content/criteria";
 import { LOCALES, t } from "@/lib/content/i18n";
 import { resolveText } from "@/lib/content/types";
@@ -57,7 +58,7 @@ interface CriterionRow {
  * ersatzweise das persönliche Ergebnis der eingeloggten Person.
  */
 export function BusinessReportView({ data }: { data: MeinDashboardData }) {
-  const [locale, setLocale] = useState<Locale>("de");
+  const [locale, setLocale] = useLocaleState();
 
   const basis: ReportBasis | null = useMemo(() => {
     if (data.aggregate) {

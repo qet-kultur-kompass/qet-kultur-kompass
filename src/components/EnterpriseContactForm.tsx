@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useLocaleState } from "@/lib/useLocaleState";
 import { LOCALES, t } from "@/lib/content/i18n";
 import type { Locale } from "@/lib/content/types";
 import { QetSymbol } from "./QetSymbol";
@@ -10,7 +11,7 @@ import { ENTERPRISE_THRESHOLD } from "@/lib/billing";
 // der Marketing-Landingpage (qet-compass.com). Ersetzt den bisherigen
 // "mailto"-Link – siehe /api/enterprise-contact.
 export function EnterpriseContactForm() {
-  const [locale, setLocale] = useState<Locale>("de");
+  const [locale, setLocale] = useLocaleState();
   const [companyName, setCompanyName] = useState("");
   const [contactName, setContactName] = useState("");
   const [contactEmail, setContactEmail] = useState("");

@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useLocaleState } from "@/lib/useLocaleState";
 import Link from "next/link";
 import { LOCALES, t } from "@/lib/content/i18n";
 import type { Locale } from "@/lib/content/types";
 import { BrandHeaderLink } from "./BrandHeaderLink";
 
 export function LoginForm() {
-  const [locale, setLocale] = useState<Locale>("de");
+  const [locale, setLocale] = useLocaleState();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);

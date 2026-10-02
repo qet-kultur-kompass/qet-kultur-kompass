@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useLocaleState } from "@/lib/useLocaleState";
 import { PILLARS } from "@/lib/content/criteria";
 import { LOCALES, t } from "@/lib/content/i18n";
 import { resolveText } from "@/lib/content/types";
@@ -40,7 +40,7 @@ export function StrategyHandoutView({
   intro: string;
   goals: GoalItem[];
 }) {
-  const [locale, setLocale] = useState<Locale>("de");
+  const [locale, setLocale] = useLocaleState();
 
   const localeTag = localeTagFor(locale);
   const generatedOn = new Date().toLocaleDateString(localeTag, { year: "numeric", month: "long", day: "numeric" });

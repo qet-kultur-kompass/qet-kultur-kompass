@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLocaleState } from "@/lib/useLocaleState";
 import { LOCALES, t } from "@/lib/content/i18n";
 import type { Locale } from "@/lib/content/types";
 import { QetSymbol } from "./QetSymbol";
 
 export function AccountSetupForm({ token }: { token: string }) {
-  const [locale, setLocale] = useState<Locale>("de");
+  const [locale, setLocale] = useLocaleState();
   const [checking, setChecking] = useState(true);
   const [valid, setValid] = useState(false);
   const [companyName, setCompanyName] = useState("");

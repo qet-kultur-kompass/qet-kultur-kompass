@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useLocaleState } from "@/lib/useLocaleState";
 import { CRITERIA, PILLARS } from "@/lib/content/criteria";
 import { LOCALES, ROLE_LABELS, t } from "@/lib/content/i18n";
 import { allSelectableScopes, criteriaForScope, labelForScope, stepsForScope } from "@/lib/content/scopes";
@@ -31,7 +32,7 @@ function defaultAnswers(): Answers {
 export function SurveyFlow({ token }: { token: string }) {
   const [stage, setStage] = useState<Stage>("loading");
   const [companyName, setCompanyName] = useState("");
-  const [locale, setLocale] = useState<Locale>("de");
+  const [locale, setLocale] = useLocaleState();
   const [role, setRole] = useState<Role>("employee");
   const [respondentName, setRespondentName] = useState("");
   const [respondentEmail, setRespondentEmail] = useState("");

@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useLocaleState } from "@/lib/useLocaleState";
 import Link from "next/link";
 import { LOCALES, t } from "@/lib/content/i18n";
 import type { Locale } from "@/lib/content/types";
 import { BrandHeaderLink } from "./BrandHeaderLink";
 
 export function SignupForm() {
-  const [locale, setLocale] = useState<Locale>("de");
+  const [locale, setLocale] = useLocaleState();
   const [accountType, setAccountType] = useState<"individual" | "company">("individual");
   const [ownerName, setOwnerName] = useState("");
   const [companyName, setCompanyName] = useState("");
