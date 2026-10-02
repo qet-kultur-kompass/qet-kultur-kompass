@@ -5,7 +5,7 @@
   "description": "QET Unternehmenskultur-Dashboard – Begleit-App zur QET-Masterclass. Erfasst den Status quo der Unternehmenskultur in 60 Kriterien (Qualität/Ethik/Transparenz) über Mitarbeiter-, Kunden- und Partner-Befragungen und wertet sie zentral in einem Dashboard mit QET-Index aus.",
   "scripts": {
     "dev": "next dev",
-   (prisma migrate resolve --applied 20260916120000_init || true) && (prisma migrate resolve --applied 20260916190000_multi_submissions || true) && (prisma migrate resolve --applied 20260917180000_criterion_notes || true) && (prisma migrate resolve --applied 20260923120000_goals || true) && (prisma migrate resolve --applied 20260925103000_digistore24_billing || true) && prisma migrate deploy && next build
+       "build": "(prisma migrate resolve --applied 20260916120000_init || true) && (prisma migrate resolve --applied 20260916190000_multi_submissions || true) && (prisma migrate resolve --applied 20260917180000_criterion_notes || true) && (prisma migrate resolve --applied 20260923120000_goals || true) && (prisma migrate resolve --applied 20260925103000_digistore24_billing || true) && prisma migrate deploy && next build",
     "start": "next start",
     "lint": "next lint",
     "prisma:generate": "prisma generate",
