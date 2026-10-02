@@ -6,7 +6,7 @@ import {
     resolveDigistore24Plan,
     DIGISTORE24_DEACTIVATION_EVENTS,
   } from "@/lib/digistore24";
-import { sendPurchaseWelcomeEmail } from "@/lib/mail";
+import { sendWelcomeEmail } from "@/lib/mail";
 
 // Digistore24 schickt die IPN als application/x-www-form-urlencoded POST.
 // Siehe src/lib/digistore24.ts für Signaturprüfung + Preisstufen-Zuordnung,
@@ -145,11 +145,12 @@ export async function POST(req: Request) {
           const baseUrl = process.env.NEXT_PUBLIC_APP_URL || new URL(req.url).origin;
           const activateUrl = `${baseUrl}/invite/${ownerInvite.inviteToken}`;
 
-          await sendPurchaseWelcomeEmail({
+                    await sendWelcomeEmail({
                   to: email,
                   companyName: company.name,
-                  activateUrl,
-                  planLabel: plan.label,
+                  tier: plan.label,
+                  participants: plan.participantLimit,
+                  setupUrl: activateUrl,
                 });
 
           return NextResponse.json({ ok: true });
